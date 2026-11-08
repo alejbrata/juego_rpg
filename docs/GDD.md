@@ -1,5 +1,7 @@
 # Eclipse JRPG
 
+Estudio posterior a la investigación 1.0: por petición del diseñador se probó una remodelación local de las proporciones del Kael existente, conservada por separado. [Resultado y capturas](KAEL_PROPORTION_STUDY.md). No alcanza la referencia de Final Fantasy VIII y no se adopta como modelo del juego. No revoca la decisión de abandonar la construcción de protagonistas finales desde primitivas ni autoriza servicios externos.
+
 ## Estado actual: cambio de estrategia artística e investigación (1.0)
 
 Decisión confirmada: **dejar de generar los protagonistas desde cero mediante geometría procedural**. Se buscarán recursos con calidad artística y licencias verificables, adaptados en Blender/Godot. Se conservan versiones/fallback existentes; la funcionalidad no acredita calidad artística. La revisión 0.9 no alcanzó el acabado solicitado y sus valoraciones anteriores no constituyen aprobación del diseñador.

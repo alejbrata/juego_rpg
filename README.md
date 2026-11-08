@@ -1,5 +1,7 @@
 # Eclipse JRPG
 
+**Estudio local posterior:** [comparación de proporciones de Kael](docs/KAEL_PROPORTION_STUDY.md). Se remodeló una copia de la malla 0.9 y se capturó en Godot. No alcanzó la referencia artística solicitada y **no está activada en el juego**; no se ha adquirido ni generado un modelo mediante servicios externos.
+
 **Iteración 1.0 — investigación de assets:** [dirección artística y comparación](docs/ART_DIRECTION.md), [licencias y procedencia](docs/ASSET_LICENSES.md). Se deja de generar protagonistas desde cero mediante geometría procedural. No se ha incorporado ningún modelo externo: los candidatos más próximos requieren compra o aclaraciones de licencia. El juego sigue utilizando Kael 0.9 y los modelos provisionales; las capturas antiguas no representan una renovación 1.0.
 
 Se corrigió la importación de su atlas: `assets/characters/kael/kael.glb.import` usa `gltf/embedded_image_handling=3` (Embed as Uncompressed). El valor anterior 1 extraía una textura auxiliar; si faltaba, Kael podía caer al procedural. Reimportar con `godot --headless --path . --editor --import` para regenerar la caché. Mallas/GLB, combate, exploración y narrativa se conservan. Validación: 576 comprobaciones, cero fallos; detalle del fallo inicial y recuperación en el informe.

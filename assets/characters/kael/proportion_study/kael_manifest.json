@@ -1,0 +1,17 @@
+{
+  "blender": "5.2.1 LTS",
+  "triangles": 6618,
+  "source_sha256": "114e07c21a797cd92def8c6af65fbefebff6c8020492a50b812a993521afd1db",
+  "glb_sha256": "fb067f2648bb75be5f1e17512d28aec9cbad2d45b824968bd22e616a0d772ce5",
+  "bones": 17,
+  "animations": [
+    "Attack",
+    "Defend",
+    "Hurt",
+    "Idle",
+    "KO",
+    "Walk"
+  ],
+  "status": "proportion study; original texture and provisional animation keys",
+  "enabled_in_game": false
+}
