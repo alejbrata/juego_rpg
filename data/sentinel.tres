@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CombatantData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://combat/combatant_data.gd" id="1"]
+[ext_resource type="Script" path="res://combat/ability.gd" id="2"]
+[resource]
+script = ExtResource("1")
+label = "Centinela de piedra"
+max_hp = 280
+max_mp = 0
+strength = 30
+magic = 0
+defense = 12
+resistance = 10
+speed = 11
+abilities = Array[ExtResource("2")]([])

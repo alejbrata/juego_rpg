@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatantData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://combat/combatant_data.gd" id="1"]
+[ext_resource type="Script" path="res://combat/ability.gd" id="2"]
+[ext_resource type="Resource" path="res://data/flame.tres" id="3"]
+[ext_resource type="Resource" path="res://data/frost.tres" id="4"]
+[resource]
+script = ExtResource("1")
+label = "Lyra"
+max_hp = 75
+max_mp = 35
+strength = 8
+magic = 28
+defense = 7
+resistance = 15
+speed = 18
+abilities = Array[ExtResource("2")]([ExtResource("3"), ExtResource("4")])

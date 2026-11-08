@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CombatantData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://combat/combatant_data.gd" id="1"]
+[ext_resource type="Script" path="res://combat/ability.gd" id="2"]
+[ext_resource type="Resource" path="res://data/power_strike.tres" id="3"]
+[ext_resource type="Resource" path="res://data/protection.tres" id="4"]
+[resource]
+script = ExtResource("1")
+label = "Kael"
+max_hp = 120
+max_mp = 12
+strength = 24
+magic = 5
+defense = 16
+resistance = 8
+speed = 12
+abilities = Array[ExtResource("2")]([ExtResource("3"), ExtResource("4")])
