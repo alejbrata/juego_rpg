@@ -355,5 +355,6 @@ func _initialize() -> void:
 	ui.free()
 	await preload("res://tests/presentation_checks.gd").new().run(self, check)
 	await preload("res://tests/exploration_checks.gd").new().run(self, check)
+	await preload("res://tests/visual_refresh_checks.gd").new().run(self, check)
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)

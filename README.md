@@ -1,6 +1,20 @@
 # Eclipse JRPG
 
-Prototipo 0.5 para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para el Bosque del Eclipse, o F6 con `scenes/forest_exploration.tscn` abierta. Para probar solo el combate, abrir `scenes/battle_3d.tscn` y pulsar F6. La escena original `scenes/battle.tscn` se conserva como respaldo 2D y también puede ejecutarse con F6.
+Prototipo 0.5 con renovación visual del combate para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para el Bosque del Eclipse, o F6 con `scenes/forest_exploration.tscn` abierta. Para ver directamente la batalla renovada, abrir **`scenes/battle_3d.tscn` y pulsar F6**. La escena original `scenes/battle.tscn` se conserva como respaldo 2D y también puede ejecutarse con F6.
+
+## Renovación visual de la batalla
+
+- Héroes originales completos con rostros, cabello, extremidades, vestuario y armas: Kael con armadura/espada, Lyra con capa violeta/bastón y Nira con atuendo crema/verde y vara natural. El Centinela es un gólem facetado con piernas, grandes brazos, musgo, ojos y grietas luminosas.
+- Arena de ruinas en el bosque: pavimento irregular, musgo, hierba, rocas, árboles y columnas. Cámara diagonal en perspectiva, luz cálida, ambiente suave y una sombra direccional acotada.
+- PV/PM en tres tarjetas inferiores, nombres mínimos en 3D y comandos de 48 unidades lógicas de altura. Elegir una habilidad sustituye el panel de comandos por los objetivos; el aro azul indica el objetivo y «Atrás» cancela sin gastar recursos.
+- **Registro** abre todo el historial del motor en un panel con desplazamiento; **Cerrar registro** recupera la arena.
+- **Cámara suave** activa/desactiva acercamientos e impactos. **Omitir animación** presenta inmediatamente el resultado ya resuelto por el motor, incluso durante una invocación. La velocidad también se configura con `animation_time_scale` en el nodo de la batalla.
+- Fuego: proyectil cálido; hielo: cristal y fragmentos; curación: luz y motas ascendentes; físicos: avance y gesto de arma. Reposo con respiración/capas, defensa persistente, interceptación y caída simple siguen conectados a eventos.
+- Ignar es un titán de roca volcánica con grietas de lava, gran tamaño, círculo de aparición y Juicio de Ceniza sobre todos los enemigos. No cambian su coste ni los efectos de gameplay.
+
+Para invocarlo sin trucos: usar Defender con los tres héroes durante dos rondas, resolver al enemigo y pulsar **Invocar** con Lyra al alcanzar 100 RE. Véanse también las instrucciones de curación y Protección más abajo.
+
+Capturas reales del prototipo: [batalla](docs/previews/battle.png), [Ignar](docs/previews/ignar.png). El arte, poses y efectos siguen siendo provisionales; faltan modelos y animaciones definitivos, rigging, audio y pruebas móviles reales. No se han añadido mecánicas, assets externos ni servicios de generación.
 
 ## Primera zona explorable (0.5)
 
@@ -23,7 +37,7 @@ Seleccionar una acción y un objetivo. Los botones de habilidades sin PM se desa
 
 ## Comprobar la batalla 3D (0.4)
 
-- La arena de ruinas usa primitivas y cámara ortográfica fija. Kael (azul, espada), Lyra (violeta, bastón) y Nira (verde) están a la izquierda; el Centinela de piedra está a la derecha. Las etiquetas muestran nombres, PV/PM y estados. El disco dorado identifica al actor activo.
+- La arena usa geometría low-poly nativa y cámara diagonal en perspectiva. Kael (azul, espada), Lyra (violeta, bastón) y Nira (verde/crema) están a la izquierda; el Centinela está a la derecha. Tarjetas muestran PV/PM; nombres e indicadores mínimos quedan en 3D. El aro dorado identifica al actor activo.
 - **Ataque:** seleccionar Ataque y Centinela. El actor avanza brevemente, aparece un impacto y se muestra la pérdida real de PV enviada por el motor.
 - **Magia y debilidades:** Llama produce destellos naranjas y causa 14 contra el Centinela resistente; Escarcha produce destellos azules y causa 36 contra su debilidad. Comparar tras «Nueva partida» para mantener nivel 1 y los mismos datos.
 - **Curación:** después del ataque enemigo, usar Cura de Nira sobre Kael. Ver reacción verde, texto de PV recuperados y actualización de la etiqueta.
@@ -34,7 +48,7 @@ Seleccionar una acción y un objetivo. Los botones de habilidades sin PM se desa
 
 La cabecera indica la acción que se está presentando y después el turno siguiente. Los botones de acción/objetivo se bloquean durante la secuencia breve; reiniciar y crear partida siguen disponibles. Reiniciar cancela cualquier secuencia pendiente. No hay decisiones lógicas en las animaciones.
 
-La UI conserva controles de al menos 48 unidades de altura, registro con desplazamiento y paneles sobre el 3D. Se ha revisado el render en ventanas de 960×640 y 800×600. Orientación, controles y rendimiento en dispositivos Android/iOS reales quedan pendientes; no se ha exportado a móvil.
+La UI conserva controles de al menos 48 unidades lógicas de altura y registro completo opcional. La renovación se revisa con render real en 960×640, 1280×720 y 800×450, además de comprobar los límites de botones automáticamente. Orientación, controles y rendimiento en dispositivos Android/iOS reales quedan pendientes; no se ha exportado a móvil.
 
 ## Comprobar Resonancia e Ignar (0.3)
 
@@ -79,10 +93,12 @@ godot --headless --path . --quit-after 5
 godot --path . --quit-after 60
 ```
 
-El punto de entrada conserva las 306 comprobaciones de 0.4 y añade `tests/exploration_checks.gd`: carga, teclado, colisiones, contacto real de `Area3D`, dos combates completos ganados mediante los controles, retorno, eliminación de enemigos, RE/PA, nivel 2, derrota/reintento/regreso y nueva partida. También siguen ejecutándose las comprobaciones de Guardianes, presentación 3D y respaldo 2D. No necesita un framework externo. Los datos que las pruebas modifican se copian con `duplicate_deep(Resource.DEEP_DUPLICATE_ALL)` para aislar también las habilidades externas precargadas.
+El punto de entrada conserva las 348 comprobaciones anteriores y añade `tests/visual_refresh_checks.gd`: asociación de modelos, agrupación geométrica, orientación, UI en tres resoluciones, objetivo/cancelación, registro completo, cámara y omisión/reinicio durante Ignar sin modificar resultados. También siguen ejecutándose los casos de motor, Guardianes, presentación, respaldo 2D y exploración (dos combates completos, RE/PA, victorias y derrota). No necesita un framework externo. Los datos que las pruebas modifican se copian con `duplicate_deep(Resource.DEEP_DUPLICATE_ALL)` para aislar también las habilidades externas precargadas.
+
+Resultado local de esta renovación: **348 comprobaciones antes; 385 después, 0 fallos**, tanto headless como con OpenGL. Importación sin errores y revisión de capturas reales en las tres resoluciones indicadas.
 
 El motor se puede instanciar con `BattleEngine.new()` sin SceneTree ni escenas; `start()` recibe arrays de CombatantData y devuelve error o cadena vacía. `act()` valida y devuelve un mensaje de error o cadena vacía; `step_enemy()` resuelve la IA mínima. La escena solo consulta estado y envía acciones. Los Resources originales no se modifican durante el combate. Las afinidades contradictorias se rechazan sin consumir recursos. Ignar usa la ruta de daño de área y publica eventos para futuras animaciones.
 
-Presentación: `battle_stage.gd` consume eventos y administra la arena/cola; `battle_actor_visual.gd` representa combatientes; `battle_hud_3d.gd` reutiliza el controlador 2D con una distribución superpuesta. El motor no conoce nodos, materiales, cámara, tweens ni duración de animaciones. Se mantiene el renderizador Compatibility, sin sombras ni postprocesado pesado; todos los modelos son provisionales y procedurales, sin assets externos.
+Presentación: `battle_stage.gd` consume eventos y administra cámara/cola/VFX; `battle_actor_visual.gd` representa combatientes; `battle_hud_3d.gd` reutiliza el controlador 2D. `stylized_models.gd` construye modelos y agrupa geometría estática por material; `battle_environment.gd` compone la arena. El motor no conoce nodos, materiales, cámara, tweens ni duración de animaciones. Se mantiene Compatibility, una sola sombra direccional y luces de acento sin sombras; no hay postprocesado pesado. Una lectura puntual en este escritorio Intel Arc a 960×640 dio 60 FPS, 176 llamadas de dibujo y 46.592 primitivas (incluidas pasadas de render); no constituye una medición móvil ni una garantía de rendimiento.
 
 Reglas y decisiones: [docs/GDD.md](docs/GDD.md). Cambiar estadísticas y habilidades en los Resources de `data/` desde el inspector. El claro es una zona de prueba autocontenida; no incluye una aventura completa, modelos definitivos, audio ni exportación móvil.

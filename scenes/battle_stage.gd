@@ -3,6 +3,8 @@ extends Node3D
 signal battle_finished(result: int)
 
 @export_range(0.01, 2.0) var animation_time_scale: float = 1.0
+@export var camera_motion_enabled: bool = true
+@export var skip_animations: bool = false
 
 @onready var hud = $Overlay/HUD
 var visuals: Array[BattleActorVisual] = []
@@ -15,6 +17,11 @@ var _effects: Node3D
 var _links: Node3D
 var _ignar: Node3D
 var _announced_result: bool = false
+var camera: Camera3D
+var _camera_home: Transform3D
+var _camera_tween: Tween
+var _impact_tween: Tween
+var _target_marker: MeshInstance3D
 
 func configure_encounter(heroes: Array[CombatantData], enemies: Array[CombatantData], run: PartyState) -> void:
 	# Configure the existing controller before entering the tree. Standalone scenes
@@ -30,52 +37,29 @@ func _ready() -> void:
 	hud.engine.battle_event.connect(_on_event)
 	hud.updated.connect(_on_updated)
 	hud.battle_reset.connect(_reset_visuals)
+	hud.target_preview.connect(_preview_target)
+	hud.camera_toggled.connect(set_camera_motion_enabled)
+	hud.skip_toggled.connect(set_skip_animations)
+	hud.camera_option.set_pressed_no_signal(camera_motion_enabled)
+	hud.skip_option.set_pressed_no_signal(skip_animations)
 	_reset_visuals()
 
 func _build_arena() -> void:
-	var environment := WorldEnvironment.new()
-	var settings := Environment.new()
-	settings.background_mode = Environment.BG_COLOR
-	settings.background_color = Color("202e40")
-	settings.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	settings.ambient_light_color = Color("b4c9df")
-	settings.ambient_light_energy = 0.65
-	settings.tonemap_mode = Environment.TONE_MAPPER_LINEAR
-	environment.environment = settings
-	add_child(environment)
-	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(-55, -28, 0)
-	light.light_color = Color("ffdfad")
-	light.light_energy = 1.1
-	light.shadow_enabled = false
-	add_child(light)
-	var camera := Camera3D.new()
-	camera.name = "BattleCamera"
-	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-	camera.size = 10.5
-	camera.position = Vector3(0, 10, 16)
-	add_child(camera)
-	camera.look_at(Vector3.ZERO)
-	camera.current = true
-	var stone := BattleActorVisual._material(Color("697a76"))
-	BattleActorVisual._box(self, Vector3(12.8, 0.3, 8.5), Vector3(0, -0.2, 0), stone)
-	var tile := BattleActorVisual._material(Color("82908a"))
-	for x in range(-5, 6, 2):
-		for z in range(-3, 4, 2):
-			BattleActorVisual._box(self, Vector3(1.8, 0.04, 1.8), Vector3(x, -0.025, z), tile)
-	for x in [-5.6, 5.6]:
-		for z in [-3.5, 3.5]:
-			BattleActorVisual._box(self, Vector3(0.8, 0.3, 0.8), Vector3(x, 0.15, z), stone)
-			BattleActorVisual._box(self, Vector3(0.5, 1.4 if z < 0 else 0.7, 0.5), Vector3(x, 0.7 if z < 0 else 0.35, z), stone)
+	camera = BattleEnvironment.build(self)
+	_camera_home = camera.transform
 	_actors = Node3D.new()
 	add_child(_actors)
 	_effects = Node3D.new()
 	add_child(_effects)
 	_links = Node3D.new()
 	add_child(_links)
+	_target_marker = StylizedModels.ring(self, Vector3.ZERO, 0.95, StylizedModels.mat("90c5c1", true))
+	_target_marker.visible = false
 
 func _reset_visuals() -> void:
 	_generation += 1
+	_restore_camera()
+	_target_marker.visible = false
 	_announced_result = false
 	playing = false
 	event_queue.clear()
@@ -100,8 +84,9 @@ func _reset_visuals() -> void:
 		visual.build(fighter)
 		var slot := enemy_slot if fighter.enemy else hero_slot
 		var count := enemy_count if fighter.enemy else hero_count
-		var x := 3.1 if fighter.enemy else (-2.6 if slot % 2 == 1 else -3.9)
-		visual.home = Vector3(x, 0, (slot - (count - 1) * 0.5) * 1.6)
+		var positions: Array[Vector3] = [Vector3(-1.8, 0, 1.0), Vector3(-5.6, 0, -2.3), Vector3(-5.2, 0, 2.4)]
+		visual.home = Vector3(2.5, 0, (slot - (count - 1) * 0.5) * 2.6 - 0.4) if fighter.enemy else positions[slot % positions.size()]
+		visual.facing_yaw = -0.8 if fighter.enemy else 0.9
 		visual.position = visual.home
 		visuals.append(visual)
 		if fighter.enemy:
@@ -120,11 +105,14 @@ func _clear(parent: Node3D) -> void:
 func _on_event(event: Dictionary) -> void:
 	if not playing and event_queue.is_empty():
 		var actor_id: int = event.get("actor_id", -1)
+		hud.presentation_actor_id = actor_id
 		hud.presentation_actor = hud.engine.fighters[actor_id].data.label if actor_id >= 0 else "Ignar"
 	event_queue.append(event.duplicate(true))
 	hud.set_presentation_busy(true)
 
 func _on_updated() -> void:
+	if hud.selected == null:
+		_target_marker.visible = false
 	if playing or not event_queue.is_empty():
 		hud.set_presentation_busy(true)
 	else:
@@ -170,6 +158,9 @@ func _process(_delta: float) -> void:
 		_drain_events()
 
 func _drain_events() -> void:
+	if skip_animations:
+		skip_presentation()
+		return
 	playing = true
 	var generation := _generation
 	while not event_queue.is_empty():
@@ -191,22 +182,32 @@ func _play_event(event: Dictionary) -> float:
 		visual.time_scale = animation_time_scale
 	match kind:
 		"action":
+			if event.effect == "physical" and event.label != "Ataque":
+				_camera_pulse(39.5)
 			var visual := visuals[actor_id]
 			var direction := (visuals[target_id].home - visual.home).normalized()
 			visual.animate(event.effect, direction)
 			if event.effect != "physical":
 				_burst(visual.home + Vector3.UP, _effect_color(event.effect, event.element), 0.6)
+			if event.effect == "magic":
+				_projectile(visual.home + Vector3.UP * 1.4, visuals[target_id].home + Vector3.UP * 1.3, event.element)
 			return 0.38
 		"damage", "summon_effect":
+			_camera_impact()
 			var color := _effect_color("magic", event.element) if event.element != "physical" else Color("fff2b0")
 			visuals[target_id].flash(color)
 			visuals[target_id].animate("knockout" if event.hp_after == 0 else "hit")
 			_burst(visuals[target_id].home + Vector3.UP, color, 0.75 if kind == "summon_effect" else 0.4)
+			if event.element == "ice":
+				_ice_shards(visuals[target_id].home)
+			elif kind == "summon_effect":
+				_ember_pillars(visuals[target_id].home)
 			_floating(visuals[target_id].home, "-%d%s" % [event.hp_lost if kind == "summon_effect" else event.amount, "  DEF ↓" if kind == "summon_effect" else ""], color)
 			return 0.38
 		"heal":
 			visuals[target_id].flash(Color("70ffac"))
 			_burst(visuals[target_id].home + Vector3.UP, Color("70ffac"), 0.7)
+			_heal_motes(visuals[target_id].home)
 			_floating(visuals[target_id].home, "+%d PV" % event.amount, Color("70ffac"))
 			return 0.38
 		"intercept":
@@ -217,10 +218,12 @@ func _play_event(event: Dictionary) -> float:
 			_floating(destination, "¡Protección!", Color("84d5ff"))
 			return 0.24
 		"summon_appear":
+			_camera_pulse(38, false)
 			_show_ignar()
-			_floating(Vector3(0, 0, 0), "IGNAR · Juicio de Ceniza", Color("ffbf68"))
+			_floating(Vector3(0, 1.8, -0.8), "IGNAR · Juicio de Ceniza", Color("ffbf68"), 0.9)
 			return 0.65
 		"summon_disappear":
+			_restore_camera(false)
 			if is_instance_valid(_ignar):
 				var tween := _ignar.create_tween()
 				tween.tween_property(_ignar, "scale", Vector3.ONE * 0.01, 0.25 * animation_time_scale)
@@ -228,6 +231,106 @@ func _play_event(event: Dictionary) -> float:
 			_ignar = null
 			return 0.28
 	return 0.08
+
+func _preview_target(target_id: int) -> void:
+	if target_id >= 0 and target_id < visuals.size():
+		_target_marker.position = visuals[target_id].home + Vector3.UP * 0.07
+		_target_marker.visible = true
+
+func set_camera_motion_enabled(value: bool) -> void:
+	camera_motion_enabled = value
+	hud.camera_option.set_pressed_no_signal(value)
+	if not value:
+		_restore_camera()
+
+func set_skip_animations(value: bool) -> void:
+	skip_animations = value
+	hud.skip_option.set_pressed_no_signal(value)
+	if value:
+		skip_presentation()
+
+func skip_presentation() -> void:
+	_generation += 1
+	while not event_queue.is_empty():
+		played_events.append(event_queue.pop_front())
+	playing = false
+	_clear(_effects)
+	_ignar = null
+	_restore_camera()
+	_sync_state()
+	hud.unlock_actions()
+
+func _restore_camera(immediate: bool = true) -> void:
+	if _camera_tween != null:
+		_camera_tween.kill()
+	if _impact_tween != null:
+		_impact_tween.kill()
+	if camera == null:
+		return
+	camera.transform = _camera_home
+	camera.h_offset = 0
+	camera.v_offset = 0
+	if immediate:
+		camera.fov = 42
+	else:
+		_camera_tween = create_tween()
+		_camera_tween.tween_property(camera, "fov", 42.0, 0.25 * animation_time_scale)
+
+func _camera_pulse(fov: float, return_home: bool = true) -> void:
+	if not camera_motion_enabled:
+		return
+	if _camera_tween != null:
+		_camera_tween.kill()
+	_camera_tween = create_tween()
+	_camera_tween.tween_property(camera, "fov", fov, 0.15 * animation_time_scale)
+	if return_home:
+		_camera_tween.tween_property(camera, "fov", 42.0, 0.2 * animation_time_scale)
+
+func _camera_impact() -> void:
+	if camera_motion_enabled:
+		if _impact_tween != null:
+			_impact_tween.kill()
+		camera.h_offset = 0.035
+		_impact_tween = camera.create_tween()
+		_impact_tween.tween_property(camera, "h_offset", 0.0, 0.12 * animation_time_scale)
+
+func _projectile(from: Vector3, to: Vector3, element: String) -> void:
+	var root := Node3D.new()
+	root.position = from
+	_effects.add_child(root)
+	if element == "ice":
+		StylizedModels.gem(root, Vector3.ZERO, Vector3(0.25, 0.7, 0.25), StylizedModels.mat("b4e3e8", true)).rotation.z = PI * 0.5
+	else:
+		StylizedModels.rock(root, Vector3.ZERO, Vector3(0.5, 0.5, 0.5), StylizedModels.mat("ef9a50", true))
+		StylizedModels.rock(root, Vector3(-0.25, 0, 0), Vector3(0.35, 0.3, 0.3), StylizedModels.mat("cc623d", true))
+	var tween := root.create_tween()
+	tween.tween_property(root, "position", to, 0.34 * animation_time_scale)
+	tween.tween_callback(root.queue_free)
+
+func _ice_shards(at: Vector3) -> void:
+	for i in range(5):
+		var angle := i * TAU / 5
+		var shard := StylizedModels.gem(_effects, at + Vector3(cos(angle) * 0.6, 0.3, sin(angle) * 0.6), Vector3(0.22, 0.9, 0.25), StylizedModels.mat("b5dde0", true))
+		shard.rotation.z = 0.3 * cos(angle)
+		var tween := shard.create_tween()
+		tween.tween_property(shard, "position:y", 0.8, 0.18 * animation_time_scale)
+		tween.tween_property(shard, "scale", Vector3.ONE * 0.01, 0.22 * animation_time_scale)
+		tween.tween_callback(shard.queue_free)
+
+func _heal_motes(at: Vector3) -> void:
+	for i in range(6):
+		var angle := i * TAU / 6
+		var mote := StylizedModels.rock(_effects, at + Vector3(cos(angle) * 0.6, 0.2, sin(angle) * 0.6), Vector3.ONE * 0.12, StylizedModels.mat("c8dc9a", true))
+		var tween := mote.create_tween()
+		tween.tween_property(mote, "position:y", 2.0, 0.36 * animation_time_scale)
+		tween.tween_callback(mote.queue_free)
+
+func _ember_pillars(at: Vector3) -> void:
+	for i in range(3):
+		var rock := StylizedModels.gem(_effects, at + Vector3((i - 1) * 0.45, 0.2, 0.2), Vector3(0.35, 1.5, 0.35), StylizedModels.mat("ed9b49", true))
+		var tween := rock.create_tween()
+		tween.tween_property(rock, "scale", Vector3(0.1, 0.05, 0.1), 0.35 * animation_time_scale)
+		tween.tween_callback(rock.queue_free)
 
 func _effect_color(effect: String, element: String) -> Color:
 	if effect == "heal":
@@ -251,7 +354,7 @@ func _burst(at: Vector3, color: Color, radius: float) -> void:
 	tween.tween_property(mat, "albedo_color:a", 0.0, 0.35 * animation_time_scale)
 	tween.chain().tween_callback(burst.queue_free)
 
-func _floating(at: Vector3, text: String, color: Color) -> void:
+func _floating(at: Vector3, text: String, color: Color, duration: float = 0.5) -> void:
 	var label := Label3D.new()
 	label.text = text
 	label.position = at + Vector3.UP * 2
@@ -260,34 +363,27 @@ func _floating(at: Vector3, text: String, color: Color) -> void:
 	label.pixel_size = 0.008
 	label.outline_size = 5
 	label.modulate = color
+	label.outline_modulate = Color(0.05, 0.07, 0.06, 1)
 	label.no_depth_test = true
 	_effects.add_child(label)
 	var tween := label.create_tween().set_parallel(true)
-	tween.tween_property(label, "position:y", label.position.y + 0.7, 0.5 * animation_time_scale)
-	tween.tween_property(label, "modulate:a", 0.0, 0.5 * animation_time_scale)
+	tween.tween_property(label, "position:y", label.position.y + 0.7, duration * animation_time_scale)
+	tween.tween_property(label, "modulate:a", 0.0, duration * animation_time_scale)
+	tween.tween_property(label, "outline_modulate:a", 0.0, duration * animation_time_scale)
 	tween.chain().tween_callback(label.queue_free)
 
 func _show_ignar() -> void:
 	_ignar = Node3D.new()
-	_ignar.position = Vector3(0, 0.6, 0)
+	_ignar.position = Vector3(0.2, -0.2, -0.8)
 	_effects.add_child(_ignar)
-	var ember := BattleActorVisual._material(Color("d85829"))
-	var core := BattleActorVisual._material(Color("ffba54"), true)
-	BattleActorVisual._box(_ignar, Vector3(1.15, 1.3, 0.8), Vector3(0, 0.9, 0), ember)
-	BattleActorVisual._box(_ignar, Vector3(0.8, 0.55, 1.0), Vector3(0, 1.65, 0.15), ember)
-	BattleActorVisual._box(_ignar, Vector3(0.45, 0.75, 0.83), Vector3(0, 1, 0.05), core)
-	for side in [-1, 1]:
-		var horn := CylinderMesh.new()
-		horn.top_radius = 0.0
-		horn.bottom_radius = 0.22
-		horn.height = 0.8
-		horn.radial_segments = 6
-		BattleActorVisual._mesh(_ignar, horn, Vector3(side * 0.4, 2.1, 0), core).rotation.z = -side * 0.3
-		BattleActorVisual._box(_ignar, Vector3(0.45, 0.8, 0.5), Vector3(side * 0.85, 0.8, 0), ember)
+	StylizedModels.golem(_ignar, StylizedModels.mat("413a3b"), true)
+	_ignar.rotation.y = -0.45
+	var halo := StylizedModels.ring(_ignar, Vector3(0, 0.02, 0), 1.5, StylizedModels.mat("d99a49", true))
+	halo.scale = Vector3(1, 0.5, 1)
 	var light := OmniLight3D.new()
-	light.light_color = Color("ff853d")
-	light.light_energy = 1.6
-	light.omni_range = 5
+	light.light_color = Color("ed8b45")
+	light.light_energy = 1.8
+	light.omni_range = 7
 	_ignar.add_child(light)
 	_ignar.scale = Vector3.ONE * 0.05
-	_ignar.create_tween().tween_property(_ignar, "scale", Vector3.ONE * 1.3, 0.4 * animation_time_scale)
+	_ignar.create_tween().tween_property(_ignar, "scale", Vector3.ONE * 1.55, 0.4 * animation_time_scale)

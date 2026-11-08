@@ -12,42 +12,38 @@ var home: Vector3
 var time_scale: float = 1.0
 var _motion: Tween
 var _flash: Tween
+var model_pivot: Node3D
+var weapon: Node3D
+var cape: Node3D
+var nameplate: Label3D
+var visual_id: String
+var facing_yaw: float = 0.0
+var _gesture: Tween
+var _alive: bool = true
+var _idle_clock: float = 0.0
+var _defending: bool = false
 
 func build(fighter: BattleEngine.Fighter) -> void:
-	base_color = Color("7b8796") if fighter.enemy else {"kael": Color("4c8edb"), "lyra": Color("ba78db"), "nira": Color("4fc5a0")}.get(fighter.data.id, Color("91aacc"))
+	base_color = Color("6e7b73") if fighter.enemy else {"kael": Color("344b6c"), "lyra": Color("75608e"), "nira": Color("69896a")}.get(fighter.data.id, Color("7c8d96"))
 	material = _material(base_color)
 	body = Node3D.new()
+	body.name = "Pose"
 	add_child(body)
+	model_pivot = Node3D.new()
+	model_pivot.name = "Model"
+	body.add_child(model_pivot)
+	visual_id = fighter.data.id if not fighter.enemy else "sentinel"
 	if fighter.enemy:
-		_box(body, Vector3(1.15, 1.35, 0.8), Vector3(0, 0.9, 0), material)
-		_box(body, Vector3(0.75, 0.6, 0.65), Vector3(0, 1.85, 0), material)
-		for side in [-1, 1]:
-			_box(body, Vector3(0.4, 1.0, 0.45), Vector3(side * 0.85, 0.85, 0), material)
-			_box(body, Vector3(0.22, 0.12, 0.05), Vector3(side * 0.19, 1.88, 0.34), _material(Color("ffc56c"), true))
+		StylizedModels.golem(model_pivot, material)
 	else:
-		var robe := CylinderMesh.new()
-		robe.top_radius = 0.25
-		robe.bottom_radius = 0.44 if fighter.data.id != "kael" else 0.34
-		robe.height = 1.05
-		robe.radial_segments = 10
-		_mesh(body, robe, Vector3(0, 0.85, 0), material)
-		var head := SphereMesh.new()
-		head.radius = 0.25
-		head.height = 0.5
-		head.radial_segments = 12
-		head.rings = 6
-		_mesh(body, head, Vector3(0, 1.65, 0), _material(Color("e3c5a4")))
-		if fighter.data.id == "kael":
-			_box(body, Vector3(0.11, 1.1, 0.12), Vector3(0.57, 0.95, 0), _material(Color("d8e1e6")))
-			_box(body, Vector3(0.38, 0.09, 0.15), Vector3(0.57, 0.6, 0), material)
-		else:
-			_box(body, Vector3(0.08, 1.6, 0.08), Vector3(0.55, 1.0, 0), _material(Color("8f7150")))
-			_mesh(body, head, Vector3(0.55, 1.85, 0), material).scale = Vector3.ONE * 0.55
-	var ring := CylinderMesh.new()
-	ring.top_radius = 0.72
-	ring.bottom_radius = 0.72
-	ring.height = 0.035
-	ring.radial_segments = 24
+		var parts := StylizedModels.hero(model_pivot, fighter.data.id, material)
+		weapon = parts.weapon
+		cape = parts.cape
+	var ring := TorusMesh.new()
+	ring.inner_radius = 0.64
+	ring.outer_radius = 0.7
+	ring.rings = 24
+	ring.ring_segments = 6
 	turn_ring = _mesh(self, ring, Vector3(0, 0.05, 0), _material(Color("ead48c"), true))
 	var bubble := SphereMesh.new()
 	bubble.radius = 0.75
@@ -68,17 +64,42 @@ func build(fighter: BattleEngine.Fighter) -> void:
 	caption.modulate = Color("f4f4e8")
 	caption.no_depth_test = true
 	add_child(caption)
+	# Full information remains available for diagnostics/tests, but no longer
+	# overlaps the 3D models. Party statistics are displayed in HUD cards.
+	caption.visible = false
+	nameplate = Label3D.new()
+	nameplate.position.y = 3.05 if fighter.enemy else 2.55
+	nameplate.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	nameplate.font_size = 32
+	nameplate.pixel_size = 0.009
+	nameplate.outline_size = 4
+	add_child(nameplate)
+
+func _process(delta: float) -> void:
+	if not _alive or body == null or (_motion != null and _motion.is_running()):
+		return
+	_idle_clock += delta
+	body.position.y = sin(_idle_clock * 2.1 + home.z) * 0.018
+	if cape != null:
+		cape.rotation.x = sin(_idle_clock * 1.7) * 0.035
 
 func sync(fighter: BattleEngine.Fighter, guardian_name: String, active: bool, protected_by: String, protects: String) -> void:
 	if _motion != null:
 		_motion.kill()
 	if _flash != null:
 		_flash.kill()
+	if _gesture != null:
+		_gesture.kill()
+	if weapon != null:
+		weapon.rotation = Vector3.ZERO
 	position = home
 	body.rotation = Vector3.ZERO
 	body.position = Vector3.ZERO
 	body.scale = Vector3.ONE
 	material.albedo_color = base_color
+	model_pivot.rotation.y = facing_yaw
+	_alive = fighter.hp > 0
+	_defending = fighter.guarding
 	turn_ring.visible = active and fighter.hp > 0
 	shield.visible = fighter.guarding and fighter.hp > 0
 	var states: Array[String] = []
@@ -90,6 +111,9 @@ func sync(fighter: BattleEngine.Fighter, guardian_name: String, active: bool, pr
 		material.albedo_color = base_color.darkened(0.55)
 	if fighter.guarding and fighter.hp > 0:
 		states.append("DEFENDIENDO")
+		body.rotation.x = -0.08
+		if weapon != null:
+			weapon.rotation.z = -0.45
 	if not guardian_name.is_empty():
 		states.append("Vínculo: " + guardian_name)
 	if protected_by == fighter.data.label and protects == fighter.data.label:
@@ -106,12 +130,24 @@ func sync(fighter: BattleEngine.Fighter, guardian_name: String, active: bool, pr
 	if not states.is_empty():
 		caption.text += "\n" + " · ".join(states)
 	caption.modulate = Color("ffe3a0") if active else Color("f4f4e8")
+	nameplate.text = ("▶ " if active else "") + fighter.data.label
+	if fighter.enemy:
+		nameplate.text += "\nPV %d/%d%s" % [fighter.hp, fighter.data.max_hp, " · DEF ↓" if fighter.defense_down_rounds > 0 else ""]
+	if fighter.hp <= 0:
+		nameplate.text += " · KO"
+	nameplate.modulate = caption.modulate
 
 func animate(kind: String, direction: Vector3 = Vector3.RIGHT) -> void:
 	if _motion != null:
 		_motion.kill()
 	_motion = create_tween()
 	var duration := 0.18 * time_scale
+	if weapon != null and kind in ["physical", "magic", "heal", "haste"]:
+		if _gesture != null:
+			_gesture.kill()
+		_gesture = create_tween()
+		_gesture.tween_property(weapon, "rotation:x", -1.1 if kind == "physical" else -0.55, duration)
+		_gesture.tween_property(weapon, "rotation:x", 0.0, duration)
 	match kind:
 		"physical":
 			_motion.tween_property(body, "position", direction * 0.65, duration)
