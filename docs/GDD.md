@@ -1,8 +1,10 @@
 # Eclipse JRPG
 
-## Combate y primer claro implementados (iteración 0.5)
+## Estado actual: misión narrativa inicial (0.7)
 
-JRPG de fantasía para Android e iOS, estética 3D inspirada en los clásicos de finales de los noventa, exploración con cámaras fijas o semiautomáticas. Proyecto para una persona con ayuda de Codex. El vertical slice futuro tendrá 20–30 minutos; esta entrega incluye combate 3D provisional, respaldo 2D y un primer claro explorable del Bosque del Eclipse, todavía sin una aventura completa.
+Numeración corregida: 0.5 = primer claro explorable; 0.6 = renovación visual del combate; 0.7 = «La expedición perdida». Las reglas de combate y sus Resources se mantienen.
+
+JRPG de fantasía para Android e iOS, estética 3D inspirada en los clásicos de finales de los noventa, exploración con cámaras fijas o semiautomáticas. Proyecto para una persona con ayuda de Codex. El vertical slice futuro tendrá 20–30 minutos; la aventura actual es un comienzo narrativo breve de 5–10 minutos objetivo que reutiliza el claro y dos encuentros. Su duración depende de lectura/decisiones y aún no se ha medido con jugadores.
 
 Tres protagonistas: Kael (guerrero), Lyra (maga), Nira (sanadora). Combate por turnos puros, sin ATB. Cada combatiente vivo actúa una vez por ronda, en orden descendente de Velocidad. Esperar entrada no avanza la simulación. Inconscientes a 0 PV; victoria al caer todos los enemigos y derrota al caer todos los héroes.
 
@@ -76,7 +78,7 @@ Cada victoria concede +50 PA a los Guardianes equipados por héroes participante
 - Bonificaciones ofensivas y resistencias pasivas son multiplicativas respecto a la afinidad. Se redondea una vez hacia abajo tras el producto, con mínimo 1, y después se aplica Defender/interceptación si corresponde. Ejemplos: `floor(28 × 0,5 × 1,10) = 15`; `floor(25 × 0,90) = 22`; resistencia natural y pasiva `floor(25 × 0,5 × 0,90) = 11`.
 - Resonancia Ardiente no se activa con hielo, sin debilidad ni al invocar. Los valores, elemento, nombres de pasivas, umbrales, daño y reducción están en `data/ignar.tres`. Solo se implementa este conjunto básico de efectos, sin un framework genérico de habilidades pasivas.
 
-## Presentación 3D implementada (renovación visual sobre 0.5)
+## Presentación 3D implementada (0.6)
 
 - Escena de combate `scenes/battle_3d.tscn`: arena autocontenida de ruinas olvidadas en el Bosque del Eclipse. Pavimento irregular, musgo, hierba, rocas, columnas quebradas y fondo de árboles facetados. La composición central queda despejada; no es una nueva zona explorable.
 - Héroes a la izquierda y enemigos a la derecha con formación escalonada, orientados hacia el bando contrario y separados para poder leer sus siluetas. Se mantiene la formación para varios enemigos. Los modelos se asocian a IDs existentes, nunca a nombres de nodos para resolver lógica.
@@ -114,7 +116,7 @@ Cada victoria concede +50 PA a los Guardianes equipados por héroes participante
 - Movimiento con WASD/flechas mediante `CharacterBody3D`, velocidad configurable, normalización de diagonal, gravedad y colisión por `move_and_slide()`. El modelo gira hacia su desplazamiento. No hay salto, carrera ni navegación automática.
 - Entrada desacoplada mediante `set_movement_input(Vector2)` y `clear_movement_input()`, preparada para un futuro control táctil, todavía no implementado.
 - Dos Centinelas estáticos y visibles. Cada encuentro tiene ID, etiqueta, posición, radio de detección y enemigos configurables con `EncounterData`. Una `Area3D` próxima al marcador detecta al líder; el círculo naranja representa su proximidad. No hay encuentros aleatorios, persecución ni activación remota. Los IDs deben ser únicos dentro del claro.
-- HUD mínimo: área, grupo, RE, portador/nivel/PA de Ignar, contador de encuentros, controles, resultado del último encuentro y nueva partida. Tras eliminar ambos Centinelas, informa que el claro está despejado.
+- HUD: área, grupo, RE, portador/nivel/PA de Ignar, contador de encuentros, controles, resultado del último encuentro y nueva partida. Desde 0.7 añade objetivo e interacción cercana. Eliminar ambos Centinelas despeja el claro, pero no sustituye las condiciones narrativas.
 
 ### Flujo y estado persistente en memoria
 
@@ -130,9 +132,50 @@ Cada victoria concede +50 PA a los Guardianes equipados por héroes participante
 
 ### Encaje en el vertical slice y pendientes
 
-Este claro valida el primer bucle explorar → encuentro visible → combate → victoria → explorar. Es una base pequeña para el futuro vertical slice de 20–30 minutos del Bosque del Eclipse; no pretende tener todavía esa duración ni contenido narrativo.
+Este claro valida el bucle explorar → encuentro visible → combate → victoria → explorar. Desde 0.7 incorpora la primera misión narrativa descrita debajo; sigue siendo una base pequeña y no el vertical slice completo de 20–30 minutos.
 
-Siguen pendientes otras zonas conectadas, navegación táctil real, seguidores, persistencia de PV/PM, guardado real, diálogos, quests, secretos, puzzles, inventario, tiendas, progresión de personajes y presentación final. No se implementan Guardianes adicionales. La compatibilidad/rendimiento móvil no se afirma sin pruebas en dispositivos reales.
+Siguen pendientes otras zonas conectadas, navegación táctil real, seguidores, persistencia de PV/PM, guardado real, conversaciones ramificadas, más misiones, secretos, puzzles, inventario, tiendas, progresión de personajes y presentación final. No se implementan Guardianes adicionales. La compatibilidad/rendimiento móvil no se afirma sin pruebas en dispositivos reales.
+
+## La expedición perdida: misión implementada (0.7)
+
+### Intención y personajes
+
+Una expedición enviada a estudiar las ruinas no ha regresado. Kael, Lyra y Nira siguen su rastro. Kael es pragmático, protector y desconfiado: sospecha una activación deliberada de los Centinelas. Lyra es curiosa y se acerca a una magia que no comprende. Nira observa el silencio del bosque, hojas enfermas y raíces ennegrecidas, y aporta prudencia. Sus intervenciones son cortas, con desacuerdos leves y sin convertirlos en explicadores de mecánicas.
+
+La revelación vincula las pistas y la desaparición con un pulso que procede de debajo de las ruinas y altera a sus guardianes de piedra. No revela la identidad, origen o naturaleza completa de esa fuerza. La historia es original y solo usa los tres protagonistas existentes.
+
+### Estructura y decisiones mínimas
+
+- Nueva partida abre el título «El Bosque del Eclipse» y seis intervenciones. Continuar/Espacio/Enter avanzan; «Omitir introducción» marca la introducción como vista sin investigar pistas ni conceder premios. Después se entrega control con «Investiga el claro».
+- Tres puntos nativos integrados en el mapa existente: campamento con manta, hoguera apagada e insignia; cristal con raíces oscuras; inscripción junto a una columna. No se añaden enemigos, mapas, inventario ni recogida física de objetos. La insignia se observa y se deja en el campamento.
+- Las pistas pueden examinarse en cualquier orden, antes, entre o después de los dos combates. Se registran al cerrar por completo la primera conversación. Revisitar muestra texto breve; no vuelve a registrar una pista ni genera RE, PA u otros premios.
+- Condición explícita: las **tres** pistas y los **dos IDs de Centinelas existentes** derrotados. No hay secuencia rígida ni una pista que pueda saltarse. Los objetivos se derivan del estado: investigar → encontrar pistas → neutralizar Centinelas → examinar anomalía → completada, pudiendo omitir fases ya satisfechas por otro orden.
+- Al cumplir condiciones aparece un círculo/fragmentos de energía tenue entre las ruinas y el objetivo invita a examinarlo. **Decisión de interacción:** el jugador debe acercarse y pulsar E/botón; no se teletransporta ni se dispara la conversación desde lejos.
+- Al iniciarla se reclama `revelation_started` una sola vez y se amplifica el resplandor. Seis intervenciones deducen que la expedición entró bajo las ruinas; al cerrar, `completed` queda marcado. Un mensaje anuncia que la aventura continuará en el interior, sin crear esa zona.
+- El final no concede recompensa adicional. Los +50 PA por victoria y todas las reglas de RE, Ignar, recursos y balance siguen intactos. La anomalía puede revisarse después con una sola intervención, sin repetir la revelación ni su efecto único.
+
+### Diálogos e interacción
+
+- `ExpeditionStory` contiene líneas `speaker`/`text`, títulos y posiciones; no hay grandes bloques de historia en GameFlow. El formato admite campos adicionales para retratos/audio, aún no usados.
+- `DialogueBox` solo presenta y avanza. Rechaza aperturas simultáneas, vacías o sin campos requeridos. Consume presión y liberación de Espacio/Enter antes del botón de GUI para evitar doble avance, e ignora repetición de tecla. No hay temporizadores de lectura obligatorios, elecciones, voces ni localización completa.
+- El claro coordina el bloqueo de movimiento y encuentros, y oculta interacción/Nueva partida/pistas de controles mientras el diálogo modal está abierto. Al cerrarlo devuelve el control. El mismo E que abre un diálogo no lo avanza.
+- `NarrativeInterest` valida distancia horizontal y altura; el alcance oscila entre 1,5 y 1,7 unidades. Solo el punto cercano más próximo muestra etiqueta/aro discreto y el botón Examinar/Revisar. No hay flechas gigantes ni interacción remota. El botón ofrece una vía compatible con futura entrada táctil, sin afirmar pruebas móviles reales.
+- UI con interlocutor, texto, contador, avance de 48 unidades lógicas, omisión de intro y título. Anclajes/contenedores para 960×640, 1280×720 y 800×450; no se superponen controles de exploración activos al panel.
+
+### Estado y continuidad
+
+- `GameSession.mission` contiene un `ExpeditionMission` independiente: introducción vista, IDs investigados, revelación iniciada y completada. Sus condiciones no dependen de nodos ni de la presentación del diálogo. Se usa el array de encuentros derrotados existente; no se duplica el resultado del combate.
+- Victoria y derrota conservan la misma misión, RE, PA y vínculos. Volver tras derrota sigue situando al líder en el inicio y mantiene enemigos pendientes; no repite la introducción ni borra pistas. PV/PM máximos por encuentro siguen siendo la simplificación documentada.
+- Nueva partida crea estado de misión nuevo y restaura introducción, encuentros, RE y PA. No se añade guardado en disco ni un sistema genérico de quests/eventos globales.
+- `BattleEngine` y la presentación 0.6 no incorporan dependencias ni cambios narrativos. Solo cambian los mensajes de retorno del controlador para mantener el tono de aventura.
+
+### Validación y límites
+
+La referencia antes de 0.7 fue de 385 comprobaciones. Se conservan y se añaden casos de diálogos, pulsación real, bloqueo de entrada, distancia, seis órdenes de pistas, revisitas, victoria/derrota, dos combates completos, persistencia, cierre único y nueva partida. El objetivo de duración de 5–10 minutos no se demuestra con pruebas aceleradas: requiere sesiones de lectura y decisiones con jugadores.
+
+Resultado final: 507 comprobaciones y 0 fallos en headless y OpenGL; importación correcta, revisión de capturas renderizadas a 960×640, 1280×720 y 800×450 y ninguna modificación en `combat/` ni sus datos configurables.
+
+Arte/objetos y efectos narrativos siguen siendo provisionales. No hay retratos, doblaje, elecciones, siguiente mapa, jefe ni revelación completa de la fuerza. El interior de las ruinas y la continuación quedan para después.
 
 ## Decisiones de diseño futuras, no implementadas
 

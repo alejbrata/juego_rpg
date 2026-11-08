@@ -52,7 +52,7 @@ func _finish_victory() -> void:
 	if not is_instance_valid(battle) or battle.hud.engine.phase != BattleEngine.Phase.VICTORY:
 		return
 	session.mark_defeated(active_encounter.id)
-	session.message = "Victoria sobre %s. RE y PA conservados; el enemigo ya no reaparece." % active_encounter.label
+	session.message = "%s ha caído. El rastro de la expedición continúa entre las ruinas." % active_encounter.label
 	_return_to_zone(false)
 
 func _on_return_requested() -> void:
@@ -68,7 +68,7 @@ func _return_to_zone(after_defeat: bool) -> void:
 	session.mode = GameSession.Mode.EXPLORING
 	if after_defeat:
 		session.leader_position = GameSession.SPAWN
-		session.message = "Derrota: regreso al inicio. El encuentro sigue disponible; PV/PM completos al reintentar."
+		session.message = "El grupo ha conseguido retirarse. Las pistas siguen en el claro."
 	zone.player.position = session.leader_position
 	add_child(zone)
 	zone.refresh_from_session()

@@ -10,6 +10,12 @@ var markers: Dictionary[String, Node3D] = {}
 var encounter_armed: bool = true
 var info: Label
 var hint: Label
+var dialogue: DialogueBox
+var objective_label: Label
+var interests: Dictionary[String, NarrativeInterest] = {}
+var interact_button: Button
+var _nearest_interest: String = ""
+var _restart_button: Button
 
 func _ready() -> void:
 	_build_environment()
@@ -23,7 +29,10 @@ func _ready() -> void:
 			continue
 		_build_marker(encounter)
 	_build_hud()
+	_build_narrative()
 	refresh_from_session()
+	if not session.mission.intro_seen:
+		_open_dialogue("intro", "El Bosque del Eclipse", true)
 
 func _build_environment() -> void:
 	var environment := WorldEnvironment.new()
@@ -134,7 +143,7 @@ func _build_marker(encounter: EncounterData) -> void:
 			request_encounter(encounter))
 
 func request_encounter(encounter: EncounterData) -> bool:
-	if not encounter_armed or session.mode != GameSession.Mode.EXPLORING or session.defeated_encounters.has(encounter.id) or not encounters.has(encounter):
+	if dialogue.active or not session.mission.intro_seen or not encounter_armed or session.mode != GameSession.Mode.EXPLORING or session.defeated_encounters.has(encounter.id) or not encounters.has(encounter):
 		return false
 	var offset := player.position - encounter.map_position
 	if Vector2(offset.x, offset.z).length() > encounter.detection_radius + 0.35:
@@ -153,8 +162,8 @@ func refresh_from_session() -> void:
 			marker.visible = false
 			markers.erase(id)
 			marker.queue_free()
-	encounter_armed = true
-	player.movement_enabled = true
+	encounter_armed = not dialogue.active and session.mission.intro_seen
+	player.movement_enabled = encounter_armed and session.mode == GameSession.Mode.EXPLORING
 	player.clear_movement_input()
 	player.velocity = Vector3.ZERO
 	var carrier := "sin portador"
@@ -165,9 +174,10 @@ func refresh_from_session() -> void:
 	var progress := session.party.progress("ignar")
 	info.text = "Bosque del Eclipse · Claro de las ruinas\nKael · Lyra · Nira    RE %d/100 · Ignar → %s · Nv %d · %d PA · Encuentros %d/%d" % [session.party.resonance, carrier, progress.level(session.party.definition("ignar")), progress.affinity, session.defeated_encounters.size(), encounters.size()]
 	if session.defeated_encounters.size() == encounters.size():
-		hint.text = "Claro despejado. Fin de la zona de prueba.\nWASD / flechas: mover a Kael · Nueva partida: repetir"
+		hint.text = "Claro despejado. Las ruinas aún guardan el rastro de la expedición.\nWASD / flechas: mover · E: examinar"
 	else:
-		hint.text = "%s\nWASD / flechas: mover a Kael · Los círculos naranjas activan encuentros" % session.message
+		hint.text = "%s\nWASD / flechas: mover · E: examinar · Círculos naranjas: combate" % session.message
+	_refresh_mission_ui()
 
 func _build_hud() -> void:
 	var overlay := CanvasLayer.new()
@@ -205,3 +215,104 @@ func _build_hud() -> void:
 	restart.offset_bottom = -14
 	restart.pressed.connect(func() -> void: new_game_requested.emit())
 	root.add_child(restart)
+	_restart_button = restart
+	objective_label = Label.new()
+	objective_label.position = Vector2(18, 106)
+	objective_label.add_theme_font_size_override("font_size", 16)
+	objective_label.add_theme_color_override("font_color", Color("e0cca0"))
+	objective_label.add_theme_constant_override("outline_size", 5)
+	root.add_child(objective_label)
+	interact_button = Button.new()
+	interact_button.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	interact_button.offset_left = 18
+	interact_button.offset_right = 390
+	interact_button.offset_top = -148
+	interact_button.offset_bottom = -100
+	interact_button.pressed.connect(func() -> void: interact(_nearest_interest))
+	interact_button.visible = false
+	root.add_child(interact_button)
+
+func _build_narrative() -> void:
+	for definition in ExpeditionStory.POINTS:
+		var point := NarrativeInterest.new()
+		point.configure(definition)
+		interests[point.id] = point
+		add_child(point)
+	var overlay := CanvasLayer.new()
+	overlay.layer = 20
+	add_child(overlay)
+	dialogue = DialogueBox.new()
+	overlay.add_child(dialogue)
+	dialogue.conversation_closed.connect(_on_dialogue_closed)
+
+func _process(_delta: float) -> void:
+	_nearest_interest = ""
+	var nearest_distance := INF
+	if session.mode == GameSession.Mode.EXPLORING and not dialogue.active and session.mission.intro_seen:
+		for point in interests.values():
+			if point.in_range(player.position):
+				var distance: float = point.position.distance_squared_to(player.position)
+				if distance < nearest_distance:
+					nearest_distance = distance
+					_nearest_interest = point.id
+	for point in interests.values():
+		point.show_prompt(point.id == _nearest_interest)
+	interact_button.visible = not _nearest_interest.is_empty()
+	if interact_button.visible:
+		interact_button.text = "E · %s%s" % ["Revisar: " if interests[_nearest_interest].examined else "Examinar: ", interests[_nearest_interest].title]
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_E and not dialogue.active:
+		interact(_nearest_interest)
+		get_viewport().set_input_as_handled()
+
+func interact(id: String) -> bool:
+	if dialogue.active or not session.mission.intro_seen or session.mode != GameSession.Mode.EXPLORING or not interests.has(id) or not interests[id].in_range(player.position):
+		return false
+	if id == "anomaly":
+		if session.mission.completed:
+			return _open_dialogue("anomaly_repeat", "Un camino bajo las raíces")
+		if not session.mission.revelation_available(session.defeated_encounters):
+			return false
+		if not _open_dialogue("anomaly", "Bajo las ruinas"):
+			return false
+		session.mission.begin_revelation(session.defeated_encounters)
+		interests[id].reveal_energy()
+		return true
+	return _open_dialogue(id + ("_repeat" if session.mission.investigated.has(id) else ""), interests[id].title)
+
+func _open_dialogue(id: String, title: String, can_skip: bool = false) -> bool:
+	if not dialogue.open(id, title, ExpeditionStory.lines(id), can_skip):
+		return false
+	player.movement_enabled = false
+	player.velocity = Vector3.ZERO
+	player.clear_movement_input()
+	encounter_armed = false
+	interact_button.visible = false
+	_restart_button.disabled = true
+	_restart_button.visible = false
+	hint.visible = false
+	return true
+
+func _on_dialogue_closed(id: String) -> void:
+	if id == "intro":
+		session.mission.intro_seen = true
+	elif id == "anomaly":
+		session.mission.finish_revelation()
+		session.message = "La aventura continuará en el interior de las ruinas."
+	else:
+		session.mission.investigate(id)
+	_restart_button.disabled = false
+	_restart_button.visible = true
+	hint.visible = true
+	refresh_from_session()
+
+func _refresh_mission_ui() -> void:
+	objective_label.text = "Objetivo: " + session.mission.objective(session.defeated_encounters) if session.mission.intro_seen else ""
+	for id in interests:
+		interests[id].examined = session.mission.investigated.has(id)
+	var anomaly := interests["anomaly"]
+	anomaly.examined = session.mission.completed
+	anomaly.set_available(session.mission.revelation_available(session.defeated_encounters) or session.mission.revelation_started)
+	if session.mission.completed:
+		hint.text = "La expedición perdida · Completada\nLa aventura continuará en el interior de las ruinas."

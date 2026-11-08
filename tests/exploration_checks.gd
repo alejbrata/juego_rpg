@@ -90,6 +90,7 @@ func run(tree: SceneTree, verify: Callable) -> void:
 	_verify = verify
 	var game = preload("res://scenes/forest_exploration.tscn").instantiate()
 	_tree.root.add_child(game)
+	game.zone.dialogue.skip() # Exercise the original exploration flow after the new intro.
 	await physics_frames(6)
 	check(game.session.mode == GameSession.Mode.EXPLORING and game.zone is Node3D, "Exploración carga como nueva escena principal")
 	check(game.zone.player is CharacterBody3D and game.zone.get_node("ForestCamera") is Camera3D, "Líder con físicas y cámara fija existen")
@@ -166,6 +167,7 @@ func run(tree: SceneTree, verify: Callable) -> void:
 	check(game.zone.markers.is_empty() and game.session.defeated_encounters.size() == 2 and game.zone.hint.text.contains("Claro despejado"), "Ambos encuentros eliminados y zona de prueba terminada")
 	check(run.progress("ignar").affinity == 100 and run.guardian_level("lyra") == 2, "Dos victorias mantienen progresión y desbloquean nivel 2")
 	game.new_game()
+	game.zone.dialogue.skip()
 	await physics_frames(4)
 	check(game.zone.markers.size() == 2 and game.session.defeated_encounters.is_empty() and game.session.party.resonance == 0 and game.session.party.progress("ignar").affinity == 0, "Nueva partida reinicia mapa, RE y PA sin estado antiguo")
 	game.zone.player.position = game.zone.encounters[0].map_position + Vector3.UP * 0.05
@@ -191,6 +193,7 @@ func run(tree: SceneTree, verify: Callable) -> void:
 	game.zone.player.position = game.zone.encounters[0].map_position
 	game.zone.request_encounter(game.zone.encounters[0])
 	game.new_game()
+	game.zone.dialogue.skip()
 	await physics_frames(4)
 	check(not is_instance_valid(game.battle) and game.session.mode == GameSession.Mode.EXPLORING, "Nueva partida invalida transiciones diferidas de la anterior")
 	game.free()

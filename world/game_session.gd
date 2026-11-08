@@ -9,10 +9,11 @@ const SPAWN := Vector3(-5, 0.05, 4)
 var mode: Mode = Mode.EXPLORING
 var area_id: String = "eclipse_clearing"
 var party := PartyState.test_party()
+var mission := ExpeditionMission.new()
 var heroes: Array[CombatantData] = [preload("res://data/kael.tres"), preload("res://data/lyra.tres"), preload("res://data/nira.tres")]
 var leader_position: Vector3 = SPAWN
 var defeated_encounters: Array[String] = []
-var message: String = "Acércate a un Centinela para entrar en combate."
+var message: String = "La expedición dejó su último rastro en este claro."
 
 func mark_defeated(encounter_id: String) -> void:
 	if not defeated_encounters.has(encounter_id):

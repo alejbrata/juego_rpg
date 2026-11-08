@@ -1,8 +1,28 @@
 # Eclipse JRPG
 
-Prototipo 0.5 con renovación visual del combate para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para el Bosque del Eclipse, o F6 con `scenes/forest_exploration.tscn` abierta. Para ver directamente la batalla renovada, abrir **`scenes/battle_3d.tscn` y pulsar F6**. La escena original `scenes/battle.tscn` se conserva como respaldo 2D y también puede ejecutarse con F6.
+Prototipo 0.7 para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para jugar «La expedición perdida», o F6 con `scenes/forest_exploration.tscn` abierta. Para probar solo combate, abrir **`scenes/battle_3d.tscn` y pulsar F6**. El respaldo 2D `scenes/battle.tscn` también se puede ejecutar con F6.
 
-## Renovación visual de la batalla
+Versiones: **0.5**, primer claro explorable; **0.6**, renovación visual; **0.7**, primera misión narrativa. Esta numeración corrige el título repetido de la entrega visual anterior.
+
+## Jugar «La expedición perdida» de principio a fin (0.7)
+
+1. Lee la introducción «El Bosque del Eclipse». Avanza con **Continuar, Espacio o Enter**, o pulsa **Omitir introducción** para empezar directamente. El movimiento permanece bloqueado mientras se conversa.
+2. Camina con **WASD/flechas**. El objetivo inicial es «Investiga el claro». Acércate a un objeto hasta que aparezca su nombre y pulsa **E** o el botón **Examinar**.
+3. Encuentra las tres pistas, en cualquier orden: **campamento abandonado** justo al norte del inicio, **fragmento de cristal** a la derecha del sendero e **inscripción antigua** junto a la columna izquierda del fondo. Las conversaciones revelan una insignia, un pulso desconocido y una barrera antigua; no hay objetos de inventario ni premios por examinarlas.
+4. Derrota a los **dos Centinelas** existentes, antes, después o entre las investigaciones. Escarcha aprovecha su debilidad al hielo; usa Golpe potente, Cura e Ignar cuando corresponda. Al volver, las pistas y la posición se conservan. Una derrota permite reintentar o regresar al inicio sin borrar la misión.
+5. Con las tres pistas y las dos victorias, el objetivo pasa a **«Examina la anomalía junto a las ruinas»**. Aparece un resplandor entre las columnas, al fondo del claro. Acércate y examínalo para la revelación breve.
+6. Al terminar la conversación aparece **«La expedición perdida · Completada»** y el anuncio de continuación bajo las ruinas. No se entra todavía en otra zona. Se pueden volver a examinar las pistas y la anomalía con textos breves, sin repetir el final ni sus efectos.
+7. **Nueva partida** reinicia misión, introducción, encuentros, RE y PA. Todo el progreso vive en memoria; no existe guardado en disco.
+
+El seguimiento del objetivo es discreto y no obliga a seguir un orden de flechas. La anomalía exige las tres pistas y los dos encuentros; su conversación se inicia por interacción cercana, no desde cualquier punto del mapa. El cierre no concede recompensas: los +50 PA por cada victoria siguen siendo los únicos premios existentes. PV/PM máximos por encuentro/reintento se conservan como simplificación de 0.5.
+
+Contenido y posiciones: `narrative/expedition_story.gd`. Condiciones/progreso: `ExpeditionMission` dentro de `GameSession`. `DialogueBox` presenta y avanza líneas; `NarrativeInterest` gestiona alcance e indicador. El claro conecta estas piezas mediante señales locales, sin un framework de quests ni dependencias narrativas en `BattleEngine`. Los datos de diálogo admiten ampliar campos para retratos/audio posteriormente; todavía no se implementan.
+
+Duración objetivo: 5–10 minutos según lectura y decisiones de combate, sin esperas artificiales. Las pruebas aceleradas no equivalen a una medición de duración con jugadores. No hay ramas de diálogo, localización completa, retratos, voces, nueva zona ni resolución de la identidad de la fuerza.
+
+Capturas reales: [introducción](docs/previews/mission-intro.png), [revelación](docs/previews/mission-revelation.png).
+
+## Renovación visual de la batalla (0.6)
 
 - Héroes originales completos con rostros, cabello, extremidades, vestuario y armas: Kael con armadura/espada, Lyra con capa violeta/bastón y Nira con atuendo crema/verde y vara natural. El Centinela es un gólem facetado con piernas, grandes brazos, musgo, ojos y grietas luminosas.
 - Arena de ruinas en el bosque: pavimento irregular, musgo, hierba, rocas, árboles y columnas. Cámara diagonal en perspectiva, luz cálida, ambiente suave y una sombra direccional acotada.
@@ -18,12 +38,12 @@ Capturas reales del prototipo: [batalla](docs/previews/battle.png), [Ignar](docs
 
 ## Primera zona explorable (0.5)
 
-1. Mover a Kael con **WASD o flechas**. El resto del grupo participa en los combates, pero no tiene seguidores visuales todavía. No hay salto ni cámara libre.
+1. Cerrar u omitir la nueva introducción y mover a Kael con **WASD o flechas**. El resto del grupo participa en los combates, pero no tiene seguidores visuales todavía. No hay salto ni cámara libre.
 2. Acercarse al círculo naranja del **Centinela I** o **Centinela II**. La detección es local; abre la batalla 3D existente. Los árboles, rocas, columnas y muros tienen colisión; no se puede salir del claro.
 3. Elegir acciones y objetivos normalmente. Para ganar, aprovechar Escarcha contra la debilidad al hielo, Golpe potente de Kael, Cura de Nira e Ignar cuando alcance 100 RE. Resolver los turnos enemigos con su botón.
 4. Tras ganar, se vuelve automáticamente al claro al terminar la animación. Se conserva la posición, desaparece ese Centinela y permanecen RE, vínculos y PA. Combatir contra el segundo permite comprobar la continuidad y alcanzar nivel 2 de Ignar tras dos victorias.
 5. En derrota, elegir **Reintentar combate** o **Volver al claro**. Volver deja al grupo en el punto inicial y mantiene al enemigo disponible; no concede PA. El botón de retorno se habilita solo después de resolver la derrota y su presentación.
-6. Tras vencer a los dos enemigos aparece «Claro despejado». **Nueva partida** en exploración reinicia mapa, RE y PA. En los encuentros integrados no aparece el botón que creaba una partida de combate independiente.
+6. Tras vencer a los dos enemigos el claro queda despejado, pero en 0.7 todavía hay que reunir las pistas y examinar la anomalía para completar la misión. **Nueva partida** reinicia también su introducción. En los encuentros integrados no aparece el botón que creaba una partida de combate independiente.
 
 **Simplificación de recursos:** cada encuentro y cada reintento comienzan con PV/PM máximos; no se conserva desgaste entre combates. Esta decisión usa la estructura actual del motor y evita añadir de forma implícita curación de campo, inventario o progresión de personajes. RE/PA/vínculos sí se conservan con el mismo `PartyState`. Todo vive en memoria; cerrar el juego lo reinicia.
 
@@ -31,7 +51,7 @@ Capturas reales del prototipo: [batalla](docs/previews/battle.png), [Ignar](docs
 
 Los dos encuentros están definidos como Resources `EncounterData` dentro de `scenes/forest_zone.tscn`: ID, etiqueta, posición, radio y array de enemigos. Pueden editarse en el inspector; la prueba de combate sigue aceptando varios enemigos. Cada ID debe ser único dentro de la zona.
 
-La velocidad se configura en `world/exploration_player.gd`. `set_movement_input(Vector2)` permite alimentar el movimiento desde futuros controles táctiles; `clear_movement_input()` vuelve al teclado. Todavía no hay joystick táctil, exploración entre varias zonas, misiones, guardado real ni recursos definitivos.
+La velocidad se configura en `world/exploration_player.gd`. `set_movement_input(Vector2)` permite alimentar el movimiento desde futuros controles táctiles; `clear_movement_input()` vuelve al teclado. Todavía no hay joystick táctil, exploración entre varias zonas, más misiones, guardado real ni recursos definitivos.
 
 Seleccionar una acción y un objetivo. Los botones de habilidades sin PM se desactivan. Resolver el turno enemigo con su botón. El registro muestra los resultados; Reiniciar permite repetir el combate.
 
@@ -96,6 +116,10 @@ godot --path . --quit-after 60
 El punto de entrada conserva las 348 comprobaciones anteriores y añade `tests/visual_refresh_checks.gd`: asociación de modelos, agrupación geométrica, orientación, UI en tres resoluciones, objetivo/cancelación, registro completo, cámara y omisión/reinicio durante Ignar sin modificar resultados. También siguen ejecutándose los casos de motor, Guardianes, presentación, respaldo 2D y exploración (dos combates completos, RE/PA, victorias y derrota). No necesita un framework externo. Los datos que las pruebas modifican se copian con `duplicate_deep(Resource.DEEP_DUPLICATE_ALL)` para aislar también las habilidades externas precargadas.
 
 Resultado local de esta renovación: **348 comprobaciones antes; 385 después, 0 fallos**, tanto headless como con OpenGL. Importación sin errores y revisión de capturas reales en las tres resoluciones indicadas.
+
+La iteración 0.7 conserva esas **385** comprobaciones y añade `tests/narrative_checks.gd`: introducción/cierre/omisión, teclado real sin doble avance, bloqueo de movimiento, distancia, seis órdenes de pistas, revisitas, victoria/derrota, persistencia, dos combates completos, revelación única y nueva partida. Las pruebas de exploración anteriores ahora omiten la introducción mediante su API para seguir verificando el mismo recorrido, sin retirar ni debilitar sus comprobaciones.
+
+Resultado final de 0.7: **507 comprobaciones, 0 fallos** en headless y con OpenGL. Importación sin errores y capturas revisadas en 960×640, 1280×720 y 800×450. No se han cambiado reglas ni archivos del motor de combate o sus Resources.
 
 El motor se puede instanciar con `BattleEngine.new()` sin SceneTree ni escenas; `start()` recibe arrays de CombatantData y devuelve error o cadena vacía. `act()` valida y devuelve un mensaje de error o cadena vacía; `step_enemy()` resuelve la IA mínima. La escena solo consulta estado y envía acciones. Los Resources originales no se modifican durante el combate. Las afinidades contradictorias se rechazan sin consumir recursos. Ignar usa la ruta de daño de área y publica eventos para futuras animaciones.
 
