@@ -1,5 +1,9 @@
 # Eclipse JRPG
 
+**Iteración 1.0 — investigación de assets:** [dirección artística y comparación](docs/ART_DIRECTION.md), [licencias y procedencia](docs/ASSET_LICENSES.md). Se deja de generar protagonistas desde cero mediante geometría procedural. No se ha incorporado ningún modelo externo: los candidatos más próximos requieren compra o aclaraciones de licencia. El juego sigue utilizando Kael 0.9 y los modelos provisionales; las capturas antiguas no representan una renovación 1.0.
+
+Se corrigió la importación de su atlas: `assets/characters/kael/kael.glb.import` usa `gltf/embedded_image_handling=3` (Embed as Uncompressed). El valor anterior 1 extraía una textura auxiliar; si faltaba, Kael podía caer al procedural. Reimportar con `godot --headless --path . --editor --import` para regenerar la caché. Mallas/GLB, combate, exploración y narrativa se conservan. Validación: 576 comprobaciones, cero fallos; detalle del fallo inicial y recuperación en el informe.
+
 Prototipo 0.9 para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para jugar «La expedición perdida», o F6 con `scenes/forest_exploration.tscn` abierta. Para probar solo combate, abrir **`scenes/battle_3d.tscn` y pulsar F6**. El respaldo 2D `scenes/battle.tscn` también se puede ejecutar con F6.
 
 Versiones: **0.5**, primer claro explorable; **0.6**, renovación visual; **0.7**, primera misión narrativa. Esta numeración corrige el título repetido de la entrega visual anterior.
@@ -10,7 +14,7 @@ Dirección: aventurero original de fantasía, azul marino y cuero cálido, metal
 
 El análisis inicial se hizo abriendo el `.blend` real y capturando cuerpo/rostro antes de modificarlo. Cinco problemas prioritarios: facciones planas y ojos salientes, cabello en bloques, manos redondeadas, vestuario sin suficiente separación y materiales planos en demasiadas superficies. El nuevo atlas añade gradientes, sombras suaves, trama de tela, variación de cuero, costuras, vetas de cabello y matices metálicos. Es pintura **procedural determinista**, no una textura pintada manualmente por un artista ni un servicio de generación externo.
 
-**Por defecto se utiliza 0.9** en batalla y exploración. La comparación real muestra una mejora clara respecto a 0.8 en facciones, vestuario y acabados; por eso se activa esta revisión. Esto no equivale a declarar calidad comercial definitiva: la dirección artística y el acabado requieren revisión humana antes de extenderlos al resto del reparto. No se han cambiado otros personajes, mecánicas ni historia. La narrativa de 0.7 continúa provisional, no canon.
+**Por defecto se utiliza 0.9** en batalla y exploración. Esta revisión histórica no alcanzó el objetivo artístico del usuario y no es una referencia comercial aprobada. Se conserva como respaldo funcional mientras se evalúan recursos externos según la investigación 1.0. No se han cambiado otros personajes, mecánicas ni historia. La narrativa de 0.7 continúa provisional, no canon.
 
 ### Comparación y selección de versiones
 

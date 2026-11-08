@@ -1,6 +1,18 @@
 # Eclipse JRPG
 
-## Estado actual: revisión artística de Kael (0.9)
+## Estado actual: cambio de estrategia artística e investigación (1.0)
+
+Decisión confirmada: **dejar de generar los protagonistas desde cero mediante geometría procedural**. Se buscarán recursos con calidad artística y licencias verificables, adaptados en Blender/Godot. Se conservan versiones/fallback existentes; la funcionalidad no acredita calidad artística. La revisión 0.9 no alcanzó el acabado solicitado y sus valoraciones anteriores no constituyen aprobación del diseñador.
+
+Entrega 1.0: [comparación y propuesta](ART_DIRECTION.md), [inventario de licencias](ASSET_LICENSES.md). Preferencia visual condicionada por los personajes Fantasy/Mage y Nature with Ruins de JustCreate; aún no autorizados para compra/adaptación. KayKit/Kenney tienen opciones gratuitas claras pero no se acreditó su ajuste al objetivo; Quaternius muestra condiciones CC0/QAL contradictorias; otras alternativas implican coste alto de retopología o dependencia de UE. No se declara inexistencia general de alternativas gratuitas.
+
+No se ha descargado ni incorporado ningún modelo externo, ni se ha ejecutado una adaptación en Blender. No hay capturas en Godot ni métricas propias de candidatos externos; solo inspección de publicidad pública. El juego visual sigue en 0.9, por debajo de las referencias. Antes del piloto se requiere elegir dirección, presupuesto y una vía de licencia compatible con adquisición, colaboradores, herramientas y repositorio. No se compran ni aceptan términos por el usuario.
+
+Única corrección de recurso existente: importación del atlas de Kael como imagen embebida (`gltf/embedded_image_handling=3`), evitando depender de un PNG extraído ausente. El arranque de la revisión reveló errores previos (517 comprobaciones alcanzadas, 2 fallos); tras recuperar la base y corregir importación, suite completa 576/576 headless y render real. Sin cambios de GLB/fuente, reglas, sesión, personajes restantes o historia. Se detalla la diferencia entre fallo inicial y resultado final en ART_DIRECTION.
+
+Presupuestos futuros orientativos: protagonistas 8000–15000 triángulos, enemigos normales 5000–12000, texturas preferentemente 512–1024 y materiales acotados. Evaluar excepciones; no confundir esos límites con rendimiento medido. La historia 0.7 sigue provisional, no canon.
+
+## Historial: revisión artística de Kael (0.9)
 
 Entrega confirmada exclusivamente visual. Se abrió la fuente 0.8 en Blender 5.2.1 LTS, se capturaron cuerpo y rostro y se ejecutaron las 558 comprobaciones de partida. Cinco límites identificados: ojos/facciones salientes y planos, mechones en bloques, manos redondeadas, poca separación del vestuario y materiales planos en 17 superficies.
 
