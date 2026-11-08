@@ -2,8 +2,8 @@
   "blender": "5.2.1 LTS",
   "units": "metres",
   "godot_forward": "+Z",
-  "vertices": 1892,
-  "triangles": 3528,
+  "vertices": 3591,
+  "triangles": 6618,
   "bones": [
     "root",
     "pelvis",
@@ -31,8 +31,25 @@
     "Defend": 0.4,
     "KO": 0.8
   },
-  "authored_sections": 59,
-  "glb_sha256": "90a296108b6beb498d28448c10b58d44bdfb71b320d018a26dd81eaf9aa3e296",
-  "script_sha256": "fe6277f67fdfe85bcd4ce0dc7dfeff5365fda8b37098c8bff3a82543819bfbb7",
-  "blend_sha256": "67a380cde564f4def1894b09e9f1caa4015c5250f03b7260a3fe0bd1f7025a25"
+  "authored_sections": 117,
+  "glb_sha256": "db3060cd9a2eab109ff47ee3f2a6e579f108465d1bc1b245336ab8a878a92e14",
+  "script_sha256": "ab68971e9b99970c97adf8f4028976b4c3b4ce88cb8d42fcf1357110399fe620",
+  "blend_sha256": "114e07c21a797cd92def8c6af65fbefebff6c8020492a50b812a993521afd1db",
+  "art_revision": "0.9",
+  "materials": 2,
+  "surfaces": 4,
+  "textures": [
+    {
+      "name": "kael_atlas.png",
+      "width": 1024,
+      "height": 1024,
+      "rgba8_bytes": 4194304
+    }
+  ],
+  "atlas_sha256": "45332f02232c361ad6c6ea9eaa9781957555b7322b427bc2550bbea85d7ee782",
+  "art_script_sha256": "c8e09091c89e7af2bb502edeacb818e2c97d5ae6184d6bff404876767bac951d",
+  "glb_bytes": 1390436,
+  "exported_vertices": 8696,
+  "exported_triangles": 6618,
+  "source_v08_sha256": "67a380cde564f4def1894b09e9f1caa4015c5250f03b7260a3fe0bd1f7025a25"
 }

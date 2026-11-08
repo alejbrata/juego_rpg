@@ -1,6 +1,28 @@
 # Eclipse JRPG
 
-## Estado actual: piloto visual de Kael y pipeline Blender (0.8)
+## Estado actual: revisión artística de Kael (0.9)
+
+Entrega confirmada exclusivamente visual. Se abrió la fuente 0.8 en Blender 5.2.1 LTS, se capturaron cuerpo y rostro y se ejecutaron las 558 comprobaciones de partida. Cinco límites identificados: ojos/facciones salientes y planos, mechones en bloques, manos redondeadas, poca separación del vestuario y materiales planos en 17 superficies.
+
+Dirección elegida: aventurero estilizado de fantasía original; azul marino, cuero cálido y metal discreto. Nueva geometría para mandíbula, mejillas, nariz y frente; ojos almendrados, párpados, cejas y boca; cabello barrido con crestas; mangas articuladas y guantes con palma/pulgar/nudillos, botas con suela/empeine, faldones separados, pechera curva, correa conformada y bolsa con solapa. Espada con guarda curva, agarre envuelto y canal. Atlas procedural determinista con matices, gradientes, trama, costuras y grano; no pintura manual ni servicio externo.
+
+Se conserva exactamente el esqueleto de 17 huesos y las claves de las seis Actions de 0.8, usando su `.blend` archivado como fuente. No hay cambios de BattleEngine, PartyState, GameSession, historia, habilidades o estadísticas. Lyra, Nira y enemigos mantienen sus modelos. La historia de 0.7 continúa provisional y no canon.
+
+### Presupuesto observado y versiones
+
+- 6618 triángulos; 3591 vértices de autor, 8696 exportados por UV/normales/materiales. Dos mallas, dos materiales opacos y cuatro superficies, frente a 17 anteriores.
+- Un atlas 1024×1024, PNG editable de 828.476 bytes, empaquetado en fuente y GLB sin rutas externas. GLB de 1.390.436 bytes (≈1,33 MiB); `.blend` de 1.066.258 bytes.
+- Textura decodificada RGB8: 3 MiB CPU observados sin mipmaps; estimación conservadora RGBA8 de 4 MiB o 5,33 MiB con mipmaps. No es VRAM medida.
+- Importación nativa `GLTFDocument` + generación de escena: 26,03 ms headless en el equipo de desarrollo; excluye arranque del editor y LOD. Sin mediciones de FPS o pruebas Android/iOS. El presupuesto preferido hasta 8000–12000 triángulos no obliga a consumirlo; no se necesita el máximo de evaluación de 15000.
+- Por defecto se activa **0.9** tras inspeccionar [comparación real](previews/kael09-comparison.png). Hay mejora visible de facciones, capas y acabado respecto a 0.8; no se declara modelo comercial definitivo. Las fuentes y GLB 0.8 se conservan en `assets/characters/kael/v08/`; `visuals/kael/asset_version="0.8"` los activa en batalla y exploración. `use_imported=false` sigue recuperando el procedural original.
+
+### Validación y límites artísticos
+
+576/576 comprobaciones, headless y render real; las 558 previas se mantienen sin alterar expectativas. Nuevos casos verifican versiones, hashes de fuentes/atlas, reposo y claves del rig original, geometría importada, UV, pesos, materiales y textura embebida. Se reabrió y reexportó realmente la fuente nueva con los seis clips intactos y GLB coincidente. Capturas de [cuerpo anterior](previews/kael09-before-full.png), [cuerpo nuevo](previews/kael09-after-full.png), [rostro anterior](previews/kael09-before-face.png), [rostro nuevo](previews/kael09-after-face.png), [Attack](previews/kael09-attack.png) y [Walk](previews/kael09-walk.png); también Hurt, Defend y KO. Cámara, iluminación y escala iguales para las parejas. Comparación independiente de las pruebas.
+
+Quedan planos visibles en mejillas/mentón, pelo simplificado, expresión fija, manos sin dedos articulados y atlas repetido sin pintura facial única. Se requiere ajuste manual de facciones, implantación del cabello, nudillos, ropa y pintura artística antes de fijar una referencia comercial para todo el reparto. Las poses inspeccionadas no muestran separaciones graves, pero no se revisan todos los fotogramas y cámaras. Sin IK, facial ni mezcla avanzada; posible deslizamiento de pies y cruces menores. Los pequeños detalles no siempre se leen en la cámara de combate. Pipeline válido como base técnica, no como sustituto de dirección artística/manual por personaje. Comandos de regeneración, exportación sin reconstrucción, comparación y medición en README.
+
+## Historial: piloto visual y pipeline Blender (0.8)
 
 Decisión confirmada de implementación: sustituir únicamente la representación de Kael mediante un asset original de Blender, sin modificar BattleEngine, PartyState, GameSession, balance ni sistemas narrativos. El contenido narrativo de 0.7 sigue siendo **provisional, no canon**; no se han añadido decisiones de historia.
 

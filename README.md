@@ -1,10 +1,82 @@
 # Eclipse JRPG
 
-Prototipo 0.8 para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para jugar «La expedición perdida», o F6 con `scenes/forest_exploration.tscn` abierta. Para probar solo combate, abrir **`scenes/battle_3d.tscn` y pulsar F6**. El respaldo 2D `scenes/battle.tscn` también se puede ejecutar con F6.
+Prototipo 0.9 para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para jugar «La expedición perdida», o F6 con `scenes/forest_exploration.tscn` abierta. Para probar solo combate, abrir **`scenes/battle_3d.tscn` y pulsar F6**. El respaldo 2D `scenes/battle.tscn` también se puede ejecutar con F6.
 
 Versiones: **0.5**, primer claro explorable; **0.6**, renovación visual; **0.7**, primera misión narrativa. Esta numeración corrige el título repetido de la entrega visual anterior.
 
-## Kael: Blender → GLB → Godot (0.8)
+## Kael: revisión artística y atlas (0.9)
+
+Dirección: aventurero original de fantasía, azul marino y cuero cálido, metal discreto, silueta ligeramente caricaturesca. Cambios frente a 0.8: mandíbula/mejillas/frente construidas con anillos compartidos, ojos almendrados poco salientes con párpado y cejas, nariz con puente y punta, boca cerrada; cabello en mechones barridos con cresta longitudinal; mangas con codos, guantes con palma/pulgar/nudillos, botas con empeine/suela/caña; faldones separados, pechera curva, correa conformada sobre ella, hebilla y bolsa con solapa; espada con guarda curva, agarre envuelto y canal de hoja.
+
+El análisis inicial se hizo abriendo el `.blend` real y capturando cuerpo/rostro antes de modificarlo. Cinco problemas prioritarios: facciones planas y ojos salientes, cabello en bloques, manos redondeadas, vestuario sin suficiente separación y materiales planos en demasiadas superficies. El nuevo atlas añade gradientes, sombras suaves, trama de tela, variación de cuero, costuras, vetas de cabello y matices metálicos. Es pintura **procedural determinista**, no una textura pintada manualmente por un artista ni un servicio de generación externo.
+
+**Por defecto se utiliza 0.9** en batalla y exploración. La comparación real muestra una mejora clara respecto a 0.8 en facciones, vestuario y acabados; por eso se activa esta revisión. Esto no equivale a declarar calidad comercial definitiva: la dirección artística y el acabado requieren revisión humana antes de extenderlos al resto del reparto. No se han cambiado otros personajes, mecánicas ni historia. La narrativa de 0.7 continúa provisional, no canon.
+
+### Comparación y selección de versiones
+
+- [Lámina 0.8 / 0.9](docs/previews/kael09-comparison.png), compuesta dentro de Godot a partir de capturas reales.
+- Cuerpo: [0.8](docs/previews/kael09-before-full.png) / [0.9](docs/previews/kael09-after-full.png).
+- Rostro: [0.8](docs/previews/kael09-before-face.png) / [0.9](docs/previews/kael09-after-face.png).
+- Batalla: [0.8](docs/previews/kael09-before-battle.png) / [0.9](docs/previews/kael09-after-battle.png).
+- Poses nuevas: [Attack](docs/previews/kael09-attack.png), [Walk](docs/previews/kael09-walk.png), [Hurt](docs/previews/kael09-hurt.png), [Defend](docs/previews/kael09-defend.png), [KO](docs/previews/kael09-ko.png).
+
+El encuadre, iluminación y escala son iguales para cada pareja. En Ajustes del proyecto, cambiar `visuals/kael/asset_version` de `"0.9"` a `"0.8"` para volver al GLB anterior en **ambos modos**. Sus `.blend`, GLB y manifiesto se conservan en `assets/characters/kael/v08/`. Cambiar `visuals/kael/use_imported` a `false` recupera, por separado, el modelo procedural de 0.6. Un `kael_asset_path` personalizado tiene prioridad sobre el selector de versión.
+
+### Pipeline reproducible y edición
+
+Se ejecutó realmente Blender **5.2.1 LTS** local después de comprobar que MCP no estaba operativo. `build_kael.py` abre la fuente archivada 0.8, conserva exactamente rig y Actions y sustituye únicamente cuerpo/espada. `kael_art.py` define geometría y atlas; `MeshBuilder` asigna las UV y agrupa las 14 zonas de color en dos materiales glTF sencillos (tela/cuero y metal). No se regeneran ni retocan las animaciones para adaptar gameplay.
+
+Desde la raíz, PowerShell:
+
+```powershell
+$blender = 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe'
+$godot = 'C:\Users\aleja\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe'
+& $blender --background --factory-startup --python-exit-code 1 --python tools/blender/build_kael.py
+& $godot --headless --path . --editor --import
+& $godot --headless --path . --script res://tests/test_battle.gd
+& $godot --path . --script res://tools/capture_kael09.gd
+& $godot --headless --path . --script res://tools/measure_kael.gd
+```
+
+Revisar código de salida 0 en cada comando. **Regenerar sobrescribe el Kael actual y el atlas**; no modifica la copia 0.8. Para editar formas, modificar `build_body`, `head`, `hair`, `lock` y `build_sword` en `kael_art.py`; la paleta base permanece en `build_kael.py`. Para editar matices/costuras, usar `painted_materials()` o pintar `kael_atlas.png` manualmente y recargar/empaquetar la imagen dentro del `.blend`. El atlas usa una cuadrícula 4×4 en el orden de `PALETTE`; UV con margen para evitar sangrado. No hay transparencias ni shaders específicos de Blender.
+
+Para preservar retoques manuales: guardar `assets/characters/kael/kael.blend` y ejecutar solo:
+
+```powershell
+& $blender --background --factory-startup --python-exit-code 1 --python tools/blender/export_kael.py
+& $godot --headless --path . --editor --import
+```
+
+Se ha comprobado reapertura y reexportación del `.blend`: conserva las seis Actions, UV, materiales e imagen empaquetada; el GLB reexportado coincide con el generado. El GLB incluye un PNG en su buffer, sin rutas externas. El PNG separado es fuente editable; el runtime no depende de su ruta ni de Blender. El manifiesto registra hashes de ambas fuentes Python, atlas, `.blend`, GLB y fuente 0.8, además de los recuentos reales.
+
+### Presupuesto y comprobaciones
+
+| Medida | Kael 0.8 | Kael 0.9 |
+|---|---:|---:|
+| Triángulos | 3528 | **6618** |
+| Vértices de autor | 1892 | **3591** |
+| Vértices exportados, tras UV/normales/material | — | **8696** |
+| Mallas / huesos / clips | 2 / 17 / 6 | **2 / 17 / 6** |
+| Superficies | 17 | **4** |
+| Materiales compartidos | 14 | **2** |
+| Atlas | ninguno | **1 × 1024²** |
+| GLB | 195.020 bytes | **1.390.436 bytes ≈1,33 MiB** |
+
+El atlas PNG ocupa 828.476 bytes; la fuente `.blend`, 1.066.258 bytes. Medición con `GLTFDocument.append_from_file()` + `generate_scene()` en Godot headless: **26,03 ms** en este equipo, excluyendo arranque del editor, generación de LOD y cualquier prueba móvil. El atlas decodificado observado es RGB8, **3 MiB CPU sin mipmaps**; como presupuesto conservador GPU, RGBA8 serían 4 MiB, o aproximadamente 5,33 MiB con cadena completa de mipmaps. No se ha medido VRAM real, FPS en dispositivo ni equivalencia entre menos superficies y mejor rendimiento global.
+
+El modelo queda por debajo de 8000–12000 triángulos preferidos y no necesita acercarse al límite de evaluación de 15000. Las 558 comprobaciones previas se conservan sin cambiar expectativas; **576 totales, 0 fallos**, en headless y con render real. Las 18 nuevas verifican fuentes/hashes, comparación de versiones, poses y claves originales, atlas embebido, UV, pesos, materiales opacos y presupuesto de geometría realmente importada. Los seis clips siguen siendo Idle, Walk, Attack, Hurt, Defend y KO. Las duraciones importadas incluyen el fotograma adicional de 30 fps ya presente en 0.8; no se cambia el tempo de combate.
+
+### Límites y trabajo artístico manual pendiente
+
+La cara aún tiene planos visibles en mejillas/mentón, expresión fija y detalles finos poco legibles desde la cámara de batalla. Cabello de mechones simplificados; manos sin dedos articulados; ropa por secciones y atlas reutilizado, sin UV facial pintada de forma única. Falta esculpir/ajustar manualmente mejillas, comisuras, transición de nariz, implantación del cabello, nudillos y caída de faldones, además de una pasada de pintura de textura con intención artística. El rig básico no incorpora IK, facial ni mezcla avanzada; sigue siendo posible el deslizamiento de pies y pequeños cruces entre secciones en poses no inspeccionadas.
+
+Se inspeccionaron hombros, codos, rodillas y espada en las capturas de reposo, ataque, caminar, daño, defensa y KO; no se observaron separaciones graves. También se ejecutó la suite con render real, incluyendo eventos, reinicio, exploración y las resoluciones existentes. Esto no es una certificación fotograma a fotograma. No se han corregido aquí detalles de presentación previos ajenos al arte, como el oscurecimiento procedural que no tiñe los materiales del GLB.
+
+El pipeline es adecuado como **base técnica reproducible** para los próximos personajes. No conviene replicar automáticamente las fórmulas de cara/cabello y esperar calidad comercial: cada diseño necesita silueta propia, modelado/pintura manual y aprobación artística. Esta entrega mejora Kael; el conjunto de personajes sigue pendiente.
+
+## Historial: primer pipeline Blender → GLB → Godot (0.8)
+
+Los recuentos y ausencia de texturas de esta sección describen la entrega 0.8. Para regenerar y editar la revisión vigente, utilizar la sección 0.9 anterior.
 
 Piloto visual original construido con mallas de secciones perfiladas, pesos normalizados y un Armature de 17 huesos. Cuerpo y espada son dos mallas deformadas por el mismo esqueleto; la espada tiene sus vértices vinculados a `hand.R`. Armadura azul, correas, guantes, botas, rostro con volumen y mechones sustituyen al Kael procedural en batalla y exploración. Lyra, Nira, Centinela, reglas e historia permanecen como estaban. **La historia de 0.7 es provisional y no constituye canon.**
 
@@ -30,7 +102,7 @@ Cada comando debe terminar con código 0. `build_kael.py` **regenera y sustituye
 `kael_manifest.json` registra geometría, huesos, clips y SHA-256 del generador, fuente y GLB. El exportador valida pesos y presupuesto. Las Actions tienen usuario persistente para sobrevivir al guardado/reapertura. GLB lleva materiales y animaciones, sin texturas ni rutas externas.
 
 - **Materiales/geometría:** editar `PALETTE`, `build_body()` y `build_sword()` del generador; las secciones se ensamblan en las dos mallas con skin. Se puede trabajar en Blender y usar solo el exportador para preservar cambios manuales.
-- **Animaciones:** `animate()` crea `Idle`, `Walk`, `Attack`, `Hurt`, `Defend` y `KO` a 30 fps. Idle/Walk son ciclos; Defend/KO mantienen su pose final. Para añadir un clip, conservar su Action al guardar, incluirlo en el contrato del exportador y conectarlo explícitamente en `KaelModel`/presentación, con una prueba. No crear una habilidad ni regla para justificarlo.
+- **Animaciones:** el generador histórico creó `Idle`, `Walk`, `Attack`, `Hurt`, `Defend` y `KO` a 30 fps; 0.9 conserva esas Actions desde la fuente archivada. Idle/Walk son ciclos; Defend/KO mantienen su pose final. Para añadir un clip en otra entrega, conservar su Action al guardar, incluirlo en el contrato del exportador y conectarlo explícitamente en `KaelModel`/presentación, con una prueba. No crear una habilidad ni regla para justificarlo.
 - **Sustituir el asset:** guardar la fuente y exportar sobre la misma ruta, manteniendo `KaelRig`, `KaelBody`, `KaelSword`, nombres de huesos y seis clips; después reimportar. `scenes/kael_model.gd` es el adaptador, sin dependencia del motor de combate. El campo `kael_asset_path` de `BattleActorVisual` permite probar otra exportación compatible.
 - **Fallback:** cambiar `visuals/kael/use_imported` a `false` en Ajustes del proyecto (o en la sección `[visuals]` de `project.godot`). Para una escena, desmarcar `use_imported_kael` en el nodo raíz de batalla o en Player. Si falta el GLB o su contrato de esqueleto/clips/espada, se informa mediante advertencia comprensible y se crea el modelo anterior; no se sustituyen los otros personajes.
 - **Replicar con otro personaje posteriormente:** usar el patrón fuente + exportación + adaptador por instancia, con su propia malla, pesos y clips. Reutilizar el contrato de eventos existente, sin copiar reglas ni construir ahora un framework de personajes. Esta entrega solo genera Kael.

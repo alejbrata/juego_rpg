@@ -85,7 +85,10 @@ func build(fighter: BattleEngine.Fighter) -> void:
 func _build_imported_kael() -> bool:
 	var candidate := KaelModel.new()
 	model_pivot.add_child(candidate)
-	if not candidate.load_asset(kael_asset_path, report_asset_warnings):
+	var selected_path := kael_asset_path
+	if selected_path == KaelModel.ASSET_PATH and ProjectSettings.get_setting("visuals/kael/asset_version", "0.9") == "0.8":
+		selected_path = "res://assets/characters/kael/v08/kael.glb"
+	if not candidate.load_asset(selected_path, report_asset_warnings):
 		kael_load_error = candidate.load_error
 		model_pivot.remove_child(candidate)
 		candidate.free()

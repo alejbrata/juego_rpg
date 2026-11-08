@@ -1,0 +1,38 @@
+{
+  "blender": "5.2.1 LTS",
+  "units": "metres",
+  "godot_forward": "+Z",
+  "vertices": 1892,
+  "triangles": 3528,
+  "bones": [
+    "root",
+    "pelvis",
+    "spine",
+    "neck",
+    "head",
+    "upper_arm.L",
+    "forearm.L",
+    "hand.L",
+    "upper_arm.R",
+    "forearm.R",
+    "hand.R",
+    "thigh.L",
+    "calf.L",
+    "foot.L",
+    "thigh.R",
+    "calf.R",
+    "foot.R"
+  ],
+  "animations": {
+    "Idle": 2.0,
+    "Walk": 0.8,
+    "Attack": 0.6,
+    "Hurt": 0.4,
+    "Defend": 0.4,
+    "KO": 0.8
+  },
+  "authored_sections": 59,
+  "glb_sha256": "90a296108b6beb498d28448c10b58d44bdfb71b320d018a26dd81eaf9aa3e296",
+  "script_sha256": "fe6277f67fdfe85bcd4ce0dc7dfeff5365fda8b37098c8bff3a82543819bfbb7",
+  "blend_sha256": "67a380cde564f4def1894b09e9f1caa4015c5250f03b7260a3fe0bd1f7025a25"
+}
