@@ -15,6 +15,14 @@ run/main_scene="res://scenes/forest_exploration.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[filesystem]
+
+import/blender/enabled=false
+
+[visuals]
+
+kael/use_imported=true
+
 [display]
 
 window/size/viewport_width=960

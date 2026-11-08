@@ -1,6 +1,22 @@
 # Eclipse JRPG
 
-## Estado actual: misión narrativa inicial (0.7)
+## Estado actual: piloto visual de Kael y pipeline Blender (0.8)
+
+Decisión confirmada de implementación: sustituir únicamente la representación de Kael mediante un asset original de Blender, sin modificar BattleEngine, PartyState, GameSession, balance ni sistemas narrativos. El contenido narrativo de 0.7 sigue siendo **provisional, no canon**; no se han añadido decisiones de historia.
+
+### Entrega visual 0.8
+
+- Malla perfilada con anatomía y vestuario coherentes, rostro sencillo con volumen, mechones castaños, armadura ligera azul, correas, guantes, botas y espada. Dos mallas con skin y pesos normalizados, un Armature de 17 huesos; espada vinculada a la mano derecha.
+- Fuente `assets/characters/kael/kael.blend` y exportación autocontenida `kael.glb`. Generación reproducible y exportación de fuente editada en `tools/blender/`; manifiesto con hashes. Ejecutados con Blender 5.2.1 LTS local tras comprobar que MCP no respondía. Importación nativa de GLB en Godot 4.7.2, sin importación directa de `.blend` ni configuración global.
+- Clips: Idle, Walk, Attack, Hurt, Defend, KO. El adaptador visual usa eventos ya resueltos; no calcula daño, recursos o turnos. Defensa e inconsciencia mantienen pose hasta sincronizar otro estado. Reinicio/omisión cancelan presentación y recuperan el estado del motor.
+- El mismo asset se utiliza en batalla y exploración; Walk depende del movimiento horizontal real y vuelve a Idle al detenerse/bloquearse. Se mantienen formación, colisiones y velocidad. Lyra, Nira, Centinela e Ignar conservan sus modelos anteriores.
+- Fallback configurable global o por escena. Un recurso ausente o incompleto genera aviso comprensible y recupera el Kael procedural. Las bibliotecas de animación y efectos se aíslan por instancia.
+- Presupuesto actual: 3528 triángulos, 1892 vértices de autor, 17 huesos y 17 superficies entre cuerpo/espada; sin texturas externas. El rig añade coste de skinning y las superficies varias llamadas de dibujo. Límite preventivo 7000 triángulos; no se dispone de mediciones de FPS ni validación en móviles.
+- Verificación: 507 comprobaciones previas conservadas, 51 nuevas, **558/558** headless y render real. Reapertura y reexportación real del `.blend`, comprobación de contrato y hashes, inspección de comparaciones y poses. [Antes](previews/kael-before-detail.png) / [después](previews/kael-after-detail.png) con igual cámara. La valoración visual se apoya en estas imágenes, no solo en las pruebas.
+
+Limitaciones confirmadas: piloto artístico, manos simplificadas sin dedos articulados, sin expresión facial animada, sin IK de pies ni mezcla avanzada; posible deslizamiento al andar. La silueta y el vestuario mejoran frente al procedural, pero el rostro/cabello requieren más dirección artística. No se han observado deformaciones graves en las poses revisadas; no equivale a revisión exhaustiva de todos los fotogramas. Mejoras artísticas posteriores y otros personajes son ideas futuras, no implementadas ni autorizadas por este pipeline. Comandos, contrato de sustitución y edición en README.
+
+### Base jugable conservada (0.7)
 
 Numeración corregida: 0.5 = primer claro explorable; 0.6 = renovación visual del combate; 0.7 = «La expedición perdida». Las reglas de combate y sus Resources se mantienen.
 

@@ -5,6 +5,7 @@ signal battle_finished(result: int)
 @export_range(0.01, 2.0) var animation_time_scale: float = 1.0
 @export var camera_motion_enabled: bool = true
 @export var skip_animations: bool = false
+@export var use_imported_kael: bool = true
 
 @onready var hud = $Overlay/HUD
 var visuals: Array[BattleActorVisual] = []
@@ -80,6 +81,7 @@ func _reset_visuals() -> void:
 	var enemy_slot := 0
 	for fighter in hud.engine.fighters:
 		var visual := BattleActorVisual.new()
+		visual.prefer_imported_kael = use_imported_kael
 		_actors.add_child(visual)
 		visual.build(fighter)
 		var slot := enemy_slot if fighter.enemy else hero_slot

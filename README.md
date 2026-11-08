@@ -1,8 +1,55 @@
 # Eclipse JRPG
 
-Prototipo 0.7 para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para jugar «La expedición perdida», o F6 con `scenes/forest_exploration.tscn` abierta. Para probar solo combate, abrir **`scenes/battle_3d.tscn` y pulsar F6**. El respaldo 2D `scenes/battle.tscn` también se puede ejecutar con F6.
+Prototipo 0.8 para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para jugar «La expedición perdida», o F6 con `scenes/forest_exploration.tscn` abierta. Para probar solo combate, abrir **`scenes/battle_3d.tscn` y pulsar F6**. El respaldo 2D `scenes/battle.tscn` también se puede ejecutar con F6.
 
 Versiones: **0.5**, primer claro explorable; **0.6**, renovación visual; **0.7**, primera misión narrativa. Esta numeración corrige el título repetido de la entrega visual anterior.
+
+## Kael: Blender → GLB → Godot (0.8)
+
+Piloto visual original construido con mallas de secciones perfiladas, pesos normalizados y un Armature de 17 huesos. Cuerpo y espada son dos mallas deformadas por el mismo esqueleto; la espada tiene sus vértices vinculados a `hand.R`. Armadura azul, correas, guantes, botas, rostro con volumen y mechones sustituyen al Kael procedural en batalla y exploración. Lyra, Nira, Centinela, reglas e historia permanecen como estaban. **La historia de 0.7 es provisional y no constituye canon.**
+
+Blender MCP no estaba accesible; se ejecutó realmente **Blender 5.2.1 LTS local**, en un proceso independiente. Se generaron y comprobaron `assets/characters/kael/kael.blend` y `kael.glb`; también se reabrió el `.blend` y se reexportaron correctamente las seis acciones. Godot **4.7.2** importa el GLB por su importador nativo. El juego no necesita Blender instalado: la importación automática de `.blend` está desactivada solo en este proyecto, para evitar dos pipelines distintos.
+
+Desde la raíz del repositorio, en PowerShell:
+
+```powershell
+$blender = 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe'
+$godot = 'C:\Users\aleja\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe'
+& $blender --background --factory-startup --python-exit-code 1 --python tools/blender/build_kael.py
+& $godot --headless --path . --editor --import
+& $godot --headless --path . --script res://tests/test_battle.gd
+```
+
+Cada comando debe terminar con código 0. `build_kael.py` **regenera y sustituye** la fuente y el GLB: guardar primero cualquier edición artística que se quiera conservar. No abre ni reemplaza una sesión interactiva de Blender, no instala complementos y no cambia preferencias globales. Para editar manualmente, abrir `kael.blend`, guardar los cambios en ese archivo y exportar sin reconstruir geometría:
+
+```powershell
+& $blender --background --factory-startup --python-exit-code 1 --python tools/blender/export_kael.py
+& $godot --headless --path . --editor --import
+```
+
+`kael_manifest.json` registra geometría, huesos, clips y SHA-256 del generador, fuente y GLB. El exportador valida pesos y presupuesto. Las Actions tienen usuario persistente para sobrevivir al guardado/reapertura. GLB lleva materiales y animaciones, sin texturas ni rutas externas.
+
+- **Materiales/geometría:** editar `PALETTE`, `build_body()` y `build_sword()` del generador; las secciones se ensamblan en las dos mallas con skin. Se puede trabajar en Blender y usar solo el exportador para preservar cambios manuales.
+- **Animaciones:** `animate()` crea `Idle`, `Walk`, `Attack`, `Hurt`, `Defend` y `KO` a 30 fps. Idle/Walk son ciclos; Defend/KO mantienen su pose final. Para añadir un clip, conservar su Action al guardar, incluirlo en el contrato del exportador y conectarlo explícitamente en `KaelModel`/presentación, con una prueba. No crear una habilidad ni regla para justificarlo.
+- **Sustituir el asset:** guardar la fuente y exportar sobre la misma ruta, manteniendo `KaelRig`, `KaelBody`, `KaelSword`, nombres de huesos y seis clips; después reimportar. `scenes/kael_model.gd` es el adaptador, sin dependencia del motor de combate. El campo `kael_asset_path` de `BattleActorVisual` permite probar otra exportación compatible.
+- **Fallback:** cambiar `visuals/kael/use_imported` a `false` en Ajustes del proyecto (o en la sección `[visuals]` de `project.godot`). Para una escena, desmarcar `use_imported_kael` en el nodo raíz de batalla o en Player. Si falta el GLB o su contrato de esqueleto/clips/espada, se informa mediante advertencia comprensible y se crea el modelo anterior; no se sustituyen los otros personajes.
+- **Replicar con otro personaje posteriormente:** usar el patrón fuente + exportación + adaptador por instancia, con su propia malla, pesos y clips. Reutilizar el contrato de eventos existente, sin copiar reglas ni construir ahora un framework de personajes. Esta entrega solo genera Kael.
+
+### Comparar y probar
+
+Comparaciones de render real con idéntico encuadre: [antes](docs/previews/kael-before.png), [después](docs/previews/kael-after.png), [detalle anterior](docs/previews/kael-before-detail.png), [detalle nuevo](docs/previews/kael-after-detail.png). Se pueden regenerar sin `--headless`:
+
+```powershell
+& $godot --path . --script res://tools/capture_kael.gd -- --output docs/previews
+```
+
+En F6 sobre la batalla, Defender con Lyra deja actuar a Kael: usar Ataque/Golpe potente para ver Attack, Defender para Defend y resolver el enemigo para Hurt. KO se reproduce al caer; reiniciar durante una acción restaura Idle. Omitir animación presenta el estado ya calculado. En F5, omitir/cerrar la introducción, caminar con WASD/flechas y detenerse para alternar Walk/Idle. Los diálogos siguen bloqueando movimiento. Alternar fallback permite comparar también dentro del juego.
+
+Validación: **507 comprobaciones previas conservadas; 558 totales, 0 fallos**, tanto headless como con render real. Las 51 nuevas verifican importación, hashes, contrato, skin de espada, poses, independencia de instancias, fallback, reinicio, invariancia de PV/PM/RE/estados y movimiento. También se inspeccionaron capturas reales de Attack, Walk, Hurt, Defend y KO, además del antes/después; las pruebas técnicas por sí solas no certifican calidad artística.
+
+Coste aproximado: **3528 triángulos**, **1892 vértices de autor** (el importador puede duplicarlos por materiales/normales), 17 huesos, 6 clips, dos mallas y 17 superficies de material en total. GLB ≈190 KiB, fuente ≈197 KiB. La animación ósea añade trabajo frente a los gestos procedurales; el número de superficies implica varias llamadas de dibujo, aunque no hay texturas ni sistemas nuevos. Presupuesto preventivo de 7000 triángulos, no una garantía de rendimiento móvil: **todavía no se han medido FPS ni probado dispositivos Android/iOS**.
+
+Limitaciones: arte piloto, manos sin dedos articulados, rostro sin animación facial, locomoción sin IK y posible deslizamiento de pies; no hay mezcla avanzada ni transiciones específicas entre todos los clips. La mejora se aprecia en proporciones, silueta y ropa frente al anterior, pero no es un modelo artístico definitivo. No se observaron separaciones ni deformaciones graves en las poses inspeccionadas; falta QA exhaustiva de todos los fotogramas y cámaras.
 
 ## Jugar «La expedición perdida» de principio a fin (0.7)
 

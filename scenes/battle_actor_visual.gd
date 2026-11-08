@@ -22,6 +22,11 @@ var _gesture: Tween
 var _alive: bool = true
 var _idle_clock: float = 0.0
 var _defending: bool = false
+@export var prefer_imported_kael: bool = true
+@export_file("*.glb") var kael_asset_path: String = KaelModel.ASSET_PATH
+var imported_model: KaelModel
+var report_asset_warnings: bool = true
+var kael_load_error: String = ""
 
 func build(fighter: BattleEngine.Fighter) -> void:
 	base_color = Color("6e7b73") if fighter.enemy else {"kael": Color("344b6c"), "lyra": Color("75608e"), "nira": Color("69896a")}.get(fighter.data.id, Color("7c8d96"))
@@ -35,6 +40,8 @@ func build(fighter: BattleEngine.Fighter) -> void:
 	visual_id = fighter.data.id if not fighter.enemy else "sentinel"
 	if fighter.enemy:
 		StylizedModels.golem(model_pivot, material)
+	elif fighter.data.id == "kael" and prefer_imported_kael and ProjectSettings.get_setting("visuals/kael/use_imported", true) and _build_imported_kael():
+		pass
 	else:
 		var parts := StylizedModels.hero(model_pivot, fighter.data.id, material)
 		weapon = parts.weapon
@@ -75,8 +82,21 @@ func build(fighter: BattleEngine.Fighter) -> void:
 	nameplate.outline_size = 4
 	add_child(nameplate)
 
+func _build_imported_kael() -> bool:
+	var candidate := KaelModel.new()
+	model_pivot.add_child(candidate)
+	if not candidate.load_asset(kael_asset_path, report_asset_warnings):
+		kael_load_error = candidate.load_error
+		model_pivot.remove_child(candidate)
+		candidate.free()
+		return false
+	imported_model = candidate
+	weapon = imported_model.weapon
+	model_pivot.set_meta("source_mesh_count", imported_model.authored_sections)
+	return true
+
 func _process(delta: float) -> void:
-	if not _alive or body == null or (_motion != null and _motion.is_running()):
+	if imported_model != null or not _alive or body == null or (_motion != null and _motion.is_running()):
 		return
 	_idle_clock += delta
 	body.position.y = sin(_idle_clock * 2.1 + home.z) * 0.018
@@ -90,7 +110,7 @@ func sync(fighter: BattleEngine.Fighter, guardian_name: String, active: bool, pr
 		_flash.kill()
 	if _gesture != null:
 		_gesture.kill()
-	if weapon != null:
+	if weapon != null and imported_model == null:
 		weapon.rotation = Vector3.ZERO
 	position = home
 	body.rotation = Vector3.ZERO
@@ -105,14 +125,15 @@ func sync(fighter: BattleEngine.Fighter, guardian_name: String, active: bool, pr
 	var states: Array[String] = []
 	if fighter.hp <= 0:
 		states.append("INCONSCIENTE")
-		body.rotation.z = PI * 0.5
-		body.position.y = 0.18
-		body.scale = Vector3.ONE * 0.65
+		if imported_model == null:
+			body.rotation.z = PI * 0.5
+			body.position.y = 0.18
+			body.scale = Vector3.ONE * 0.65
 		material.albedo_color = base_color.darkened(0.55)
 	if fighter.guarding and fighter.hp > 0:
 		states.append("DEFENDIENDO")
-		body.rotation.x = -0.08
-		if weapon != null:
+		body.rotation.x = -0.08 if imported_model == null else 0.0
+		if weapon != null and imported_model == null:
 			weapon.rotation.z = -0.45
 	if not guardian_name.is_empty():
 		states.append("Vínculo: " + guardian_name)
@@ -136,12 +157,22 @@ func sync(fighter: BattleEngine.Fighter, guardian_name: String, active: bool, pr
 	if fighter.hp <= 0:
 		nameplate.text += " · KO"
 	nameplate.modulate = caption.modulate
+	if imported_model != null:
+		imported_model.reset_pose("KO" if fighter.hp <= 0 else ("Defend" if fighter.guarding else "Idle"))
 
 func animate(kind: String, direction: Vector3 = Vector3.RIGHT) -> void:
 	if _motion != null:
 		_motion.kill()
-	_motion = create_tween()
 	var duration := 0.18 * time_scale
+	if imported_model != null:
+		var clip: String = {"physical": "Attack", "hit": "Hurt", "guard": "Defend", "protect": "Defend", "knockout": "KO"}.get(kind, "Idle")
+		imported_model.play_action(clip, duration * 2)
+		if kind in ["physical", "hit"]:
+			_motion = create_tween()
+			_motion.tween_property(body, "position", direction * 0.65 if kind == "physical" else Vector3(0.15, 0, 0), duration)
+			_motion.tween_property(body, "position", Vector3.ZERO, duration)
+		return
+	_motion = create_tween()
 	if weapon != null and kind in ["physical", "magic", "heal", "haste"]:
 		if _gesture != null:
 			_gesture.kill()
@@ -166,6 +197,9 @@ func animate(kind: String, direction: Vector3 = Vector3.RIGHT) -> void:
 			_motion.parallel().tween_property(body, "scale", Vector3.ONE * 0.65, duration * 2)
 
 func flash(color: Color) -> void:
+	if imported_model != null:
+		imported_model.flash(color, 0.28 * time_scale)
+		return
 	if _flash != null:
 		_flash.kill()
 	material.albedo_color = color

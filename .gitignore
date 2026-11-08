@@ -1,3 +1,9 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Blender generation backups are not source assets.
+*.blend1
+*.blend2
+*.generated.blend
+__pycache__/

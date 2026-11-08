@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 @export var movement_speed: float = 4.0
+@export var use_imported_kael: bool = true
 var movement_enabled: bool = true
 var _external_input: Vector2 = Vector2.ZERO
 var _use_external_input: bool = false
@@ -17,6 +18,7 @@ func _ready() -> void:
 	collider.position.y = 0.85
 	add_child(collider)
 	model = BattleActorVisual.new()
+	model.prefer_imported_kael = use_imported_kael
 	add_child(model)
 	model.build(BattleEngine.Fighter.new(preload("res://data/kael.tres"), false))
 	model.caption.visible = false
@@ -52,5 +54,7 @@ func _physics_process(delta: float) -> void:
 	velocity.z = direction.z * movement_speed
 	velocity.y -= 9.8 * delta
 	move_and_slide()
+	if model.imported_model != null:
+		model.imported_model.set_walking(Vector2(velocity.x, velocity.z).length() > 0.05, movement_speed / 4.0)
 	if direction.length_squared() > 0.01:
 		model.rotation.y = lerp_angle(model.rotation.y, atan2(direction.x, direction.z), minf(1.0, delta * 12))
