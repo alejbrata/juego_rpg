@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="GuardianData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://combat/guardian_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ignar"
+label = "Ignar — Guardián de las Brasas"
+element = "fire"
+summon_label = "Juicio de Ceniza"
+base_damage = 40
+defense_reduction = 0.25
+debuff_rounds = 2
+level_thresholds = PackedInt32Array(0, 100, 250, 500)
+passive_names = PackedStringArray("Sangre de Fuego", "Corazón de Brasas", "Resonancia Ardiente", "Furia de Ignar")
+resistance_bonus = 0.1
+damage_bonus = 0.1
+weakness_re_bonus = 5
+summon_base_bonus = 0.2

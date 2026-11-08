@@ -7,5 +7,5 @@ extends Resource
 @export var power: int = 0
 @export_enum("enemy", "ally", "self") var target_kind: String = "enemy"
 @export_enum("physical", "fire", "ice", "neutral") var element: String = "neutral"
-# Only offensive area actions are supported; none are assigned in this prototype.
+# Offensive area actions only. Summons use the same damage path.
 @export var is_area: bool = false

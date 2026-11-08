@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1")
 label = "Lyra"
+id = "lyra"
 max_hp = 75
 max_mp = 35
 strength = 8

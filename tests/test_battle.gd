@@ -158,6 +158,7 @@ func test_elements() -> void:
 	check((load("res://data/sentinel.tres") as CombatantData).validation_error().is_empty(), "Centinela original permanece válido y sin mutar")
 
 func _initialize() -> void:
+	preload("res://tests/guardian_checks.gd").new().run(check)
 	test_protection()
 	test_elements()
 	var e := battle()
@@ -322,6 +323,33 @@ func _initialize() -> void:
 	check(ui.engine.fighters[0].hp == 113 and ui.log_view.text.contains("Kael intercepta"), "Interfaz ejecuta y muestra autoprotección")
 	ui._restart()
 	check(ui.engine.fighters[0].protection_target == -1 and ui.engine.fighters[0].mp == 12 and ui.log_view.text.is_empty(), "Reiniciar limpia Protección, PM y registro")
+	# Additional UI flow; all 92 checks from iteration 0.2 remain above.
+	ui._new_party()
+	check(ui.run.resonance == 0 and ui.resonance_bar.value == 0 and ui.actions.get_child_count() == 4, "Nueva partida muestra RE cero y no ofrece Invocar")
+	check(ui.guardian_info.text.contains("Lyra: Ignar") and ui.guardian_info.text.contains("nivel 1") and ui.guardian_info.text.contains("0 PA"), "Interfaz muestra portador, nivel y PA iniciales")
+	ui.run.resonance = 100
+	ui._refresh()
+	check(ui.resonance_bar.value == 100 and ui.actions.get_child_count() == 5 and ui.actions.get_child(4).text.contains("Invocar"), "Interfaz ofrece Invocar a Lyra con barra llena")
+	ui.actions.get_child(4).pressed.emit()
+	check(ui.run.resonance == 0 and ui.resonance_bar.value == 0 and ui.engine.current_id() == 0, "Botón Invocar consume RE y actualiza turno")
+	check(ui.message.text.contains("Juicio de Ceniza") and ui.log_view.text.contains("20 de daño") and ui.log_view.text.contains("Defensa física -25%"), "Interfaz muestra mensaje, daño y reducción de Defensa")
+	check(ui.engine.fighters[1].mp == 35 and ui.engine.events.size() == 3, "Flujo de interfaz invoca sin gastar PM y registra tres eventos")
+	ui.run.resonance = 100
+	ui._refresh()
+	check(ui.actions.get_child_count() == 4, "Kael sin vínculo no recibe botón Invocar aunque haya 100 RE")
+	ui._restart()
+	check(ui.run.resonance == 100 and ui.actions.get_child_count() == 5 and ui.engine.fighters[3].defense_down_rounds == 0, "Reiniciar combate conserva RE y limpia debuff temporal")
+	ui.engine.fighters[3].hp = 1
+	ui.actions.get_child(0).pressed.emit()
+	ui.targets.get_child(0).pressed.emit()
+	check(ui.engine.phase == BattleEngine.Phase.VICTORY and ui.guardian_info.text.contains("50 PA"), "Victoria actualiza PA mostrados")
+	ui._restart()
+	ui.engine.fighters[3].hp = 1
+	ui.actions.get_child(0).pressed.emit()
+	ui.targets.get_child(0).pressed.emit()
+	check(ui.guardian_info.text.contains("nivel 2") and ui.guardian_info.text.contains("100 PA"), "Segunda victoria muestra nuevo nivel de Ignar")
+	ui._new_party()
+	check(ui.run.resonance == 0 and ui.run.progress("ignar").affinity == 0 and ui.engine.fighters[3].hp == 280, "Nueva partida reinicia RE, PA y combate")
 	ui.free()
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)

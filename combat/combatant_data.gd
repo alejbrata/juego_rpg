@@ -1,6 +1,7 @@
 class_name CombatantData
 extends Resource
 
+@export var id: String = ""
 @export var label: String = ""
 @export var max_hp: int = 1
 @export var max_mp: int = 0

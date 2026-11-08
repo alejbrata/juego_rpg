@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1")
 label = "Kael"
+id = "kael"
 max_hp = 120
 max_mp = 12
 strength = 24

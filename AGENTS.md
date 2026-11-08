@@ -8,5 +8,7 @@
 - Separar Defender de la interceptación de Protección. Cubrir expiración, autoprotección, inconsciencia y área con pruebas. No acumular sus reducciones.
 - Elementos y afinidades son datos configurables; rechazar debilidad/resistencia simultáneas al mismo elemento antes de mutar la batalla. Mantener explícito el orden de multiplicadores y redondeos.
 - Las decisiones futuras confirmadas en el GDD no autorizan a implementar esos sistemas.
+- Iteración 0.3: RE, vínculo y PA pertenecen a `PartyState`; compartir explícitamente esa instancia entre combates. Resources de Guardianes inmutables, progreso separado. No cambiar vínculos en combate ni conceder PA dos veces por victoria.
+- Conservar las 92 comprobaciones de 0.2 y ejecutar también los casos de `tests/guardian_checks.gd` mediante el mismo punto de entrada. Invocaciones generan eventos, sin nodos ni cinemáticas en el motor.
 - Ejecutar importación headless y `godot --headless --path . --script res://tests/test_battle.gd` tras cambios de lógica. Las pruebas deben terminar con código distinto de cero si fallan.
-- No implementar inventario, progresión, Resonancia, Guardianes, exploración, animaciones complejas ni exportación móvil.
+- Alcance actual: combate, Resonancia, Ignar y su progresión por PA. No implementar inventario, progresión de personajes, especializaciones, otros Guardianes, exploración, guardado, animaciones complejas ni exportación móvil.
