@@ -12,3 +12,5 @@ defense = 12
 resistance = 10
 speed = 11
 abilities = Array[ExtResource("2")]([])
+weaknesses = Array[String](["ice"])
+resistances = Array[String](["fire"])

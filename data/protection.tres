@@ -2,8 +2,8 @@
 [ext_resource type="Script" path="res://combat/ability.gd" id="1"]
 [resource]
 script = ExtResource("1")
-label = "Protecci?n"
+label = "Protección"
 cost = 5
-effect = "guard"
+effect = "protect"
 power = 0
 target_kind = "ally"

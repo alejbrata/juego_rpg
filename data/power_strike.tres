@@ -7,3 +7,4 @@ cost = 4
 effect = "physical"
 power = 15
 target_kind = "enemy"
+element = "physical"

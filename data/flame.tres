@@ -7,3 +7,4 @@ cost = 8
 effect = "magic"
 power = 10
 target_kind = "enemy"
+element = "fire"

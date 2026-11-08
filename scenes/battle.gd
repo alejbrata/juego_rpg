@@ -43,7 +43,12 @@ func _ready() -> void:
 func _restart() -> void:
 	var heroes: Array[CombatantData] = [preload("res://data/kael.tres"), preload("res://data/lyra.tres"), preload("res://data/nira.tres")]
 	var enemies: Array[CombatantData] = [preload("res://data/sentinel.tres")]
-	engine.start(heroes, enemies)
+	var error := engine.start(heroes, enemies)
+	if not error.is_empty():
+		status.text = "Datos inválidos: " + error
+		_clear(actions)
+		_clear(targets)
+		return
 	selected = null
 	_refresh()
 
@@ -57,7 +62,11 @@ func _refresh() -> void:
 	_clear(targets)
 	roster.text = ""
 	for fighter in engine.fighters:
+		if engine.phase in [BattleEngine.Phase.WAITING_PLAYER, BattleEngine.Phase.ENEMY_TURN] and fighter == engine.fighters[engine.current_id()]:
+			roster.text += "▶ TURNO ACTIVO: "
 		roster.text += "%s%s   PV %d/%d   PM %d/%d   VEL %d%s%s\n" % ["Enemigo: " if fighter.enemy else "", fighter.data.label, fighter.hp, fighter.data.max_hp, fighter.mp, fighter.data.max_mp, fighter.speed(), "  [Defensa]" if fighter.guarding else "", "  [Inconsciente]" if fighter.hp == 0 else ""]
+		if fighter.protection_target >= 0 and fighter.hp > 0:
+			roster.text += "    Protección → %s\n" % engine.fighters[fighter.protection_target].data.label
 	log_view.text = "\n".join(engine.history)
 	message.text = ""
 	if engine.phase == BattleEngine.Phase.VICTORY or engine.phase == BattleEngine.Phase.DEFEAT:
@@ -75,7 +84,8 @@ func _refresh() -> void:
 	var options: Array[BattleAbility] = [engine.basic_attack(), engine.defend_action()]
 	options.append_array(actor.data.abilities)
 	for ability in options:
-		var button := _add_button(actions, "%s (%d PM)" % [ability.label, ability.cost], func() -> void: _choose(ability))
+		var element_label := " [%s]" % ability.element if ability.effect in ["physical", "magic"] else ""
+		var button := _add_button(actions, "%s%s (%d PM)" % [ability.label, element_label, ability.cost], func() -> void: _choose(ability))
 		button.disabled = actor.mp < ability.cost
 
 func _add_button(container: Container, text: String, callback: Callable) -> Button:
