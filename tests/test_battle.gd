@@ -11,8 +11,10 @@ func check(condition: bool, description: String) -> void:
 
 func battle() -> BattleEngine:
 	var engine := BattleEngine.new()
-	var heroes: Array[CombatantData] = [load("res://data/kael.tres"), load("res://data/lyra.tres"), load("res://data/nira.tres")]
-	var enemies: Array[CombatantData] = [load("res://data/sentinel.tres")]
+	var heroes: Array[CombatantData] = []
+	for name in ["kael", "lyra", "nira"]:
+		heroes.append(load("res://data/%s.tres" % name).duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData)
+	var enemies: Array[CombatantData] = [load("res://data/sentinel.tres").duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData]
 	engine.start(heroes, enemies)
 	return engine
 
@@ -31,7 +33,7 @@ func defend_until_round(engine: BattleEngine, target_round: int) -> void:
 func protection_battle(target_id: int = 1) -> BattleEngine:
 	var e := BattleEngine.new()
 	var heroes: Array[CombatantData] = [load("res://data/kael.tres"), load("res://data/lyra.tres"), load("res://data/nira.tres")]
-	var enemy := (load("res://data/sentinel.tres") as CombatantData).duplicate(true) as CombatantData
+	var enemy := (load("res://data/sentinel.tres") as CombatantData).duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData
 	var enemies: Array[CombatantData] = [enemy, enemy]
 	e.start(heroes, enemies)
 	e.act(e.basic_attack(), 3)
@@ -103,10 +105,10 @@ func test_elements() -> void:
 	e.act(e.fighters[1].data.abilities[1], 3)
 	check(e.fighters[3].hp == 244 and e.fighters[1].mp == 28, "Escarcha: base 24 por debilidad 1,5 = 36")
 	e = battle()
-	var enemy := e.fighters[3].data.duplicate(true) as CombatantData
+	var enemy := e.fighters[3].data.duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData
 	e.fighters[3].data = enemy
 	var spell := e.fighters[1].data.abilities[0].duplicate(true) as BattleAbility
-	var mage := e.fighters[1].data.duplicate(true) as CombatantData
+	var mage := e.fighters[1].data.duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData
 	e.fighters[1].data = mage
 	mage.abilities.append(spell)
 	spell.element = "neutral"
@@ -114,14 +116,14 @@ func test_elements() -> void:
 	e.act(spell, 3)
 	check(e.fighters[3].hp == 252, "Neutral siempre multiplica por uno incluso en afinidades")
 	e = battle()
-	mage = e.fighters[1].data.duplicate(true) as CombatantData
+	mage = e.fighters[1].data.duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData
 	e.fighters[1].data = mage
 	spell = mage.abilities[1]
 	spell.power = 7
 	e.act(spell, 3)
 	check(e.fighters[3].hp == 243, "Debilidad: base 25 por 1,5 redondea abajo a 37")
 	e = battle()
-	mage = e.fighters[1].data.duplicate(true) as CombatantData
+	mage = e.fighters[1].data.duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData
 	e.fighters[1].data = mage
 	spell = mage.abilities[0]
 	spell.power = 11
@@ -132,13 +134,13 @@ func test_elements() -> void:
 	e.act(e.fighters[1].data.abilities[0], 3)
 	check(e.fighters[3].hp == 273, "Elemento antes de Defender: base 28, resistencia 14, defensa 7")
 	e = battle()
-	mage = e.fighters[1].data.duplicate(true) as CombatantData
+	mage = e.fighters[1].data.duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData
 	e.fighters[1].data = mage
 	mage.magic = 0
 	e.act(mage.abilities[0], 3)
 	check(e.fighters[3].hp == 279, "Daño mínimo uno tras resistencia y redondeo")
 	e = battle()
-	enemy = e.fighters[3].data.duplicate(true) as CombatantData
+	enemy = e.fighters[3].data.duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData
 	enemy.weaknesses.append("fire")
 	var heroes: Array[CombatantData] = [e.fighters[0].data]
 	var enemies: Array[CombatantData] = [enemy]
@@ -151,7 +153,7 @@ func test_elements() -> void:
 	enemy.resistances.append("unknown")
 	check(not enemy.validation_error().is_empty(), "Elemento desconocido en afinidades se rechaza")
 	e = battle()
-	mage = e.fighters[1].data.duplicate(true) as CombatantData
+	mage = e.fighters[1].data.duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData
 	e.fighters[1].data = mage
 	mage.abilities[0].element = "unknown"
 	check(not e.act(mage.abilities[0], 3).is_empty() and e.fighters[1].mp == 35 and e.current_id() == 1, "Habilidad con elemento inválido no consume PM ni turno")
@@ -351,5 +353,6 @@ func _initialize() -> void:
 	ui._new_party()
 	check(ui.run.resonance == 0 and ui.run.progress("ignar").affinity == 0 and ui.engine.fighters[3].hp == 280, "Nueva partida reinicia RE, PA y combate")
 	ui.free()
+	await preload("res://tests/presentation_checks.gd").new().run(self, check)
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)

@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/battle_stage.gd" id="1"]
+[ext_resource type="Script" path="res://scenes/battle_hud_3d.gd" id="2"]
+
+[node name="Battle3D" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="Overlay"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2")

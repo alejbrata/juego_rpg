@@ -1,8 +1,8 @@
 # Eclipse JRPG
 
-## Combate implementado (iteración 0.3)
+## Combate implementado (iteración 0.4)
 
-JRPG de fantasía para Android e iOS, estética 3D inspirada en los clásicos de finales de los noventa, exploración con cámaras fijas o semiautomáticas. Proyecto para una persona con ayuda de Codex. El prototipo futuro tendrá 20–30 minutos; esta entrega solo incluye combate con interfaz 2D provisional.
+JRPG de fantasía para Android e iOS, estética 3D inspirada en los clásicos de finales de los noventa, exploración con cámaras fijas o semiautomáticas. Proyecto para una persona con ayuda de Codex. El prototipo futuro tendrá 20–30 minutos; esta entrega solo incluye combate, ahora con presentación 3D provisional y un respaldo 2D.
 
 Tres protagonistas: Kael (guerrero), Lyra (maga), Nira (sanadora). Combate por turnos puros, sin ATB. Cada combatiente vivo actúa una vez por ronda, en orden descendente de Velocidad. Esperar entrada no avanza la simulación. Inconscientes a 0 PV; victoria al caer todos los enemigos y derrota al caer todos los héroes.
 
@@ -59,7 +59,7 @@ Daño físico: `max(1, FUE + potencia - DEF objetivo)`. Daño mágico: `max(1, M
 - Afecta una vez a cada enemigo vivo al comenzar la invocación. Omite caídos y nunca afecta aliados.
 - A cada enemigo afectado le aplica Defensa física −25 %, aunque resista al fuego. `DEF efectiva = floor(DEF original × 0,75)` (12 → 9; 11 → 8). No modifica RES ni el Resource original.
 - La reducción está activa inmediatamente en la ronda de invocación y durante las dos rondas completas siguientes. Se almacena duración 3 al aplicar, decrementa al final de cada ronda y expira al terminar la segunda ronda completa posterior. Reaplicar renueva la duración y deja la reducción en 25 %; no se acumula.
-- Eventos ordenados en `engine.events` y señal `battle_event`: `summon_appear` (Guardián y actor), un `summon_effect` por enemigo (objetivo, elemento, PV perdidos y reducción), `summon_disappear`. Son datos para futuras animaciones; la ejecución actual es síncrona y la interfaz muestra un mensaje provisional y el registro.
+- Eventos ordenados en `engine.events` y señal `battle_event`: `summon_appear` (Guardián y actor), un `summon_effect` por enemigo (objetivo, elemento, PV antes/después, PV perdidos y reducción), `summon_disappear`. La resolución lógica sigue siendo síncrona; la escena 3D reproduce estos eventos después, sin volver a aplicar sus efectos.
 
 ### Afinidad y pasivas
 
@@ -76,6 +76,26 @@ Cada victoria concede +50 PA a los Guardianes equipados por héroes participante
 - Bonificaciones ofensivas y resistencias pasivas son multiplicativas respecto a la afinidad. Se redondea una vez hacia abajo tras el producto, con mínimo 1, y después se aplica Defender/interceptación si corresponde. Ejemplos: `floor(28 × 0,5 × 1,10) = 15`; `floor(25 × 0,90) = 22`; resistencia natural y pasiva `floor(25 × 0,5 × 0,90) = 11`.
 - Resonancia Ardiente no se activa con hielo, sin debilidad ni al invocar. Los valores, elemento, nombres de pasivas, umbrales, daño y reducción están en `data/ignar.tres`. Solo se implementa este conjunto básico de efectos, sin un framework genérico de habilidades pasivas.
 
+## Presentación 3D implementada (0.4)
+
+- Escena principal `scenes/battle_3d.tscn`: arena autocontenida de losas y pilares de ruinas, iluminación ambiental y una luz direccional, cámara ortográfica fija inclinada. Sin exploración ni movimiento controlado fuera de las animaciones.
+- Héroes a la izquierda y enemigos a la derecha, con formación escalonada y posiciones calculadas por número de combatientes. Se valida también una formación con varios enemigos. Primitivas geométricas, colores, armas provisionales, escala y etiquetas distinguen a cada actor.
+- Etiquetas 3D: nombre, PV/PM, inconsciencia, Defender, vínculo con Ignar, protector/protegido, Impulso y Defensa reducida. Disco dorado para actor activo, escudo azul persistente para Defender y enlace azul para Protección sobre un aliado diferente.
+- Ataque físico: avance corto y retorno; magia: pulso de lanzamiento y destello según elemento; daño: reacción, destello y cifra de pérdida real; curación: verde y cifra de PV recuperados; defensa/protección: postura y pulso azul; inconsciencia: figura tumbada y oscurecida.
+- Protección reproduce un evento explícito de interceptación: Kael se desplaza hacia la trayectoria del ataque, aparece «¡Protección!» y el impacto se representa sobre el receptor real indicado por el motor. Autoprotección utiliza el mismo flujo.
+- Ignar es una manifestación naranja con núcleo luminoso, cuernos y una luz puntual sin sombras. Aparece escalando, produce un impacto y texto `DEF ↓` por enemigo afectado y se retira. No es un nuevo combatiente. La secuencia dura aproximadamente 1,3 s con un enemigo y 1,7 s con dos, a velocidad normal.
+- UI superpuesta con cabecera de turno/acción, RE y Guardián; panel inferior de acciones, objetivos y registro; reinicio de combate y nueva partida. Se conserva `scenes/battle.tscn` como respaldo funcional 2D.
+
+### Decisiones técnicas y límites de esta presentación
+
+- El motor solo amplía sus notificaciones: `action` (actor, objetivo, efecto, elemento y nombre), `damage` (receptor real y PV antes/después/perdidos), `heal` (PV y recuperación), `intercept` (atacante, protector y objetivo original), más los eventos de invocación existentes. Acciones rechazadas no emiten eventos. No se cambian daño, turnos, RE, PA ni condiciones de victoria/derrota.
+- `battle_stage.gd` escucha la señal y reproduce una cola de eventos. No interpreta texto del registro ni calcula daño. Al finalizar, sincroniza poses, etiquetas e indicadores con el estado resuelto del motor. Los valores flotantes proceden de los eventos.
+- La resolución lógica es inmediata; solo se bloquea la entrada de acciones/objetivos mientras se presenta el resultado. La cabecera indica la acción en curso y luego el siguiente turno. Reinicio y nueva partida permanecen disponibles; una generación de presentación cancela colas anteriores para evitar efectos tardíos sobre una batalla nueva.
+- `battle_hud_3d.gd` hereda el controlador de `battle.gd`: cambia la distribución, no la selección ni validación de acciones. `battle_actor_visual.gd` contiene únicamente geometría, poses y tweens.
+- Renderizador Compatibility para escritorio y futura prueba móvil, sin sombras, partículas complejas, texturas externas ni postprocesado. Revisión visual en 960×640 y 800×600; no se afirma rendimiento ni compatibilidad real en teléfonos sin exportarlos y medirlos.
+- Todo el arte sigue siendo provisional: modelos, animaciones sin esqueleto, arena, iluminación, efectos e interfaz. Quedan para después modelos definitivos, rigs, audio, cámaras elaboradas y cinemáticas. No se añaden nuevas mecánicas ni otros Guardianes.
+- Las pruebas conservan todas las comprobaciones de 0.3 y añaden carga e integración de la presentación. La precarga de las escenas requiere aislar los Resources externos que se modifican en pruebas mediante copias profundas; así no dependen de que Godot descargue o mantenga recursos en caché.
+
 ## Decisiones de diseño futuras, no implementadas
 
 Estas decisiones están confirmadas para el juego futuro. No describen funcionalidades disponibles en el prototipo de combate ni autorizan su implementación en esta iteración.
@@ -90,7 +110,7 @@ Estas decisiones están confirmadas para el juego futuro. No describen funcional
 ### Guardianes
 
 - Las reglas básicas de invocación, RE persistente entre combates, vínculo único, PA independientes de EXP y progreso conservado al cambiar de portador ya están implementadas para Ignar, según las secciones anteriores.
-- Pendientes: representación espectacular con modelos 3D, efectos y cinemáticas; otros Guardianes previstos Nivara (hielo) y Sylvan (naturaleza).
+- Pendientes: representación definitiva con modelos 3D, efectos y cinemáticas; Ignar ya tiene una manifestación geométrica provisional. Otros Guardianes previstos: Nivara (hielo) y Sylvan (naturaleza).
 - Dos Guardianes legendarios secretos: Astrael y Elyra. Se obtienen mediante misiones secundarias de exploración y desafíos importantes; no se venden ni se entregan automáticamente durante la historia.
 
 ### Personajes

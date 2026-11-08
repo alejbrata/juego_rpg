@@ -9,10 +9,10 @@ func encounter(run: PartyState = null, enemy_count: int = 1) -> BattleEngine:
 	var e := BattleEngine.new()
 	var heroes: Array[CombatantData] = []
 	for name in ["kael", "lyra", "nira"]:
-		heroes.append(load("res://data/%s.tres" % name).duplicate(true) as CombatantData)
+		heroes.append(load("res://data/%s.tres" % name).duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData)
 	var enemies: Array[CombatantData] = []
 	for i in range(enemy_count):
-		enemies.append(load("res://data/sentinel.tres").duplicate(true) as CombatantData)
+		enemies.append(load("res://data/sentinel.tres").duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as CombatantData)
 	check(e.start(heroes, enemies, run).is_empty(), "Encuentro de prueba válido")
 	return e
 

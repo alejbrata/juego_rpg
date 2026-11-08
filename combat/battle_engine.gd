@@ -143,6 +143,7 @@ func act(action: BattleAbility, target_id: int) -> String:
 	var old_mp := actor.mp
 	var old_re := party_state.resonance
 	actor.mp -= action.cost
+	_emit_event({"type": "action", "actor_id": current_id(), "target_id": target_id, "effect": action.effect, "element": action.element, "label": action.label})
 	var detail := ""
 	var exploited_weakness := false
 	match action.effect:
@@ -160,6 +161,7 @@ func act(action: BattleAbility, target_id: int) -> String:
 			var old_hp := target.hp
 			var restored := mini(target.data.max_hp - target.hp, actor.data.magic + action.power)
 			target.hp += restored
+			_emit_event({"type": "heal", "actor_id": current_id(), "target_id": target_id, "hp_before": old_hp, "hp_after": target.hp, "amount": restored})
 			detail = "%s PV %d → %d (+%d)" % [target.data.label, old_hp, target.hp, restored]
 		"guard":
 			target.guarding = true
@@ -197,6 +199,7 @@ func _damage(actor: Fighter, action: BattleAbility, target_id: int, summon_base:
 			if not protector.enemy and protector.hp > 0 and protector.protection_target == target_id:
 				history.append("Protección: %s intercepta el ataque contra %s." % [protector.data.label, target.data.label])
 				protector.protection_target = -1
+				_emit_event({"type": "intercept", "actor_id": current_id(), "protector_id": fighters.find(protector), "target_id": target_id})
 				target = protector
 				intercepted = true
 				break
@@ -219,6 +222,8 @@ func _damage(actor: Fighter, action: BattleAbility, target_id: int, summon_base:
 	if not target.enemy and target.hp < old_hp:
 		party_state.resonance += 5
 	history.append("%s → %s [%s]: %d de daño; PV %d → %d (%+d)." % [action.label, target.data.label, action.element, damage, old_hp, target.hp, target.hp - old_hp])
+	if summon_base < 0:
+		_emit_event({"type": "damage", "actor_id": current_id(), "target_id": fighters.find(target), "element": action.element, "hp_before": old_hp, "hp_after": target.hp, "amount": old_hp - target.hp})
 	return target.hp < old_hp and target.data.element_multiplier(action.element) > 1.0
 
 func summon() -> String:
@@ -263,7 +268,7 @@ func summon() -> String:
 		target.defense_down_amount = guardian.defense_reduction
 		target.defense_down_rounds = guardian.debuff_rounds + 1
 		history.append("%s: Defensa física -%d%% (%d → %d), próximas %d rondas completas." % [target.data.label, roundi(guardian.defense_reduction * 100), target.data.defense, target.physical_defense(), guardian.debuff_rounds])
-		_emit_event({"type": "summon_effect", "guardian_id": guardian.id, "target_id": target_id, "element": action.element, "hp_lost": old_hp - target.hp, "defense_reduction": guardian.defense_reduction})
+		_emit_event({"type": "summon_effect", "guardian_id": guardian.id, "target_id": target_id, "element": action.element, "hp_lost": old_hp - target.hp, "hp_before": old_hp, "hp_after": target.hp, "defense_reduction": guardian.defense_reduction})
 	_emit_event({"type": "summon_disappear", "guardian_id": guardian.id})
 	_finish_turn()
 	return ""
