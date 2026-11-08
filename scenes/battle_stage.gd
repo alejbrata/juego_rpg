@@ -1,5 +1,7 @@
 extends Node3D
 
+signal battle_finished(result: int)
+
 @export_range(0.01, 2.0) var animation_time_scale: float = 1.0
 
 @onready var hud = $Overlay/HUD
@@ -12,6 +14,16 @@ var _actors: Node3D
 var _effects: Node3D
 var _links: Node3D
 var _ignar: Node3D
+var _announced_result: bool = false
+
+func configure_encounter(heroes: Array[CombatantData], enemies: Array[CombatantData], run: PartyState) -> void:
+	# Configure the existing controller before entering the tree. Standalone scenes
+	# retain their original defaults and test-party buttons.
+	var controller = get_node("Overlay/HUD")
+	controller.encounter_heroes = heroes
+	controller.encounter_enemies = enemies
+	controller.run = run
+	controller.encounter_mode = true
 
 func _ready() -> void:
 	_build_arena()
@@ -64,6 +76,7 @@ func _build_arena() -> void:
 
 func _reset_visuals() -> void:
 	_generation += 1
+	_announced_result = false
 	playing = false
 	event_queue.clear()
 	played_events.clear()
@@ -116,6 +129,12 @@ func _on_updated() -> void:
 		hud.set_presentation_busy(true)
 	else:
 		_sync_state()
+		_announce_result()
+
+func _announce_result() -> void:
+	if not _announced_result and hud.engine.phase in [BattleEngine.Phase.VICTORY, BattleEngine.Phase.DEFEAT]:
+		_announced_result = true
+		battle_finished.emit(hud.engine.phase)
 
 func _sync_state() -> void:
 	if visuals.size() != hud.engine.fighters.size():

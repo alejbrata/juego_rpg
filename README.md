@@ -1,6 +1,23 @@
 # Eclipse JRPG
 
-Prototipo de combate 0.4 para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para la batalla 3D, o F6 con `scenes/battle_3d.tscn` abierta. La escena original `scenes/battle.tscn` se conserva como respaldo 2D y puede ejecutarse con F6.
+Prototipo 0.5 para Godot 4 (verificado con 4.7.2). Abrir `project.godot` y pulsar **F5** para el Bosque del Eclipse, o F6 con `scenes/forest_exploration.tscn` abierta. Para probar solo el combate, abrir `scenes/battle_3d.tscn` y pulsar F6. La escena original `scenes/battle.tscn` se conserva como respaldo 2D y también puede ejecutarse con F6.
+
+## Primera zona explorable (0.5)
+
+1. Mover a Kael con **WASD o flechas**. El resto del grupo participa en los combates, pero no tiene seguidores visuales todavía. No hay salto ni cámara libre.
+2. Acercarse al círculo naranja del **Centinela I** o **Centinela II**. La detección es local; abre la batalla 3D existente. Los árboles, rocas, columnas y muros tienen colisión; no se puede salir del claro.
+3. Elegir acciones y objetivos normalmente. Para ganar, aprovechar Escarcha contra la debilidad al hielo, Golpe potente de Kael, Cura de Nira e Ignar cuando alcance 100 RE. Resolver los turnos enemigos con su botón.
+4. Tras ganar, se vuelve automáticamente al claro al terminar la animación. Se conserva la posición, desaparece ese Centinela y permanecen RE, vínculos y PA. Combatir contra el segundo permite comprobar la continuidad y alcanzar nivel 2 de Ignar tras dos victorias.
+5. En derrota, elegir **Reintentar combate** o **Volver al claro**. Volver deja al grupo en el punto inicial y mantiene al enemigo disponible; no concede PA. El botón de retorno se habilita solo después de resolver la derrota y su presentación.
+6. Tras vencer a los dos enemigos aparece «Claro despejado». **Nueva partida** en exploración reinicia mapa, RE y PA. En los encuentros integrados no aparece el botón que creaba una partida de combate independiente.
+
+**Simplificación de recursos:** cada encuentro y cada reintento comienzan con PV/PM máximos; no se conserva desgaste entre combates. Esta decisión usa la estructura actual del motor y evita añadir de forma implícita curación de campo, inventario o progresión de personajes. RE/PA/vínculos sí se conservan con el mismo `PartyState`. Todo vive en memoria; cerrar el juego lo reinicia.
+
+`GameSession` guarda el grupo configurado, `PartyState`, modo actual, posición de retorno y encuentros derrotados. `game_flow.gd` retira temporalmente el claro del árbol y configura la escena 3D existente con esos datos. Después recupera el mismo claro: no hay un segundo motor ni un sistema de guardado.
+
+Los dos encuentros están definidos como Resources `EncounterData` dentro de `scenes/forest_zone.tscn`: ID, etiqueta, posición, radio y array de enemigos. Pueden editarse en el inspector; la prueba de combate sigue aceptando varios enemigos. Cada ID debe ser único dentro de la zona.
+
+La velocidad se configura en `world/exploration_player.gd`. `set_movement_input(Vector2)` permite alimentar el movimiento desde futuros controles táctiles; `clear_movement_input()` vuelve al teclado. Todavía no hay joystick táctil, exploración entre varias zonas, misiones, guardado real ni recursos definitivos.
 
 Seleccionar una acción y un objetivo. Los botones de habilidades sin PM se desactivan. Resolver el turno enemigo con su botón. El registro muestra los resultados; Reiniciar permite repetir el combate.
 
@@ -62,10 +79,10 @@ godot --headless --path . --quit-after 5
 godot --path . --quit-after 60
 ```
 
-El punto de entrada conserva las 257 comprobaciones de 0.3 (incluidas las 92 de 0.2), ejecuta `tests/guardian_checks.gd` y añade `tests/presentation_checks.gd`. Comprueba carga 3D, eventos de ataque/magia/curación/defensa/protección/invocación, múltiples enemigos, inconsciencia, bloqueo de controles, reinicio durante una animación y ausencia de cambios lógicos durante la reproducción. No necesita un framework externo. Los datos que las pruebas modifican se copian con `duplicate_deep(Resource.DEEP_DUPLICATE_ALL)` para aislar también las habilidades externas precargadas.
+El punto de entrada conserva las 306 comprobaciones de 0.4 y añade `tests/exploration_checks.gd`: carga, teclado, colisiones, contacto real de `Area3D`, dos combates completos ganados mediante los controles, retorno, eliminación de enemigos, RE/PA, nivel 2, derrota/reintento/regreso y nueva partida. También siguen ejecutándose las comprobaciones de Guardianes, presentación 3D y respaldo 2D. No necesita un framework externo. Los datos que las pruebas modifican se copian con `duplicate_deep(Resource.DEEP_DUPLICATE_ALL)` para aislar también las habilidades externas precargadas.
 
 El motor se puede instanciar con `BattleEngine.new()` sin SceneTree ni escenas; `start()` recibe arrays de CombatantData y devuelve error o cadena vacía. `act()` valida y devuelve un mensaje de error o cadena vacía; `step_enemy()` resuelve la IA mínima. La escena solo consulta estado y envía acciones. Los Resources originales no se modifican durante el combate. Las afinidades contradictorias se rechazan sin consumir recursos. Ignar usa la ruta de daño de área y publica eventos para futuras animaciones.
 
 Presentación: `battle_stage.gd` consume eventos y administra la arena/cola; `battle_actor_visual.gd` representa combatientes; `battle_hud_3d.gd` reutiliza el controlador 2D con una distribución superpuesta. El motor no conoce nodos, materiales, cámara, tweens ni duración de animaciones. Se mantiene el renderizador Compatibility, sin sombras ni postprocesado pesado; todos los modelos son provisionales y procedurales, sin assets externos.
 
-Reglas y decisiones: [docs/GDD.md](docs/GDD.md). Cambiar estadísticas y habilidades en los Resources de `data/` desde el inspector. No incluye exploración, modelos definitivos, audio ni exportación móvil.
+Reglas y decisiones: [docs/GDD.md](docs/GDD.md). Cambiar estadísticas y habilidades en los Resources de `data/` desde el inspector. El claro es una zona de prueba autocontenida; no incluye una aventura completa, modelos definitivos, audio ni exportación móvil.

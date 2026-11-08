@@ -2,9 +2,12 @@ extends "res://scenes/battle.gd"
 
 signal updated
 signal battle_reset
+signal return_to_zone_requested
 
 var presentation_busy: bool = false
 var presentation_actor: String = ""
+var encounter_mode: bool = false
+var _return_button: Button
 
 func _ready() -> void:
 	# Reuse the original controller; only the arrangement changes for the 3D view.
@@ -67,8 +70,12 @@ func _ready() -> void:
 	log_column.add_child(log_view)
 	var controls := HFlowContainer.new()
 	rows.add_child(controls)
-	_add_button(controls, "Reiniciar combate", _restart)
-	_add_button(controls, "Nueva partida (RE/PA a cero)", _new_party)
+	_add_button(controls, "Reintentar combate" if encounter_mode else "Reiniciar combate", _restart)
+	_return_button = _add_button(controls, "Volver al claro" if encounter_mode else "Nueva partida (RE/PA a cero)", func() -> void:
+		if encounter_mode:
+			return_to_zone_requested.emit()
+		else:
+			_new_party())
 	# Retained for the shared controller; actor labels provide these data in 3D.
 	roster = Label.new()
 	roster.visible = false
@@ -101,6 +108,8 @@ func _restart() -> void:
 func _refresh() -> void:
 	super._refresh()
 	set_presentation_busy(presentation_busy)
+	if encounter_mode and _return_button != null:
+		_return_button.disabled = presentation_busy or engine.phase != BattleEngine.Phase.DEFEAT
 	updated.emit()
 
 func set_presentation_busy(value: bool) -> void:

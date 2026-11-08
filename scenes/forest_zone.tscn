@@ -1,0 +1,25 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://world/forest_zone.gd" id="1"]
+[ext_resource type="Script" path="res://world/encounter_data.gd" id="2"]
+[ext_resource type="Resource" path="res://data/sentinel.tres" id="3"]
+
+[sub_resource type="Resource" id="EncounterA"]
+script = ExtResource("2")
+id = "clearing_sentinel_a"
+label = "Centinela I"
+map_position = Vector3(0, 0, 1)
+detection_radius = 1.0
+enemies = Array[Resource]([ExtResource("3")])
+
+[sub_resource type="Resource" id="EncounterB"]
+script = ExtResource("2")
+id = "clearing_sentinel_b"
+label = "Centinela II"
+map_position = Vector3(5, 0, -2.8)
+detection_radius = 1.0
+enemies = Array[Resource]([ExtResource("3")])
+
+[node name="EclipseClearing" type="Node3D"]
+script = ExtResource("1")
+encounters = Array[ExtResource("2")]([SubResource("EncounterA"), SubResource("EncounterB")])

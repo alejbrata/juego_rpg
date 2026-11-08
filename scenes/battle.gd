@@ -2,6 +2,8 @@ extends Control
 
 var engine := BattleEngine.new()
 var run := PartyState.test_party()
+var encounter_heroes: Array[CombatantData] = [preload("res://data/kael.tres"), preload("res://data/lyra.tres"), preload("res://data/nira.tres")]
+var encounter_enemies: Array[CombatantData] = [preload("res://data/sentinel.tres")]
 var selected: BattleAbility
 var status: Label
 var roster: Label
@@ -58,9 +60,7 @@ func _new_party() -> void:
 	_restart()
 
 func _restart() -> void:
-	var heroes: Array[CombatantData] = [preload("res://data/kael.tres"), preload("res://data/lyra.tres"), preload("res://data/nira.tres")]
-	var enemies: Array[CombatantData] = [preload("res://data/sentinel.tres")]
-	var error := engine.start(heroes, enemies, run)
+	var error := engine.start(encounter_heroes, encounter_enemies, run)
 	if not error.is_empty():
 		status.text = "Datos inválidos: " + error
 		_clear(actions)

@@ -1,8 +1,8 @@
 # Eclipse JRPG
 
-## Combate implementado (iteración 0.4)
+## Combate y primer claro implementados (iteración 0.5)
 
-JRPG de fantasía para Android e iOS, estética 3D inspirada en los clásicos de finales de los noventa, exploración con cámaras fijas o semiautomáticas. Proyecto para una persona con ayuda de Codex. El prototipo futuro tendrá 20–30 minutos; esta entrega solo incluye combate, ahora con presentación 3D provisional y un respaldo 2D.
+JRPG de fantasía para Android e iOS, estética 3D inspirada en los clásicos de finales de los noventa, exploración con cámaras fijas o semiautomáticas. Proyecto para una persona con ayuda de Codex. El vertical slice futuro tendrá 20–30 minutos; esta entrega incluye combate 3D provisional, respaldo 2D y un primer claro explorable del Bosque del Eclipse, todavía sin una aventura completa.
 
 Tres protagonistas: Kael (guerrero), Lyra (maga), Nira (sanadora). Combate por turnos puros, sin ATB. Cada combatiente vivo actúa una vez por ronda, en orden descendente de Velocidad. Esperar entrada no avanza la simulación. Inconscientes a 0 PV; victoria al caer todos los enemigos y derrota al caer todos los héroes.
 
@@ -78,7 +78,7 @@ Cada victoria concede +50 PA a los Guardianes equipados por héroes participante
 
 ## Presentación 3D implementada (0.4)
 
-- Escena principal `scenes/battle_3d.tscn`: arena autocontenida de losas y pilares de ruinas, iluminación ambiental y una luz direccional, cámara ortográfica fija inclinada. Sin exploración ni movimiento controlado fuera de las animaciones.
+- Escena de combate `scenes/battle_3d.tscn`: arena autocontenida de losas y pilares de ruinas, iluminación ambiental y una luz direccional, cámara ortográfica fija inclinada. El movimiento de esta escena se limita a las animaciones; la exploración utiliza su propia escena.
 - Héroes a la izquierda y enemigos a la derecha, con formación escalonada y posiciones calculadas por número de combatientes. Se valida también una formación con varios enemigos. Primitivas geométricas, colores, armas provisionales, escala y etiquetas distinguen a cada actor.
 - Etiquetas 3D: nombre, PV/PM, inconsciencia, Defender, vínculo con Ignar, protector/protegido, Impulso y Defensa reducida. Disco dorado para actor activo, escudo azul persistente para Defender y enlace azul para Protección sobre un aliado diferente.
 - Ataque físico: avance corto y retorno; magia: pulso de lanzamiento y destello según elemento; daño: reacción, destello y cifra de pérdida real; curación: verde y cifra de PV recuperados; defensa/protección: postura y pulso azul; inconsciencia: figura tumbada y oscurecida.
@@ -95,6 +95,36 @@ Cada victoria concede +50 PA a los Guardianes equipados por héroes participante
 - Renderizador Compatibility para escritorio y futura prueba móvil, sin sombras, partículas complejas, texturas externas ni postprocesado. Revisión visual en 960×640 y 800×600; no se afirma rendimiento ni compatibilidad real en teléfonos sin exportarlos y medirlos.
 - Todo el arte sigue siendo provisional: modelos, animaciones sin esqueleto, arena, iluminación, efectos e interfaz. Quedan para después modelos definitivos, rigs, audio, cámaras elaboradas y cinemáticas. No se añaden nuevas mecánicas ni otros Guardianes.
 - Las pruebas conservan todas las comprobaciones de 0.3 y añaden carga e integración de la presentación. La precarga de las escenas requiere aislar los Resources externos que se modifican en pruebas mediante copias profundas; así no dependen de que Godot descargue o mantenga recursos en caché.
+
+## Primera zona explorable implementada (0.5)
+
+### Bosque del Eclipse: Claro de las ruinas
+
+- Nuevo arranque `scenes/forest_exploration.tscn`, coordinado por `world/game_flow.gd`. La geometría y controles del claro están en `scenes/forest_zone.tscn` y `world/forest_zone.gd`.
+- Claro autocontenido de 18×14 unidades: suelo, sendero, árboles, rocas, dos columnas en ruinas y muros perimetrales con colisión. Arte procedural coherente con las primitivas del combate, sin assets externos, audio ni postprocesado pesado.
+- Cámara ortográfica fija lejana, inclinada y sin giro libre. Se muestra el espacio completo. Kael es el único líder visible; Lyra y Nira siguen formando parte del grupo de combate. Esta representación sin seguidores es provisional.
+- Movimiento con WASD/flechas mediante `CharacterBody3D`, velocidad configurable, normalización de diagonal, gravedad y colisión por `move_and_slide()`. El modelo gira hacia su desplazamiento. No hay salto, carrera ni navegación automática.
+- Entrada desacoplada mediante `set_movement_input(Vector2)` y `clear_movement_input()`, preparada para un futuro control táctil, todavía no implementado.
+- Dos Centinelas estáticos y visibles. Cada encuentro tiene ID, etiqueta, posición, radio de detección y enemigos configurables con `EncounterData`. Una `Area3D` próxima al marcador detecta al líder; el círculo naranja representa su proximidad. No hay encuentros aleatorios, persecución ni activación remota. Los IDs deben ser únicos dentro del claro.
+- HUD mínimo: área, grupo, RE, portador/nivel/PA de Ignar, contador de encuentros, controles, resultado del último encuentro y nueva partida. Tras eliminar ambos Centinelas, informa que el claro está despejado.
+
+### Flujo y estado persistente en memoria
+
+- `GameSession` separa el modo (`EXPLORING`, `BATTLE`, `DEFEAT`), área, posición de retorno, definiciones del grupo, encuentros derrotados y `PartyState`. No hay singleton/autoload ni serialización: el controlador entrega explícitamente la misma instancia de estado a cada escena.
+- Al contacto se bloquea el movimiento inmediatamente. La transición se difiere fuera del vaciado de consultas físicas, se retira el claro del árbol de escenas y se instancia la batalla 3D existente. Esto desactiva su física, cámara, entorno y HUD sin destruir la zona.
+- Se configura la batalla antes de entrar en el árbol: héroes, enemigos del encuentro y el mismo `PartyState`. El motor de combate no se modifica en 0.5. RE, Guardianes, vínculo y PA siguen usando sus reglas existentes.
+- **Decisión provisional de PV/PM:** no hay persistencia de esos recursos en `PartyState`; por tanto cada encuentro o reintento comienza con sus máximos configurados, independientemente del desgaste o inconsciencia anteriores. No se añade curación de campo ni inventario. Persistir PV/PM se deja para una decisión posterior explícita.
+- Victoria: una señal de la presentación informa al controlador cuando termina la cola visual. Se registra el ID derrotado, se vuelve automáticamente al mismo claro y posición, se retira su marcador/detección y se recupera el control. El motor ya ha concedido los +50 PA; el controlador no duplica premios. RE se conserva exactamente como quedó en combate.
+- Derrota: la batalla permanece visible, permite reintentar con PV/PM completos o volver al punto inicial del claro. El enemigo continúa disponible, sin PA por derrota. RE, vínculos y progreso anteriores se conservan. No hay pantalla de game over definitiva.
+- El botón de partida independiente se sustituye en encuentros integrados por «Volver al claro», habilitado solo tras una derrota ya presentada. Las escenas de combate abiertas solas conservan sus controles de prueba originales.
+- Nueva partida desde exploración restablece posición, enemigos, RE y PA. Las solicitudes diferidas de una partida anterior se descartan; la zona retirada se libera al cerrar el controlador. Los datos solo duran mientras está abierta la partida.
+- Transiciones mediante corte directo, sin fundidos ni cinemáticas. Se conservan ambas escenas de combate para pruebas independientes con F6.
+
+### Encaje en el vertical slice y pendientes
+
+Este claro valida el primer bucle explorar → encuentro visible → combate → victoria → explorar. Es una base pequeña para el futuro vertical slice de 20–30 minutos del Bosque del Eclipse; no pretende tener todavía esa duración ni contenido narrativo.
+
+Siguen pendientes otras zonas conectadas, navegación táctil real, seguidores, persistencia de PV/PM, guardado real, diálogos, quests, secretos, puzzles, inventario, tiendas, progresión de personajes y presentación final. No se implementan Guardianes adicionales. La compatibilidad/rendimiento móvil no se afirma sin pruebas en dispositivos reales.
 
 ## Decisiones de diseño futuras, no implementadas
 
@@ -127,8 +157,8 @@ Estas decisiones están confirmadas para el juego futuro. No describen funcional
 - Guardado automático y sesiones cortas.
 - Secretos y misiones secundarias que recompensen explorar.
 
-No se implementan todavía otros Guardianes, progresión de personajes, especializaciones, inventario, exploración 3D ni guardado. Mundo abierto, animaciones complejas y exportación móvil también quedan fuera de esta entrega. Solo la progresión por PA de Ignar está implementada.
+No se implementan todavía otros Guardianes, progresión de personajes, especializaciones, inventario, exploración fuera del primer claro ni guardado. Mundo abierto, animaciones complejas y exportación móvil también quedan fuera de esta entrega. Solo la progresión por PA de Ignar está implementada.
 
 ## Estructura
 
-`combat/`: motor RefCounted, estados y tipos Resource. `data/`: personajes y habilidades editables. `scenes/`: escena y presentación. `tests/`: pruebas sin framework. `docs/`: reglas y alcance.
+`combat/`: motor RefCounted, estados y tipos Resource. `data/`: personajes, Guardianes y habilidades editables. `scenes/`: escenas y presentación del combate. `world/`: estado de sesión, controlador de flujo, exploración y encuentros. `tests/`: pruebas sin framework. `docs/`: reglas y alcance.

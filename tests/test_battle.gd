@@ -354,5 +354,6 @@ func _initialize() -> void:
 	check(ui.run.resonance == 0 and ui.run.progress("ignar").affinity == 0 and ui.engine.fighters[3].hp == 280, "Nueva partida reinicia RE, PA y combate")
 	ui.free()
 	await preload("res://tests/presentation_checks.gd").new().run(self, check)
+	await preload("res://tests/exploration_checks.gd").new().run(self, check)
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)
