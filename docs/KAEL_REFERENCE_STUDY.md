@@ -8,7 +8,7 @@ Se ha construido **una malla nueva**, no otra deformación de Kael 0.9. Se aprox
 
 **Es un candidato funcional, no un personaje comercial aprobado.** Las formas y el atlas se construyen localmente mediante scripts de Blender. El atlas es pintura algorítmica, no pintura manual ni una textura generada por un servicio externo. El rostro sigue simplificado, la expresión es fija, los mechones aún son rígidos y la ropa carece de pliegues y desgaste suficientemente naturales. El entorno y los demás personajes conservan su estilo anterior, por lo que el conjunto todavía no es coherente.
 
-La versión predeterminada permanece en **0.9**. La fuente y GLB anteriores, el experimento de proporciones y el código de combate permanecen intactos. El candidato se puede activar en ambas presentaciones mediante el selector existente.
+La entrega inicial dejó 0.9 como predeterminado, por lo que el diseñador seguía viendo ese modelo al arrancar normalmente. **Corregido el 9/11/2026: `project.godot` selecciona ahora `reference-study` para exploración y combate.** Se ha arrancado la escena principal sin sobrescribir ajustes en memoria y se ha comprobado la ruta del GLB tanto en exploración como después de entrar en un encuentro: `res://assets/characters/kael/reference_study/kael.glb`. [Captura de ese combate real](previews/kael-reference/default-battle.png). Detener con F8 una ejecución anterior y volver a arrancar con F5. La activación permite revisar el modelo, no expresa aceptación de su calidad. Las fuentes anteriores y la lógica del juego permanecen intactas.
 
 - [Comparación de cuerpo y retrato](previews/kael-reference/comparison.png).
 - [Cuerpo del candidato](previews/kael-reference/after-full.png) y [rostro](previews/kael-reference/after-face.png).
@@ -18,14 +18,14 @@ La versión predeterminada permanece en **0.9**. La fuente y GLB anteriores, el 
 
 Las parejas `before`/`after` de cuerpo, batalla y exploración comparten cámara y luz. Los retratos de la lámina comparativa se **reencuadran** para que las dos cabezas se vean completas: la cabeza anterior es considerablemente mayor. También se conservan [antes con cámara idéntica](previews/kael-reference/before-face-same-camera.png) y [después con cámara idéntica](previews/kael-reference/after-face-same-camera.png), sin ocultar esa diferencia de tamaño. Los PNG y el vídeo son renderizados por Godot, no ilustraciones del resultado esperado.
 
-## Cómo revisarlo sin sustituir el juego
+## Cómo revisarlo y comparar versiones
 
 1. Abrir `project.godot` en Godot **4.7.2** y esperar la importación.
 2. Abrir `scenes/kael_reference_preview.tscn` y pulsar **F6**.
 3. Utilizar los botones **Cuerpo**, **Rostro**, **Girar / parar** y **Anterior / candidato**. Los botones de animación permiten revisar los seis clips; Attack/Hurt regresan a Idle y Defend/KO mantienen su pose final.
 4. **Probar combate** o **Probar exploración** carga el modo correspondiente con la versión que se está viendo. La selección solo afecta a ese proceso; el visor no guarda ajustes de proyecto.
 
-Para seleccionarlo de manera persistente, cambiar `visuals/kael/asset_version` a `"reference-study"` en Ajustes del proyecto. Volver a `"0.9"` restaura el modelo anterior; `"0.8"` conserva su comportamiento previo. El ajuste `visuals/kael/use_imported=false` sigue ofreciendo el respaldo antiguo. Una ruta de GLB personalizada sigue teniendo prioridad.
+El ajuste persistente `visuals/kael/asset_version` ya está en `"reference-study"`. Volver a `"0.9"` restaura el modelo anterior; `"0.8"` conserva su comportamiento previo. El ajuste `visuals/kael/use_imported=false` sigue ofreciendo el respaldo antiguo. Una ruta de GLB personalizada sigue teniendo prioridad.
 
 ## Archivos y funciones
 

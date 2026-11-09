@@ -22,7 +22,7 @@ import/blender/enabled=false
 [visuals]
 
 kael/use_imported=true
-kael/asset_version="0.9"
+kael/asset_version="reference-study"
 
 [display]
 

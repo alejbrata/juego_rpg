@@ -1,6 +1,6 @@
 # Eclipse JRPG
 
-**Nuevo piloto local de Kael (9/11/2026):** [resultado, capturas y límites](docs/KAEL_REFERENCE_STUDY.md) · [comparación](docs/previews/kael-reference/comparison.png) · [vídeo de animaciones](docs/previews/kael-reference/motion.mp4). Para revisarlo, abrir `scenes/kael_reference_preview.tscn` y pulsar **F6**; incluye botones para probarlo en combate y exploración. El juego continúa arrancando con 0.9 hasta aceptar un candidato. Validación actual: **596 comprobaciones, cero fallos**, headless y render real.
+**Nuevo piloto local de Kael (9/11/2026):** [resultado, capturas y límites](docs/KAEL_REFERENCE_STUDY.md) · [comparación](docs/previews/kael-reference/comparison.png) · [vídeo de animaciones](docs/previews/kael-reference/motion.mp4). **Ahora está activado en el arranque normal (F5), tanto en exploración como en combate.** Detener una ejecución anterior con F8 antes de volver a arrancar. Para compararlo con 0.9, abrir `scenes/kael_reference_preview.tscn` y pulsar **F6**. Su activación permite evaluarlo y no implica aprobación artística definitiva. Validación actual: **596 comprobaciones, cero fallos**, headless y render real.
 
 **Estudio local posterior:** [comparación de proporciones de Kael](docs/KAEL_PROPORTION_STUDY.md). Se remodeló una copia de la malla 0.9 y se capturó en Godot. No alcanzó la referencia artística solicitada y **no está activada en el juego**; no se ha adquirido ni generado un modelo mediante servicios externos.
 
