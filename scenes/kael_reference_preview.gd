@@ -131,6 +131,8 @@ func _build_hud() -> void:
 func _play(scene_path: String) -> void:
 	ProjectSettings.set_setting("visuals/kael/use_imported", true)
 	ProjectSettings.set_setting("visuals/kael/asset_version", "polished" if current_path.contains("/polished/") else ("reference-study" if current_path == CANDIDATE else "0.9"))
+	if current_path.contains("/retro/"):
+		ProjectSettings.set_setting("visuals/kael/asset_version", "retro")
 	get_tree().change_scene_to_file(scene_path)
 
 func _preview_clip(clip: String) -> void:

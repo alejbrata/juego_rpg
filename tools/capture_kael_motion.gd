@@ -19,7 +19,10 @@ func start() -> void:
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	root.size = Vector2i(960, 640)
 	var polished := "--polished" in OS.get_cmdline_user_args()
-	studio = load("res://scenes/kael_polish_preview.tscn" if polished else "res://scenes/kael_reference_preview.tscn").instantiate()
+	var scene_path := "res://scenes/kael_polish_preview.tscn" if polished else "res://scenes/kael_reference_preview.tscn"
+	if "--retro" in OS.get_cmdline_user_args():
+		scene_path = "res://scenes/kael_retro_preview.tscn"
+	studio = load(scene_path).instantiate()
 	root.add_child(studio)
 	if studio.model == null:
 		quit(1)

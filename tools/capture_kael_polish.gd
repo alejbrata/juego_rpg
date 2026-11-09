@@ -1,12 +1,15 @@
 extends SceneTree
 
-const OUT := "res://docs/previews/kael-polish/"
-const PATHS := {
+var OUT := "res://docs/previews/kael-polish/"
+var PATHS := {
 	"before": "res://assets/characters/kael/reference_study/kael.glb",
 	"after": "res://assets/characters/kael/polished/kael.glb",
 }
 
 func _initialize() -> void:
+	if "--retro" in OS.get_cmdline_user_args():
+		OUT = "res://docs/previews/kael-retro/"
+		PATHS = {"before": "res://assets/characters/kael/polished/kael.glb", "after": "res://assets/characters/kael/retro/kael.glb"}
 	if DisplayServer.get_name() == "headless":
 		printerr("Esta comparación exige render real")
 		quit(1)
@@ -17,7 +20,8 @@ func capture() -> void:
 	DirAccess.make_dir_recursive_absolute(OUT)
 	ProjectSettings.set_setting("visuals/kael/use_imported", true)
 	for version in ["before", "after"]:
-		ProjectSettings.set_setting("visuals/kael/asset_version", "reference-study" if version == "before" else "polished")
+		var selector: String = PATHS[version].get_base_dir().get_file().replace("reference_study", "reference-study")
+		ProjectSettings.set_setting("visuals/kael/asset_version", selector)
 		root.size = Vector2i(960, 640)
 		var stage = load("res://scenes/battle_3d.tscn").instantiate()
 		stage.camera_motion_enabled = false
@@ -39,6 +43,14 @@ func capture() -> void:
 			stage.visuals[i].visible = false
 		full_camera(stage, actor)
 		await save(version + "-full")
+		if "--retro" in OS.get_cmdline_user_args():
+			var center := actor.home + Vector3.UP * 1.1
+			stage.camera.position = center + Vector3(3.2, 0.7, -2.4)
+			stage.camera.look_at(center)
+			await save(version + "-profile")
+			stage.camera.position = center + Vector3(-2.4, 0.7, -3.2)
+			stage.camera.look_at(center)
+			await save(version + "-back")
 		var target := actor.home + Vector3.UP * 1.85
 		stage.camera.position = target + Vector3(1.15, 0.10, 1.45)
 		stage.camera.look_at(target)
@@ -81,6 +93,8 @@ func capture() -> void:
 		zone.free()
 		await process_frame
 	await sheet()
+	if "--retro" in OS.get_cmdline_user_args():
+		await sheet(true)
 	print("KAEL_POLISH_CAPTURES " + OUT)
 	quit()
 
@@ -89,31 +103,33 @@ func full_camera(stage: Node3D, actor: BattleActorVisual) -> void:
 	stage.camera.position = target + Vector3(2.4, 0.7, 3.2)
 	stage.camera.look_at(target)
 
-func sheet() -> void:
+func sheet(face_only: bool = false) -> void:
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	root.content_scale_size = Vector2i.ZERO
-	root.size = Vector2i(1440, 1020)
+	root.size = Vector2i(1440, 510 if face_only else 1020)
 	var layout := Control.new()
 	root.add_child(layout)
 	var bg := ColorRect.new()
 	bg.color = Color("17232a")
-	bg.size = Vector2(1440, 1020)
+	bg.size = Vector2(root.size)
 	layout.add_child(bg)
-	for row in range(2):
+	for row in range(1 if face_only else 2):
 		for col in range(2):
 			var label := Label.new()
-			label.text = ("Antes · referencia" if col == 0 else "Después · pulido") + (" · batalla" if row == 0 else " · cuerpo")
+			label.text = ("Antes · pulido" if col == 0 else "Después · retro JRPG") if "--retro" in OS.get_cmdline_user_args() else ("Antes · referencia" if col == 0 else "Después · pulido")
+			label.text += " · rostro" if face_only else (" · batalla" if row == 0 else " · cuerpo")
 			label.position = Vector2(col * 720 + 16, row * 510 + 8)
 			label.add_theme_font_size_override("font_size", 25)
 			layout.add_child(label)
 			var view := TextureRect.new()
-			view.texture = ImageTexture.create_from_image(Image.load_from_file(OUT + ("before" if col == 0 else "after") + ("-battle-960x640.png" if row == 0 else "-full.png")))
+			var suffix := "-face-torso.png" if face_only else ("-battle-960x640.png" if row == 0 else "-full.png")
+			view.texture = ImageTexture.create_from_image(Image.load_from_file(OUT + ("before" if col == 0 else "after") + suffix))
 			view.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			view.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			view.position = Vector2(col * 720, row * 510 + 38)
 			view.size = Vector2(720, 470)
 			layout.add_child(view)
-	await save("comparison")
+	await save("face-comparison" if face_only else "comparison")
 	layout.free()
 
 func save(label: String) -> void:

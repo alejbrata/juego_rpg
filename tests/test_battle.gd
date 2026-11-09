@@ -361,5 +361,6 @@ func _initialize() -> void:
 	await preload("res://tests/kael_art_checks.gd").new().run(self, check)
 	await preload("res://tests/kael_reference_checks.gd").new().run(self, check)
 	await preload("res://tests/kael_polish_checks.gd").new().run(self, check)
+	await preload("res://tests/kael_retro_checks.gd").new().run(self, check)
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)

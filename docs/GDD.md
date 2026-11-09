@@ -1,6 +1,10 @@
 # Eclipse JRPG
 
-## Estado actual: pulido de Kael
+## Estado actual: Kael retro-modernizado
+
+Dirección confirmada por el diseñador: estilización de JRPG clásico reinterpretada con acabado limpio; cabeza ligeramente mayor, mirada legible, menos ruido visual y conservación del diseño actual. Se edita `polished/kael.blend`, sin generar un protagonista desde cero. La variante activa `retro` comparte GLB y escala en combate/exploración; `polished` se conserva intacta. [Cambios, comparaciones y límites](KAEL_RETRO.md). 647 comprobaciones, cero fallos. El aspecto mejora principalmente en cara y materiales; no se declara estándar artístico final ni éxito móvil. Sin cambios de escenario, otros personajes, historia o reglas.
+
+## Historial: pulido de Kael
 
 Se conserva el diseño de la lámina y se edita su fuente guardada, sin reconstruir geometría. La versión `polished` es la activa en combate y exploración, con escala horneada compartida, corrección del atlas y revisión de las seis animaciones. La referencia anterior se conserva intacta. [Informe, capturas, presupuesto y límites](KAEL_POLISH.md). 624 comprobaciones, cero fallos. No cambia narrativa, reglas ni otros personajes. La mejora de legibilidad no implica aprobación comercial ni 30 FPS móviles medidos. Se propone como base revisable de paleta/silueta, no como estándar artístico definitivo.
 
