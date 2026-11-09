@@ -23,6 +23,8 @@ import/blender/enabled=false
 
 kael/use_imported=true
 kael/asset_version="retro"
+lyra/use_imported=true
+nira/use_imported=true
 
 [display]
 

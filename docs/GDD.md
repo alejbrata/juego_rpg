@@ -1,6 +1,14 @@
 # Eclipse JRPG
 
-## Estado actual: Kael retro-modernizado
+## Estado actual: Lyra y Nira en la dirección retro-modernizada
+
+Entrega visual solicitada por el diseñador: Lyra y Nira tienen modelos originales con geometría, atlas, rig y siete clips propios. Se aplica el enfoque local probado con Kael como referencia de estilo, sin copiar su anatomía ni cambiar su asset. Lyra tiene silueta esbelta, cabello violáceo y chaqueta índigo; Nira, complexión más compacta, peinado cálido y ropa salvia/crema. Sus focos son cosméticos. `visuals/lyra/use_imported` y `visuals/nira/use_imported` están activos, con fallback a los modelos anteriores. Kael sigue en `retro`.
+
+La batalla usa Cast para Llama/Escarcha y Support para Cura/Impulso; no cambian habilidades o reglas. La exploración solo representa a Kael y no se añaden seguidores. Escenario, Centinela, historia y sistemas de juego se conservan. [Informe, fuentes, comparación real y límites](LYRA_NIRA.md). Validación: 777 comprobaciones, cero fallos, conservando las 647 anteriores.
+
+La mejora visual se juzga por capturas equivalentes, además de comprobar importación y animaciones. Quedan rostros fijos, texturas sencillas y deformaciones que admiten pulido; la activación permite revisar la entrega y no fija un estándar comercial definitivo. Pendientes futuros: aprobación artística, pulido dirigido y medidas en dispositivos móviles. No se autoriza con ello ampliar narrativa, crear animación facial avanzada ni utilizar servicios externos.
+
+## Historial: Kael retro-modernizado
 
 Dirección confirmada por el diseñador: estilización de JRPG clásico reinterpretada con acabado limpio; cabeza ligeramente mayor, mirada legible, menos ruido visual y conservación del diseño actual. Se edita `polished/kael.blend`, sin generar un protagonista desde cero. La variante activa `retro` comparte GLB y escala en combate/exploración; `polished` se conserva intacta. [Cambios, comparaciones y límites](KAEL_RETRO.md). 647 comprobaciones, cero fallos. El aspecto mejora principalmente en cara y materiales; no se declara estándar artístico final ni éxito móvil. Sin cambios de escenario, otros personajes, historia o reglas.
 

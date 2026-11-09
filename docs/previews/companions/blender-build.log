@@ -1,0 +1,32 @@
+blender.exe : C:\Users\aleja\workspace\juego-rpg\tools\blender\build_companions.py:56: DeprecationWarning:
+'Material.use_nodes' is expected to be removed in Blender 6.0
+En línea: 2 Carácter: 1
++ & 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --bac ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\aleja\... in Blender 6.0:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+  mat=bpy.data.materials.new(hero.title()+name);mat.use_nodes=True
+Info: Saved as "lyra.generated.blend"
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+14:12:27 | INFO: Starting glTF 2.0 export
+14:12:27 | INFO: Extracting primitive: FocusMesh
+14:12:27 | INFO: Primitives created: 3
+14:12:27 | INFO: Extracting primitive: LyraBodyMesh
+14:12:27 | INFO: Primitives created: 3
+14:12:29 | INFO: Finished glTF 2.0 export in 2.439382553100586 s
+
+COMPANION {"character": "lyra", "art_revision": "retro-companions", "blender": "5.2.1 LTS", "method": "Original contour garment and anatomical meshes; no Kael character geometry copied", "triangles": 8607, "exported_vertices": 9096, "author_vertices": 5696, "surfaces": 6, "materials": 3, "bones": 17, "animations": ["Attack", "Cast", "Defend", "Hurt", "Idle", "KO", "Walk"], "animation_checks": {"Idle": {"seconds": 3.0, "min_vertex_z": 0.012000000104308128}, "Walk": {"seconds": 0.7, "min_vertex_z": 0.011999910697340965}, "Attack": {"seconds": 0.65, "min_vertex_z": 0.012000000104308128}, "Hurt": {"seconds": 0.4, "min_vertex_z": 0.012000000104308128}, "Defend": {"seconds": 0.45, "min_vertex_z": 0.012000000104308128}, "KO": {"seconds": 1.0, "min_vertex_z": 0.007999777793884277}, "Cast": {"seconds": 0.85, "min_vertex_z": 0.012000000104308128}}, "glb_bytes": 769072, "texture_size": [1024, 1024], "walk_reference_speed": 2.0, "locomotion_blend": 0.12, "lunge_distance": 0.0, "presentation_durations": {"Idle": 3.0, "Walk": 0.7, "Attack": 0.65, "Hurt": 0.4, "Defend": 0.45, "KO": 1.0, "Cast": 0.85}, "authored_sections": 3879, "glb_sha256": "cdbaed4a65dd43c0f849194d3c15fd9e0cddc734bc312acbb11eda3a0154dab6", "blend_sha256": "1bcdc3a836de2fdaa71e304152172794b7d1f3b00f4e3d3ed2c77117ca580950", "atlas_sha256": "ecb882ade909415c8e11c0c9d31498d036e97a5a8f9ebfe0cb0b8e63e3b44c76", "build_script_sha256": "d111da95a7029ff5245eae8675aa656ba4558ba0721b63613025b57c1ebe480a", "surface_helper_sha256": "dfc531824edd79fe2c8f59cd9b98e5ac56cfc789535215a6e3daa3cdff6c1898", "kael_reference_glb_sha256": "6ab01c49f53adfc028525238511be74673d1bfdc42deca73dfae15032227f93f", "mobile_tested": false}
+Info: Saved as "nira.generated.blend"
+14:12:43 | INFO: Starting glTF 2.0 export
+14:12:43 | INFO: Extracting primitive: FocusMesh
+14:12:43 | INFO: Primitives created: 3
+14:12:43 | INFO: Extracting primitive: NiraBodyMesh
+14:12:43 | INFO: Primitives created: 2
+14:12:45 | INFO: Finished glTF 2.0 export in 2.2548279762268066 s
+
+COMPANION {"character": "nira", "art_revision": "retro-companions", "blender": "5.2.1 LTS", "method": "Original contour garment and anatomical meshes; no Kael character geometry copied", "triangles": 9019, "exported_vertices": 9846, "author_vertices": 6129, "surfaces": 5, "materials": 3, "bones": 17, "animations": ["Attack", "Defend", "Hurt", "Idle", "KO", "Support", "Walk"], "animation_checks": {"Idle": {"seconds": 3.0, "min_vertex_z": 0.011999983340501785}, "Walk": {"seconds": 0.7, "min_vertex_z": 0.011999898590147495}, "Attack": {"seconds": 0.65, "min_vertex_z": 0.011999983340501785}, "Hurt": {"seconds": 0.4, "min_vertex_z": 0.011999983340501785}, "Defend": {"seconds": 0.45, "min_vertex_z": 0.011999983340501785}, "KO": {"seconds": 1.0, "min_vertex_z": 0.007999837398529053}, "Support": {"seconds": 1.0, "min_vertex_z": 0.011999983340501785}}, "glb_bytes": 827172, "texture_size": [1024, 1024], "walk_reference_speed": 2.0, "locomotion_blend": 0.12, "lunge_distance": 0.0, "presentation_durations": {"Idle": 3.0, "Walk": 0.7, "Attack": 0.65, "Hurt": 0.4, "Defend": 0.45, "KO": 1.0, "Support": 1.0}, "authored_sections": 4119, "glb_sha256": "eb314515545270b0f8d1ef74c3e8bd0224a7a77d5ece9e7e56c2c422e9f55682", "blend_sha256": "999410ea5770157cecb14ee38705c60b1f48e822fc653ce7f1e9bf6dfb6111ec", "atlas_sha256": "f9c2af55894e8ffb1736c1a393c1227986b0e5b8a029b8fce41d4ac5b3ca3352", "build_script_sha256": "d111da95a7029ff5245eae8675aa656ba4558ba0721b63613025b57c1ebe480a", "surface_helper_sha256": "dfc531824edd79fe2c8f59cd9b98e5ac56cfc789535215a6e3daa3cdff6c1898", "kael_reference_glb_sha256": "6ab01c49f53adfc028525238511be74673d1bfdc42deca73dfae15032227f93f", "mobile_tested": false}
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

@@ -1,0 +1,76 @@
+{
+  "character": "lyra",
+  "art_revision": "retro-companions",
+  "blender": "5.2.1 LTS",
+  "method": "Original contour garment and anatomical meshes; no Kael character geometry copied",
+  "triangles": 8607,
+  "exported_vertices": 9096,
+  "author_vertices": 5696,
+  "surfaces": 6,
+  "materials": 3,
+  "bones": 17,
+  "animations": [
+    "Attack",
+    "Cast",
+    "Defend",
+    "Hurt",
+    "Idle",
+    "KO",
+    "Walk"
+  ],
+  "animation_checks": {
+    "Idle": {
+      "seconds": 3.0,
+      "min_vertex_z": 0.012000000104308128
+    },
+    "Walk": {
+      "seconds": 0.7,
+      "min_vertex_z": 0.011999910697340965
+    },
+    "Attack": {
+      "seconds": 0.65,
+      "min_vertex_z": 0.012000000104308128
+    },
+    "Hurt": {
+      "seconds": 0.4,
+      "min_vertex_z": 0.012000000104308128
+    },
+    "Defend": {
+      "seconds": 0.45,
+      "min_vertex_z": 0.012000000104308128
+    },
+    "KO": {
+      "seconds": 1.0,
+      "min_vertex_z": 0.007999777793884277
+    },
+    "Cast": {
+      "seconds": 0.85,
+      "min_vertex_z": 0.012000000104308128
+    }
+  },
+  "glb_bytes": 768592,
+  "texture_size": [
+    1024,
+    1024
+  ],
+  "walk_reference_speed": 2.0,
+  "locomotion_blend": 0.12,
+  "lunge_distance": 0.0,
+  "presentation_durations": {
+    "Idle": 3.0,
+    "Walk": 0.7,
+    "Attack": 0.65,
+    "Hurt": 0.4,
+    "Defend": 0.45,
+    "KO": 1.0,
+    "Cast": 0.85
+  },
+  "authored_sections": 3879,
+  "glb_sha256": "7368fff2c6002beff45d05478b311bbc9ba9488d4f395301979e22aaa6dcb664",
+  "blend_sha256": "1bcdc3a836de2fdaa71e304152172794b7d1f3b00f4e3d3ed2c77117ca580950",
+  "atlas_sha256": "ecb882ade909415c8e11c0c9d31498d036e97a5a8f9ebfe0cb0b8e63e3b44c76",
+  "build_script_sha256": "3a4ab22fdd2887f305b815bd04a3cf8b1b382fd04cf0a15063204bfd5470b6ec",
+  "surface_helper_sha256": "dfc531824edd79fe2c8f59cd9b98e5ac56cfc789535215a6e3daa3cdff6c1898",
+  "kael_reference_glb_sha256": "6ab01c49f53adfc028525238511be74673d1bfdc42deca73dfae15032227f93f",
+  "mobile_tested": false
+}

@@ -1,0 +1,76 @@
+{
+  "character": "nira",
+  "art_revision": "retro-companions",
+  "blender": "5.2.1 LTS",
+  "method": "Original contour garment and anatomical meshes; no Kael character geometry copied",
+  "triangles": 9019,
+  "exported_vertices": 9846,
+  "author_vertices": 6129,
+  "surfaces": 5,
+  "materials": 3,
+  "bones": 17,
+  "animations": [
+    "Attack",
+    "Defend",
+    "Hurt",
+    "Idle",
+    "KO",
+    "Support",
+    "Walk"
+  ],
+  "animation_checks": {
+    "Idle": {
+      "seconds": 3.0,
+      "min_vertex_z": 0.011999983340501785
+    },
+    "Walk": {
+      "seconds": 0.7,
+      "min_vertex_z": 0.011999898590147495
+    },
+    "Attack": {
+      "seconds": 0.65,
+      "min_vertex_z": 0.011999983340501785
+    },
+    "Hurt": {
+      "seconds": 0.4,
+      "min_vertex_z": 0.011999983340501785
+    },
+    "Defend": {
+      "seconds": 0.45,
+      "min_vertex_z": 0.011999983340501785
+    },
+    "KO": {
+      "seconds": 1.0,
+      "min_vertex_z": 0.007999837398529053
+    },
+    "Support": {
+      "seconds": 1.0,
+      "min_vertex_z": 0.011999983340501785
+    }
+  },
+  "glb_bytes": 826760,
+  "texture_size": [
+    1024,
+    1024
+  ],
+  "walk_reference_speed": 2.0,
+  "locomotion_blend": 0.12,
+  "lunge_distance": 0.0,
+  "presentation_durations": {
+    "Idle": 3.0,
+    "Walk": 0.7,
+    "Attack": 0.65,
+    "Hurt": 0.4,
+    "Defend": 0.45,
+    "KO": 1.0,
+    "Support": 1.0
+  },
+  "authored_sections": 4119,
+  "glb_sha256": "95b016d7e566dcc0a1d3cbe98c5b6f6049fbe561ea17f6e412d6d325cd5bc193",
+  "blend_sha256": "999410ea5770157cecb14ee38705c60b1f48e822fc653ce7f1e9bf6dfb6111ec",
+  "atlas_sha256": "f9c2af55894e8ffb1736c1a393c1227986b0e5b8a029b8fce41d4ac5b3ca3352",
+  "build_script_sha256": "3a4ab22fdd2887f305b815bd04a3cf8b1b382fd04cf0a15063204bfd5470b6ec",
+  "surface_helper_sha256": "dfc531824edd79fe2c8f59cd9b98e5ac56cfc789535215a6e3daa3cdff6c1898",
+  "kael_reference_glb_sha256": "6ab01c49f53adfc028525238511be74673d1bfdc42deca73dfae15032227f93f",
+  "mobile_tested": false
+}

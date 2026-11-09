@@ -355,12 +355,25 @@ func _initialize() -> void:
 	ui.free()
 	await preload("res://tests/presentation_checks.gd").new().run(self, check)
 	await preload("res://tests/exploration_checks.gd").new().run(self, check)
-	await preload("res://tests/visual_refresh_checks.gd").new().run(self, check)
+	await historical_companion_fixture(preload("res://tests/visual_refresh_checks.gd").new())
 	await preload("res://tests/narrative_checks.gd").new().run(self, check)
-	await preload("res://tests/kael_asset_checks.gd").new().run(self, check)
+	await historical_companion_fixture(preload("res://tests/kael_asset_checks.gd").new())
 	await preload("res://tests/kael_art_checks.gd").new().run(self, check)
 	await preload("res://tests/kael_reference_checks.gd").new().run(self, check)
 	await preload("res://tests/kael_polish_checks.gd").new().run(self, check)
 	await preload("res://tests/kael_retro_checks.gd").new().run(self, check)
+	await preload("res://tests/companion_asset_checks.gd").new().run(self, check)
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)
+
+func historical_companion_fixture(suite: RefCounted) -> void:
+	# 0.6 explicitly checks separate procedural capes; 0.8 checks that only Kael
+	# is imported. Keep every original assertion under its original fixture.
+	# companion_asset_checks covers the current imported party separately.
+	var previous: Array = []
+	for hero in ["lyra", "nira"]:
+		previous.append(ProjectSettings.get_setting("visuals/%s/use_imported" % hero, false))
+		ProjectSettings.set_setting("visuals/%s/use_imported" % hero, false)
+	await suite.run(self, check)
+	for i in range(2):
+		ProjectSettings.set_setting("visuals/%s/use_imported" % ["lyra", "nira"][i], previous[i])

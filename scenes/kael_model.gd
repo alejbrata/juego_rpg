@@ -18,32 +18,46 @@ var _presentation_durations: Dictionary = {}
 var _base_pose: String = "Idle"
 var _flash: Tween
 
+# Small extension points for the two companion assets; Kael keeps its contract.
+func _asset_label() -> String:
+	return "Kael"
+
+func _weapon_name() -> String:
+	return "KaelSword"
+
+func _required_clips() -> Array[String]:
+	return REQUIRED
+
+func clip_for_effect(kind: String) -> String:
+	return {"physical": "Attack", "hit": "Hurt", "guard": "Defend", "protect": "Defend", "knockout": "KO"}.get(kind, "Idle")
+
 func load_asset(path: String = ASSET_PATH, report_warning: bool = true) -> bool:
+	var label := _asset_label()
 	if not ResourceLoader.exists(path, "PackedScene"):
-		return _fail("No existe el GLB de Kael: %s. Se usará el modelo procedural." % path, report_warning)
+		return _fail("No existe el GLB de %s: %s. Se usará el modelo procedural." % [label, path], report_warning)
 	var packed := load(path) as PackedScene
 	if packed == null:
-		return _fail("No se pudo importar el GLB de Kael. Se usará el modelo procedural.", report_warning)
+		return _fail("No se pudo importar el GLB de %s. Se usará el modelo procedural." % label, report_warning)
 	asset = packed.instantiate() as Node3D
 	add_child(asset)
 	var rigs := asset.find_children("*", "Skeleton3D", true, false)
 	var players := asset.find_children("*", "AnimationPlayer", true, false)
 	if rigs.is_empty() or players.is_empty():
-		return _fail("GLB de Kael sin esqueleto o AnimationPlayer; usando fallback procedural.", report_warning)
+		return _fail("GLB de %s sin esqueleto o AnimationPlayer; usando fallback procedural." % label, report_warning)
 	skeleton = rigs[0] as Skeleton3D
 	animation_player = players[0] as AnimationPlayer
-	weapon = asset.find_child("KaelSword", true, false) as Node3D
-	for clip in REQUIRED:
+	weapon = asset.find_child(_weapon_name(), true, false) as Node3D
+	for clip in _required_clips():
 		if not animation_player.has_animation(clip):
-			return _fail("GLB de Kael sin animación %s; usando fallback procedural." % clip, report_warning)
+			return _fail("GLB de %s sin animación %s; usando fallback procedural." % [label, clip], report_warning)
 	if weapon == null:
-		return _fail("GLB de Kael sin espada; usando fallback procedural.", report_warning)
+		return _fail("GLB de %s sin nodo %s; usando fallback procedural." % [label, _weapon_name()], report_warning)
 	# Import resources are shared; loop flags and playback must stay per instance.
 	for library_name in animation_player.get_animation_library_list():
 		var library := animation_player.get_animation_library(library_name).duplicate_deep(Resource.DEEP_DUPLICATE_ALL) as AnimationLibrary
 		animation_player.remove_animation_library(library_name)
 		animation_player.add_animation_library(library_name, library)
-	for clip in REQUIRED:
+	for clip in _required_clips():
 		animation_player.get_animation(clip).loop_mode = Animation.LOOP_LINEAR if clip in ["Idle", "Walk"] else Animation.LOOP_NONE
 	animation_player.animation_finished.connect(_on_finished)
 	var manifest_path := path.get_basename() + "_manifest.json"

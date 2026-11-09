@@ -24,9 +24,12 @@ var _idle_clock: float = 0.0
 var _defending: bool = false
 @export var prefer_imported_kael: bool = true
 @export_file("*.glb") var kael_asset_path: String = KaelModel.ASSET_PATH
+@export var prefer_imported_companions: bool = true
+@export_file("*.glb") var companion_asset_path: String = ""
 var imported_model: KaelModel
 var report_asset_warnings: bool = true
 var kael_load_error: String = ""
+var companion_load_error: String = ""
 
 func build(fighter: BattleEngine.Fighter) -> void:
 	base_color = Color("6e7b73") if fighter.enemy else {"kael": Color("344b6c"), "lyra": Color("75608e"), "nira": Color("69896a")}.get(fighter.data.id, Color("7c8d96"))
@@ -41,6 +44,8 @@ func build(fighter: BattleEngine.Fighter) -> void:
 	if fighter.enemy:
 		StylizedModels.golem(model_pivot, material)
 	elif fighter.data.id == "kael" and prefer_imported_kael and ProjectSettings.get_setting("visuals/kael/use_imported", true) and _build_imported_kael():
+		pass
+	elif fighter.data.id in ["lyra", "nira"] and prefer_imported_companions and ProjectSettings.get_setting("visuals/%s/use_imported" % fighter.data.id, false) and _build_imported_companion(fighter.data.id):
 		pass
 	else:
 		var parts := StylizedModels.hero(model_pivot, fighter.data.id, material)
@@ -96,6 +101,20 @@ func _build_imported_kael() -> bool:
 		selected_path = "res://assets/characters/kael/retro/kael.glb"
 	if not candidate.load_asset(selected_path, report_asset_warnings):
 		kael_load_error = candidate.load_error
+		model_pivot.remove_child(candidate)
+		candidate.free()
+		return false
+	imported_model = candidate
+	weapon = imported_model.weapon
+	model_pivot.set_meta("source_mesh_count", imported_model.authored_sections)
+	return true
+
+func _build_imported_companion(hero_id: String) -> bool:
+	var candidate := CompanionModel.new()
+	candidate.hero_id = hero_id
+	model_pivot.add_child(candidate)
+	if not candidate.load_asset(companion_asset_path, report_asset_warnings):
+		companion_load_error = candidate.load_error
 		model_pivot.remove_child(candidate)
 		candidate.free()
 		return false
@@ -172,7 +191,7 @@ func sync(fighter: BattleEngine.Fighter, guardian_name: String, active: bool, pr
 func presentation_duration(kind: String) -> float:
 	if imported_model == null:
 		return 0.36
-	var clip: String = {"physical": "Attack", "hit": "Hurt", "guard": "Defend", "protect": "Defend", "knockout": "KO"}.get(kind, "Idle")
+	var clip := imported_model.clip_for_effect(kind)
 	return imported_model.presentation_duration(clip)
 
 func animate(kind: String, direction: Vector3 = Vector3.RIGHT) -> void:
@@ -180,7 +199,7 @@ func animate(kind: String, direction: Vector3 = Vector3.RIGHT) -> void:
 		_motion.kill()
 	var duration := 0.18 * time_scale
 	if imported_model != null:
-		var clip: String = {"physical": "Attack", "hit": "Hurt", "guard": "Defend", "protect": "Defend", "knockout": "KO"}.get(kind, "Idle")
+		var clip := imported_model.clip_for_effect(kind)
 		var clip_duration := presentation_duration(kind) * time_scale
 		imported_model.play_action(clip, clip_duration)
 		if kind in ["physical", "hit"]:
