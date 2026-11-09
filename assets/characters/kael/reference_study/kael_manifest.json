@@ -1,0 +1,36 @@
+{
+  "art_revision": "reference-study",
+  "blender": "5.2.1 LTS",
+  "source": "Original locally scripted mesh following user-supplied Kael turnaround",
+  "texture_method": "Algorithmically painted atlas; no external generation service",
+  "glb_bytes": 1698344,
+  "triangles": 12297,
+  "exported_vertices": 14830,
+  "author_vertices": 8184,
+  "bones": 17,
+  "animations": [
+    "Attack",
+    "Defend",
+    "Hurt",
+    "Idle",
+    "KO",
+    "Walk"
+  ],
+  "animation_origin": "Provisional 0.8 clips retargeted through revised rest skeleton",
+  "materials": 3,
+  "surfaces": 5,
+  "textures": [
+    {
+      "width": 1024,
+      "height": 1024
+    }
+  ],
+  "authored_sections": 5721,
+  "glb_sha256": "486187f7254c30e3e70cbb8d76b511076b93d8f52f2f004da6996ebd197c7c2a",
+  "blend_sha256": "769f1c628ef0ebe236fce258e99ed695ed940fafb87727f4c8b279ce9e18b4b2",
+  "atlas_sha256": "8a5b1976634efb136f691a62e621162d3b23b0b6649f59a58ebbdf792920ed6d",
+  "mesh_script_sha256": "dfc531824edd79fe2c8f59cd9b98e5ac56cfc789535215a6e3daa3cdff6c1898",
+  "build_script_sha256": "af09b84636acb5ae17cc274898ac1ec61d7abbfca4bbd56664d0518cf640aed0",
+  "base_animation_source_sha256": "67a380cde564f4def1894b09e9f1caa4015c5250f03b7260a3fe0bd1f7025a25",
+  "mobile_performance_measured": false
+}

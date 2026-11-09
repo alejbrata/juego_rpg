@@ -1,5 +1,7 @@
 # Eclipse JRPG
 
+Piloto local del 9/11/2026: el diseñador autorizó un nuevo intento en Blender basado en su lámina de Kael antes de considerar Tripo. Se conserva como candidato `reference-study`, separado y seleccionable en combate/exploración; no está aprobado ni activado por defecto. [Informe y límites](KAEL_REFERENCE_STUDY.md). No se adoptan como canon los textos de personalidad o arma de la lámina. La estrategia definitiva sigue pendiente de revisión artística; no se modifican mecánicas ni historia.
+
 Estudio posterior a la investigación 1.0: por petición del diseñador se probó una remodelación local de las proporciones del Kael existente, conservada por separado. [Resultado y capturas](KAEL_PROPORTION_STUDY.md). No alcanza la referencia de Final Fantasy VIII y no se adopta como modelo del juego. No revoca la decisión de abandonar la construcción de protagonistas finales desde primitivas ni autoriza servicios externos.
 
 ## Estado actual: cambio de estrategia artística e investigación (1.0)

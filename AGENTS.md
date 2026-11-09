@@ -1,5 +1,7 @@
 # Eclipse JRPG
 
+- Excepción autorizada por el usuario el 8–9/11/2026: un piloto local de Kael desde su lámina, conservado en `assets/characters/kael/reference_study/`. Su construcción mediante scripts no revoca la estrategia artística general ni implica aprobación comercial. No reemplazar fuentes anteriores ni activar el candidato por defecto sin aceptación. `scenes/kael_reference_preview.tscn` permite revisar y probarlo con ajustes solo en memoria. Conservar las 576 comprobaciones previas y las 20 de `kael_reference_checks.gd` (596 totales). Documentar límites de animación y diferencias de encuadre. Para preservar ediciones manuales del candidato, usar `build_kael_reference.py -- --export-only` en lugar de reconstruirlo.
+
 - Godot 4, GDScript; sin dependencias externas.
 - En Windows, evitar la suspensión mientras se ejecutan tareas mediante una solicitud temporal de energía; liberarla al terminar y no modificar permanentemente el plan de energía.
 - `combat/` no depende de nodos, escenas, entrada ni renderizado. Datos inmutables en Resources; estado de batalla separado.

@@ -88,6 +88,8 @@ func _build_imported_kael() -> bool:
 	var selected_path := kael_asset_path
 	if selected_path == KaelModel.ASSET_PATH and ProjectSettings.get_setting("visuals/kael/asset_version", "0.9") == "0.8":
 		selected_path = "res://assets/characters/kael/v08/kael.glb"
+	elif selected_path == KaelModel.ASSET_PATH and ProjectSettings.get_setting("visuals/kael/asset_version", "0.9") == "reference-study":
+		selected_path = "res://assets/characters/kael/reference_study/kael.glb"
 	if not candidate.load_asset(selected_path, report_asset_warnings):
 		kael_load_error = candidate.load_error
 		model_pivot.remove_child(candidate)
