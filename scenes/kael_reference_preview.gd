@@ -2,6 +2,9 @@ extends Node3D
 
 # Independent visual review scene. Never writes game settings or persistent state.
 const CANDIDATE := "res://assets/characters/kael/reference_study/kael.glb"
+@export_file("*.glb") var candidate_path: String = CANDIDATE
+@export_file("*.glb") var comparison_path: String = KaelModel.ASSET_PATH
+@export var polished_view := false
 var model: KaelModel
 var camera: Camera3D
 var hud: CanvasLayer
@@ -43,7 +46,7 @@ func _ready() -> void:
 	camera.current = true
 	full_view()
 	_build_hud()
-	load_character(CANDIDATE)
+	load_character(candidate_path)
 
 func _light(degrees: Vector3, color: Color, energy: float, shadows: bool) -> void:
 	var lamp := DirectionalLight3D.new()
@@ -64,16 +67,22 @@ func load_character(path: String) -> bool:
 		model.free()
 	model = next
 	current_path = path
-	status.text = "KAEL · " + ("Estudio de la lámina · pendiente de revisión" if path == CANDIDATE else "Modelo anterior · 0.9")
+	status.text = "KAEL · " + path.get_base_dir().get_file() + " · revisión artística"
 	return true
 
 func full_view() -> void:
 	camera.position = Vector3(2.0, 1.35, 4.2)
 	camera.look_at(Vector3(0, 1.0, 0))
+	if polished_view:
+		camera.position = Vector3(2.25, 1.6, 4.7)
+		camera.look_at(Vector3(0, 1.1, 0))
 
 func face_view() -> void:
 	camera.position = Vector3(0.22, 1.76, 0.80)
 	camera.look_at(Vector3(0, 1.72, 0))
+	if polished_view:
+		camera.position = Vector3(0.24, 2.05, 1.1)
+		camera.look_at(Vector3(0, 1.98, 0))
 
 func _process(delta: float) -> void:
 	if rotating and is_instance_valid(model):
@@ -112,7 +121,7 @@ func _build_hud() -> void:
 	_button(views, "Rostro", face_view)
 	_button(views, "Girar / parar", func(): rotating = not rotating)
 	_button(views, "Frente", func(): model.rotation.y = 0; rotating = false)
-	_button(views, "Anterior / candidato", func(): load_character(KaelModel.ASSET_PATH if current_path == CANDIDATE else CANDIDATE))
+	_button(views, "Anterior / candidato", func(): load_character(comparison_path if current_path == candidate_path else candidate_path))
 	layout.add_child(views)
 	var play := HFlowContainer.new()
 	_button(play, "Probar combate", func(): _play("res://scenes/battle_3d.tscn"))
@@ -121,7 +130,7 @@ func _build_hud() -> void:
 
 func _play(scene_path: String) -> void:
 	ProjectSettings.set_setting("visuals/kael/use_imported", true)
-	ProjectSettings.set_setting("visuals/kael/asset_version", "reference-study" if current_path == CANDIDATE else "0.9")
+	ProjectSettings.set_setting("visuals/kael/asset_version", "polished" if current_path.contains("/polished/") else ("reference-study" if current_path == CANDIDATE else "0.9"))
 	get_tree().change_scene_to_file(scene_path)
 
 func _preview_clip(clip: String) -> void:

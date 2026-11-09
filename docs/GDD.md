@@ -1,16 +1,22 @@
 # Eclipse JRPG
 
+## Estado actual: pulido de Kael
+
+Se conserva el diseño de la lámina y se edita su fuente guardada, sin reconstruir geometría. La versión `polished` es la activa en combate y exploración, con escala horneada compartida, corrección del atlas y revisión de las seis animaciones. La referencia anterior se conserva intacta. [Informe, capturas, presupuesto y límites](KAEL_POLISH.md). 624 comprobaciones, cero fallos. No cambia narrativa, reglas ni otros personajes. La mejora de legibilidad no implica aprobación comercial ni 30 FPS móviles medidos. Se propone como base revisable de paleta/silueta, no como estándar artístico definitivo.
+
+## Historial del piloto de referencia
+
 Piloto local del 9/11/2026: el diseñador autorizó un nuevo intento en Blender basado en su lámina de Kael antes de considerar Tripo. Se conserva como candidato `reference-study`, separado de las versiones anteriores y **activado en el arranque normal para evaluarlo en combate/exploración**, tras detectar que el diseñador seguía viendo 0.9. Su activación no equivale a aprobación artística definitiva. [Informe y límites](KAEL_REFERENCE_STUDY.md). No se adoptan como canon los textos de personalidad o arma de la lámina. La estrategia definitiva sigue pendiente de revisión artística; no se modifican mecánicas ni historia.
 
 Estudio posterior a la investigación 1.0: por petición del diseñador se probó una remodelación local de las proporciones del Kael existente, conservada por separado. [Resultado y capturas](KAEL_PROPORTION_STUDY.md). No alcanza la referencia de Final Fantasy VIII y no se adopta como modelo del juego. No revoca la decisión de abandonar la construcción de protagonistas finales desde primitivas ni autoriza servicios externos.
 
-## Estado actual: cambio de estrategia artística e investigación (1.0)
+## Historial: cambio de estrategia artística e investigación (1.0)
 
 Decisión confirmada: **dejar de generar los protagonistas desde cero mediante geometría procedural**. Se buscarán recursos con calidad artística y licencias verificables, adaptados en Blender/Godot. Se conservan versiones/fallback existentes; la funcionalidad no acredita calidad artística. La revisión 0.9 no alcanzó el acabado solicitado y sus valoraciones anteriores no constituyen aprobación del diseñador.
 
 Entrega 1.0: [comparación y propuesta](ART_DIRECTION.md), [inventario de licencias](ASSET_LICENSES.md). Preferencia visual condicionada por los personajes Fantasy/Mage y Nature with Ruins de JustCreate; aún no autorizados para compra/adaptación. KayKit/Kenney tienen opciones gratuitas claras pero no se acreditó su ajuste al objetivo; Quaternius muestra condiciones CC0/QAL contradictorias; otras alternativas implican coste alto de retopología o dependencia de UE. No se declara inexistencia general de alternativas gratuitas.
 
-No se ha descargado ni incorporado ningún modelo externo, ni se ha ejecutado una adaptación en Blender. No hay capturas en Godot ni métricas propias de candidatos externos; solo inspección de publicidad pública. El juego visual sigue en 0.9, por debajo de las referencias. Antes del piloto se requiere elegir dirección, presupuesto y una vía de licencia compatible con adquisición, colaboradores, herramientas y repositorio. No se compran ni aceptan términos por el usuario.
+No se ha descargado ni incorporado ningún modelo externo, ni se ha ejecutado una adaptación en Blender. No hay capturas en Godot ni métricas propias de candidatos externos; solo inspección de publicidad pública. En aquella entrega el juego visual seguía en 0.9, por debajo de las referencias. Antes del piloto se requiere elegir dirección, presupuesto y una vía de licencia compatible con adquisición, colaboradores, herramientas y repositorio. No se compran ni aceptan términos por el usuario.
 
 Única corrección de recurso existente: importación del atlas de Kael como imagen embebida (`gltf/embedded_image_handling=3`), evitando depender de un PNG extraído ausente. El arranque de la revisión reveló errores previos (517 comprobaciones alcanzadas, 2 fallos); tras recuperar la base y corregir importación, suite completa 576/576 headless y render real. Sin cambios de GLB/fuente, reglas, sesión, personajes restantes o historia. Se detalla la diferencia entre fallo inicial y resultado final en ART_DIRECTION.
 

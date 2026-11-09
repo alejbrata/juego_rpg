@@ -21,6 +21,9 @@ func _ready() -> void:
 	model.prefer_imported_kael = use_imported_kael
 	add_child(model)
 	model.build(BattleEngine.Fighter.new(preload("res://data/kael.tres"), false))
+	# The physical capsule bottoms at local Y=0.05. Align only the presentation
+	# to that support plane; movement, collision shape and gameplay stay intact.
+	model.position.y = collider.position.y - capsule.height * 0.5
 	model.caption.visible = false
 	model.turn_ring.visible = false
 	model.shield.visible = false
@@ -55,6 +58,7 @@ func _physics_process(delta: float) -> void:
 	velocity.y -= 9.8 * delta
 	move_and_slide()
 	if model.imported_model != null:
-		model.imported_model.set_walking(Vector2(velocity.x, velocity.z).length() > 0.05, movement_speed / 4.0)
+		var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+		model.imported_model.set_walking(horizontal_speed > 0.05, horizontal_speed / 4.0)
 	if direction.length_squared() > 0.01:
 		model.rotation.y = lerp_angle(model.rotation.y, atan2(direction.x, direction.z), minf(1.0, delta * 12))

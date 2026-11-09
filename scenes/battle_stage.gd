@@ -193,7 +193,7 @@ func _play_event(event: Dictionary) -> float:
 				_burst(visual.home + Vector3.UP, _effect_color(event.effect, event.element), 0.6)
 			if event.effect == "magic":
 				_projectile(visual.home + Vector3.UP * 1.4, visuals[target_id].home + Vector3.UP * 1.3, event.element)
-			return 0.38
+			return visual.presentation_duration(event.effect) + 0.02
 		"damage", "summon_effect":
 			_camera_impact()
 			var color := _effect_color("magic", event.element) if event.element != "physical" else Color("fff2b0")
@@ -205,7 +205,7 @@ func _play_event(event: Dictionary) -> float:
 			elif kind == "summon_effect":
 				_ember_pillars(visuals[target_id].home)
 			_floating(visuals[target_id].home, "-%d%s" % [event.hp_lost if kind == "summon_effect" else event.amount, "  DEF ↓" if kind == "summon_effect" else ""], color)
-			return 0.38
+			return visuals[target_id].presentation_duration("knockout" if event.hp_after == 0 else "hit") + 0.02
 		"heal":
 			visuals[target_id].flash(Color("70ffac"))
 			_burst(visuals[target_id].home + Vector3.UP, Color("70ffac"), 0.7)

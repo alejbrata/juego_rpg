@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/kael_reference_preview.gd" id="1"]
+
+[node name="KaelPolishPreview" type="Node3D"]
+script = ExtResource("1")
+candidate_path = "res://assets/characters/kael/polished/kael.glb"
+comparison_path = "res://assets/characters/kael/reference_study/kael.glb"
+polished_view = true

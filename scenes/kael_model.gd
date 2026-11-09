@@ -11,6 +11,10 @@ var weapon: Node3D
 var current_clip: String = ""
 var load_error: String = ""
 var authored_sections: int = 0
+var walk_reference_speed: float = 4.0
+var lunge_distance: float = 0.65
+var _locomotion_blend: float = 0.0
+var _presentation_durations: Dictionary = {}
 var _base_pose: String = "Idle"
 var _flash: Tween
 
@@ -47,6 +51,10 @@ func load_asset(path: String = ASSET_PATH, report_warning: bool = true) -> bool:
 		var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string(manifest_path))
 		if manifest is Dictionary:
 			authored_sections = int(manifest.get("authored_sections", 0))
+			walk_reference_speed = maxf(0.1, float(manifest.get("walk_reference_speed", 4.0)))
+			lunge_distance = maxf(0.0, float(manifest.get("lunge_distance", 0.65)))
+			_locomotion_blend = clampf(float(manifest.get("locomotion_blend", 0.0)), 0.0, 0.25)
+			_presentation_durations = manifest.get("presentation_durations", {})
 	reset_pose()
 	return true
 
@@ -91,8 +99,14 @@ func play_action(clip: String, duration: float) -> void:
 func set_walking(moving: bool, speed_ratio: float = 1.0) -> void:
 	var clip := "Walk" if moving else "Idle"
 	if current_clip != clip:
-		set_pose(clip)
-	animation_player.speed_scale = clampf(speed_ratio, 0.3, 2.5) if moving else 1.0
+		_base_pose = clip
+		current_clip = clip
+		animation_player.play(clip, _locomotion_blend)
+		animation_player.advance(0)
+	animation_player.speed_scale = clampf(speed_ratio * 4.0 / walk_reference_speed, 0.3, 2.5) if moving else 1.0
+
+func presentation_duration(clip: String) -> float:
+	return maxf(0.05, float(_presentation_durations.get(clip, 0.36)))
 
 func _on_finished(clip: StringName) -> void:
 	if clip in ["Attack", "Hurt"]:

@@ -90,6 +90,8 @@ func _build_imported_kael() -> bool:
 		selected_path = "res://assets/characters/kael/v08/kael.glb"
 	elif selected_path == KaelModel.ASSET_PATH and ProjectSettings.get_setting("visuals/kael/asset_version", "0.9") == "reference-study":
 		selected_path = "res://assets/characters/kael/reference_study/kael.glb"
+	elif selected_path == KaelModel.ASSET_PATH and ProjectSettings.get_setting("visuals/kael/asset_version", "0.9") == "polished":
+		selected_path = "res://assets/characters/kael/polished/kael.glb"
 	if not candidate.load_asset(selected_path, report_asset_warnings):
 		kael_load_error = candidate.load_error
 		model_pivot.remove_child(candidate)
@@ -165,17 +167,24 @@ func sync(fighter: BattleEngine.Fighter, guardian_name: String, active: bool, pr
 	if imported_model != null:
 		imported_model.reset_pose("KO" if fighter.hp <= 0 else ("Defend" if fighter.guarding else "Idle"))
 
+func presentation_duration(kind: String) -> float:
+	if imported_model == null:
+		return 0.36
+	var clip: String = {"physical": "Attack", "hit": "Hurt", "guard": "Defend", "protect": "Defend", "knockout": "KO"}.get(kind, "Idle")
+	return imported_model.presentation_duration(clip)
+
 func animate(kind: String, direction: Vector3 = Vector3.RIGHT) -> void:
 	if _motion != null:
 		_motion.kill()
 	var duration := 0.18 * time_scale
 	if imported_model != null:
 		var clip: String = {"physical": "Attack", "hit": "Hurt", "guard": "Defend", "protect": "Defend", "knockout": "KO"}.get(kind, "Idle")
-		imported_model.play_action(clip, duration * 2)
+		var clip_duration := presentation_duration(kind) * time_scale
+		imported_model.play_action(clip, clip_duration)
 		if kind in ["physical", "hit"]:
 			_motion = create_tween()
-			_motion.tween_property(body, "position", direction * 0.65 if kind == "physical" else Vector3(0.15, 0, 0), duration)
-			_motion.tween_property(body, "position", Vector3.ZERO, duration)
+			_motion.tween_property(body, "position", direction * imported_model.lunge_distance if kind == "physical" else Vector3(0.15, 0, 0), clip_duration * 0.5)
+			_motion.tween_property(body, "position", Vector3.ZERO, clip_duration * 0.5)
 		return
 	_motion = create_tween()
 	if weapon != null and kind in ["physical", "magic", "heal", "haste"]:
