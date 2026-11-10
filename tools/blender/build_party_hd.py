@@ -518,14 +518,15 @@ def build(hero, cfg, library_speed):
     print('BUILT', hero, json.dumps({k: manifest[k] for k in ('triangles', 'scale', 'clip_seconds', 'walk_reference_speed')}), flush=True)
 
 
-assert bpy.app.background, 'Use a separate background Blender process'
-missing = [p for p in (BODY, HAIR, OUTFIT, UAL) if not p.exists()]
-if missing:
-    sys.exit('Quaternius packs not installed (run tools/install_quaternius.py first): %s' % missing)
-bpy.ops.wm.read_factory_settings(use_empty=True)
-speed = walk_speed()
-OUT.mkdir(parents=True, exist_ok=True)
-for hero, cfg in HEROES.items():
-    if ONLY and hero not in ONLY:
-        continue
-    build(hero, cfg, speed)
+if __name__ == '__main__':   # helpers are reused by build_ignar_hd.py
+    assert bpy.app.background, 'Use a separate background Blender process'
+    missing = [p for p in (BODY, HAIR, OUTFIT, UAL) if not p.exists()]
+    if missing:
+        sys.exit('Quaternius packs not installed (run tools/install_quaternius.py first): %s' % missing)
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    speed = walk_speed()
+    OUT.mkdir(parents=True, exist_ok=True)
+    for hero, cfg in HEROES.items():
+        if ONLY and hero not in ONLY:
+            continue
+        build(hero, cfg, speed)

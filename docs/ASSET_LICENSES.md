@@ -121,3 +121,9 @@ El 10/11/2026 el usuario descargó a mano desde itch.io las versiones gratuitas 
 
 - **Cinzel** (Natanael Gama, The Cinzel Project Authors) y **Alegreya Sans** (Huerta Tipográfica): SIL Open Font License 1.1, que permite usarlas, modificarlas y redistribuirlas incluso comercialmente, siempre que se acompañe la licencia y no se vendan por separado. Descargadas el 10/11/2026 del repositorio oficial `github.com/google/fonts` (`ofl/cinzel`, `ofl/alegreyasans`). Están en `assets/ui/fonts/` junto con `Cinzel-OFL.txt` y `AlegreyaSans-OFL.txt`.
 - Los retratos del HUD no son imágenes externas: se renderizan durante la partida a partir del modelo activo y no se guardan en el repositorio.
+
+## Iteración 1.7: sonidos, texturas de efectos e Ignar HD
+
+- **Sonidos de combate** (`assets/audio/sfx/`, 19 WAV): originales, sintetizados por `tools/audio/make_combat_sfx.py` (ondas, ruido filtrado y envolventes, semilla fija). Sin muestras ni grabaciones de terceros; pertenecen al proyecto.
+- **Texturas de efectos** (`assets/fx/textures/`): generadas por `tools/fx/make_fx_textures.py`. El círculo rúnico se inspira en la referencia del diseñador para Ignar (dibujado con formas simples, no calcado).
+- **Ignar HD** (`assets/third_party/ignar_hd/`, ignorado por Git): cuerpo base y animaciones de Quaternius (Q1 y la biblioteca de animaciones, instalados localmente por el usuario); placas, cuernos, núcleo y texturas generados por `tools/blender/build_ignar_hd.py`. Como el grupo HD, no se publica en el repositorio.

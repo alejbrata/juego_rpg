@@ -28,6 +28,7 @@ func run(tree: SceneTree, verify: Callable) -> void:
 	_tree = tree
 	_verify = verify
 	await battle()
+	await enemy_turn()
 	await layouts()
 	await exploration()
 
@@ -110,6 +111,40 @@ func battle() -> void:
 	ui.targets.get_child(0).pressed.emit()
 	stage.skip_presentation()
 	check(engine.phase == BattleEngine.Phase.VICTORY and ui.status.text == "¡Victoria!" and ui.result_row.visible and not ui.actions.visible, "resultado del combate con acciones de cierre")
+	stage.free()
+
+## Enemy turns resolve by themselves (no "continue" tap), paused while a menu is open.
+func enemy_turn() -> void:
+	var stage = preload("res://scenes/battle_3d.tscn").instantiate()
+	stage.camera_motion_enabled = false
+	_tree.root.add_child(stage)
+	await _tree.process_frame
+	var ui = stage.hud
+	stage.set_skip_animations(true)
+	var engine: BattleEngine = ui.engine
+	for turn in 6:
+		if engine.phase != BattleEngine.Phase.WAITING_PLAYER:
+			break
+		ui.actions.get_child(1).pressed.emit()   # Defender
+		if ui.targets.visible:
+			ui.targets.get_child(0).pressed.emit()
+		stage.skip_presentation()
+	var enemy_id: int = engine.current_id()
+	var reached: bool = engine.phase == BattleEngine.Phase.ENEMY_TURN and ui.actions.get_child_count() == 1
+	var before: int = engine.history.size()
+	ui.toggle_options()
+	for i in 40:
+		await _tree.physics_frame
+	var paused: bool = engine.phase == BattleEngine.Phase.ENEMY_TURN and engine.current_id() == enemy_id and engine.history.size() == before
+	ui.toggle_options()
+	var waited := 0
+	while engine.history.size() == before and waited < 300:
+		await _tree.physics_frame
+		waited += 1
+	for i in 3:
+		stage.skip_presentation()
+		await _tree.process_frame
+	check(reached and paused and engine.history.size() > before and (engine.phase != BattleEngine.Phase.ENEMY_TURN or engine.current_id() != enemy_id), "turno enemigo resuelto solo tras una pausa, sin pulsar nada y detenido con el menú abierto")
 	stage.free()
 
 func layouts() -> void:

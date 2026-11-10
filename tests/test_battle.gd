@@ -379,6 +379,7 @@ func _initialize() -> void:
 	await preload("res://tests/ui_checks.gd").new().run(self, check)
 	await preload("res://tests/touch_checks.gd").new().run(self, check)
 	await preload("res://tests/touch_playthrough_checks.gd").new().run(self, check)
+	await preload("res://tests/combat_fx_checks.gd").new().run(self, check)
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)
 

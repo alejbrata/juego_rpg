@@ -17,7 +17,17 @@ signal skip_toggled(enabled: bool)
 const COMMAND_WIDTH := 188.0
 const PANEL_GAP := 10.0
 
+## Enemy turns resolve on their own after a short beat (the player can still tap
+## to hurry them). Paused while the log or options are open.
+const ENEMY_AUTO_DELAY := 0.9
+const ENEMY_AUTO_DELAY_INSTANT := 0.3
+
 var presentation_busy: bool = false
+## 1.7: interface sounds (assigned by the 3D stage; null in standalone uses).
+var sfx: CombatAudio
+var _last_resonance: int = -1
+var _enemy_step: Button
+var _enemy_wait := 0.0
 var presentation_actor: String = ""
 var presentation_actor_id: int = -1
 var encounter_mode: bool = false
@@ -293,6 +303,10 @@ func _refresh() -> void:
 	# Resonance and guardian bond.
 	var full := run.resonance >= 100
 	resonance_value.text = str(run.resonance)
+	# 1.7: a chime the moment Resonance fills up (not when a battle starts full).
+	if run.resonance >= 100 and _last_resonance >= 0 and _last_resonance < 100:
+		_sfx("resonance_ready")
+	_last_resonance = run.resonance
 	EclipseUI.tween_to(self, resonance_bar, "value", float(run.resonance), 0.3, _instant())
 	guardian_info.text = ""
 	for fighter in engine.fighters:
@@ -597,9 +611,25 @@ func _add_invoke(guardian: GuardianData, callback: Callable) -> Button:
 	return button
 
 func _add_enemy_step(actor: BattleEngine.Fighter, callback: Callable) -> Button:
-	var button := _command_button(actions, "next", EclipseUI.ENEMY, "Continuar", "Actúa " + actor.data.label, "", callback)
+	var button := _command_button(actions, "next", EclipseUI.ENEMY, "Turno de " + actor.data.label, "Actúa solo · toca para acelerar", "", callback)
 	button.custom_minimum_size.x = COMMAND_WIDTH * 2 + 8
+	_enemy_step = button
+	_enemy_wait = 0.0
 	return button
+
+func _process(delta: float) -> void:
+	if _enemy_step == null:
+		return
+	if not is_instance_valid(_enemy_step) or not _enemy_step.is_inside_tree() or engine.phase != BattleEngine.Phase.ENEMY_TURN:
+		_enemy_step = null
+		return
+	if presentation_busy or _enemy_step.disabled or log_panel.visible or options_panel.visible:
+		return
+	_enemy_wait += delta
+	if _enemy_wait >= (ENEMY_AUTO_DELAY_INSTANT if _instant() else ENEMY_AUTO_DELAY):
+		var button := _enemy_step
+		_enemy_step = null
+		button.pressed.emit()
 
 func _add_target(target_id: int, callback: Callable) -> Button:
 	var fighter := engine.fighters[target_id]
@@ -642,8 +672,13 @@ func _build_result() -> void:
 	else:
 		_plain_button(result_row, "Nueva partida", _new_party)
 
+func _sfx(sound: String) -> void:
+	if sfx != null and is_instance_valid(sfx):
+		sfx.play(sound)
+
 func _choose(ability: BattleAbility) -> void:
 	super._choose(ability)
+	_sfx("ui_select")
 	actions.visible = false
 	targets.visible = true
 	_cancel.visible = true
@@ -655,6 +690,7 @@ func _choose(ability: BattleAbility) -> void:
 		var id := ids[i]
 		var button := targets.get_child(i) as Button
 		button.focus_entered.connect(func() -> void: target_preview.emit(id))
+		button.pressed.connect(func() -> void: _sfx("ui_confirm"))
 		button.mouse_entered.connect(func() -> void: target_preview.emit(id))
 	targets_offered.emit(ids)
 	if not ids.is_empty():
@@ -667,6 +703,8 @@ func _choose(ability: BattleAbility) -> void:
 	_relayout()
 
 func _cancel_selection() -> void:
+	if selected != null:
+		_sfx("ui_cancel")
 	selected = null
 	_clear(targets)
 	message.text = ""

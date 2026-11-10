@@ -25,6 +25,18 @@ var _impact_tween: Tween
 var _target_marker: MeshInstance3D
 var _target_hints: Node3D
 var _marker_materials := {}
+# 1.7 presentation layer: effects, sounds, screen-space numbers, camera trauma.
+var vfx: CombatVFX
+var sfx: CombatAudio
+var numbers: CombatNumbers
+var _cue: Dictionary = {}
+var _cue_actor: int = -1
+var _settle_until: int = 0
+var _trauma: float = 0.0
+var _shake_clock: float = 0.0
+var _shaking: bool = false
+var _summon_circle: Node3D
+const SHAKE_OFFSET := 0.11   # camera offset (m) at full trauma; decays in ~0.3 s
 
 func configure_encounter(heroes: Array[CombatantData], enemies: Array[CombatantData], run: PartyState) -> void:
 	# Configure the existing controller before entering the tree. Standalone scenes
@@ -37,6 +49,15 @@ func configure_encounter(heroes: Array[CombatantData], enemies: Array[CombatantD
 
 func _ready() -> void:
 	_build_arena()
+	vfx = CombatVFX.new(_effects, camera)
+	sfx = CombatAudio.new()
+	sfx.name = "CombatAudio"
+	add_child(sfx)
+	numbers = CombatNumbers.new()
+	numbers.camera = camera
+	$Overlay.add_child(numbers)
+	$Overlay.move_child(numbers, 0)
+	hud.sfx = sfx
 	hud.engine.battle_event.connect(_on_event)
 	hud.updated.connect(_on_updated)
 	hud.battle_reset.connect(_reset_visuals)
@@ -78,6 +99,13 @@ func _reset_visuals() -> void:
 	_clear(_effects)
 	_clear(_links)
 	_ignar = null
+	_summon_circle = null
+	_cue = {}
+	_settle_until = 0
+	if numbers != null:
+		numbers.clear()
+	if sfx != null:
+		sfx.stop_all()
 	visuals.clear()
 	var enemy_count := 0
 	var hero_count := 0
@@ -167,7 +195,8 @@ func _link(from: Vector3, to: Vector3) -> void:
 	var mesh := BattleActorVisual._mesh(_links, line, (from + to) * 0.5 + Vector3.UP * 0.8, BattleActorVisual._material(Color("84d5ff"), true))
 	mesh.quaternion = Quaternion(Vector3.UP, (to - from).normalized())
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_update_shake(delta)
 	if not playing and not event_queue.is_empty():
 		_drain_events()
 
@@ -184,6 +213,13 @@ func _drain_events() -> void:
 		await get_tree().create_timer(maxf(0.001, duration * animation_time_scale)).timeout
 		if generation != _generation:
 			return # Restart canceled the old visual sequence, never the engine.
+	# 1.7: let gestures that outlive their event (an attacker returning home after
+	# the blow landed) finish before poses are re-synchronised.
+	var remaining := (_settle_until - Time.get_ticks_msec()) / 1000.0
+	if remaining > 0.0:
+		await get_tree().create_timer(remaining).timeout
+		if generation != _generation:
+			return
 	playing = false
 	_sync_state()
 	hud.unlock_actions()
@@ -194,50 +230,46 @@ func _play_event(event: Dictionary) -> float:
 	var target_id: int = event.get("target_id", -1)
 	for visual in visuals:
 		visual.time_scale = animation_time_scale
+	vfx.time_scale = animation_time_scale
+	numbers.time_scale = animation_time_scale
 	match kind:
 		"action":
-			if event.effect == "physical" and event.label != "Ataque":
-				_camera_pulse(39.5)
-			var visual := visuals[actor_id]
-			var direction := (visuals[target_id].home - visual.home).normalized()
-			visual.animate(event.effect, direction)
-			if event.effect != "physical":
-				_burst(visual.home + Vector3.UP, _effect_color(event.effect, event.element), 0.6)
-			if event.effect == "magic":
-				_projectile(visual.home + Vector3.UP * 1.4, visuals[target_id].home + Vector3.UP * 1.3, event.element)
-			return visual.presentation_duration(event.effect) + 0.02
+			return _play_action(event, actor_id, target_id)
 		"damage", "summon_effect":
-			_camera_impact()
-			var color := _effect_color("magic", event.element) if event.element != "physical" else Color("fff2b0")
-			visuals[target_id].flash(color)
-			visuals[target_id].animate("knockout" if event.hp_after == 0 else "hit")
-			_burst(visuals[target_id].home + Vector3.UP, color, 0.75 if kind == "summon_effect" else 0.4)
-			if event.element == "ice":
-				_ice_shards(visuals[target_id].home)
-			elif kind == "summon_effect":
-				_ember_pillars(visuals[target_id].home)
-			_floating(visuals[target_id].home, "-%d%s" % [event.hp_lost if kind == "summon_effect" else event.amount, "  DEF ↓" if kind == "summon_effect" else ""], color)
-			return visuals[target_id].presentation_duration("knockout" if event.hp_after == 0 else "hit") + 0.02
+			return _play_hit(event, kind, target_id)
 		"heal":
-			visuals[target_id].flash(Color("70ffac"))
-			_burst(visuals[target_id].home + Vector3.UP, Color("70ffac"), 0.7)
-			_heal_motes(visuals[target_id].home)
-			_floating(visuals[target_id].home, "+%d PV" % event.amount, Color("70ffac"))
-			return 0.38
+			var target := visuals[target_id]
+			target.flash(Color("70ffac"))
+			vfx.heal(target.home + Vector3.UP)
+			sfx.play("heal")
+			numbers.show_text(_number_anchor(target_id), "+%d" % event.amount, "heal")
+			return 0.62
 		"intercept":
 			var protector_id: int = event.protector_id
 			var destination := visuals[target_id].home.lerp(visuals[actor_id].home, 0.28)
 			var tween := visuals[protector_id].create_tween()
 			tween.tween_property(visuals[protector_id], "position", destination, 0.2 * animation_time_scale)
-			_floating(destination, "¡Protección!", Color("84d5ff"))
+			var toward := (visuals[actor_id].home - destination).normalized()
+			vfx.later(0.16, func() -> void: vfx.guard(destination, toward))
+			sfx.play("guard")
+			numbers.show_text(destination + Vector3.UP * 2.4, "¡Protección!", "status")
 			return 0.24
 		"summon_appear":
 			_camera_pulse(38, false)
+			_summon_circle = vfx.summon_circle(Vector3(0.2, 0, -0.8))
 			_show_ignar()
-			_floating(Vector3(0, 1.8, -0.8), "IGNAR · Juicio de Ceniza", Color("ffbf68"), 0.9)
-			return 0.65
+			if _ignar is IgnarModel:
+				vfx.dress_ignar(_ignar, (_ignar as IgnarModel).head_anchor, (_ignar as IgnarModel).chest_anchor)
+			else:
+				vfx.dress_ignar(_ignar)
+			sfx.play("summon")
+			_shake(0.45)
+			numbers.show_text(Vector3(0.2, 1.4, -0.8), "IGNAR · Juicio de Ceniza", "summon")
+			return 0.75
 		"summon_disappear":
 			_restore_camera(false)
+			vfx.fade_out(_summon_circle, 0.35)
+			_summon_circle = null
 			if is_instance_valid(_ignar):
 				var tween := _ignar.create_tween()
 				tween.tween_property(_ignar, "scale", Vector3.ONE * 0.01, 0.25 * animation_time_scale)
@@ -245,6 +277,149 @@ func _play_event(event: Dictionary) -> float:
 			_ignar = null
 			return 0.28
 	return 0.08
+
+## Gesture of the acting fighter. Returns when the next event (impact, heal) should
+## play: the moment of contact for blows, the end of the cast for spells.
+func _play_action(event: Dictionary, actor_id: int, target_id: int) -> float:
+	var visual := visuals[actor_id]
+	var target := visuals[target_id]
+	var actor_enemy: bool = hud.engine.fighters[actor_id].enemy
+	_cue = CombatCues.for_action(event, actor_enemy)
+	_cue_actor = actor_id
+	var direction := (target.home - visual.home).normalized() if target != visual else _facing(visual)
+	visual.animate(event.effect, direction)
+	var clip := visual.presentation_duration(event.effect)
+	if float(_cue.get("zoom", 0.0)) > 0.0:
+		_camera_pulse(float(_cue.zoom))
+	if not String(_cue.get("cast", "")).is_empty():
+		sfx.play(_cue.cast)
+	match String(event.effect):
+		"physical":
+			_hold(clip)
+			return clip * float(_cue.get("contact", 0.5))
+		"magic":
+			var travel := minf(0.3, clip * 0.4)
+			var release := clip - travel
+			var hand := visual.hand_point(direction)
+			var aim := target.home + Vector3.UP * 1.25
+			if event.element == "ice":
+				vfx.ice_charge(hand, visual.home, release)
+				vfx.later(release, func() -> void: vfx.ice_bolt(hand, aim, travel))
+			else:
+				vfx.fire_charge(hand, visual.home, release)
+				vfx.later(release, func() -> void: vfx.fire_bolt(hand, aim, travel))
+			sfx.play_later("swing", release * animation_time_scale, _valid_now(_generation))
+			return clip + 0.02
+		"heal":
+			vfx.heal_glow(visual.hand_point(direction), clip * 0.8)
+			return clip + 0.02
+		_:
+			# Support without its own engine event: the effect lands on the target
+			# at the apex of the gesture (Protección, Impulso, Defender).
+			var apex := clip * 0.45
+			var effect: String = event.effect
+			var status_color: Color = CombatCues.STATUS_COLORS.get(effect, Color.WHITE)
+			vfx.support_glow(visual.hand_point(direction), Color(status_color.r * 2.0, status_color.g * 2.0, status_color.b * 2.0, 0.9), apex)
+			var impact_sound := String(_cue.get("impact", "guard"))
+			vfx.later(apex, func() -> void:
+				match effect:
+					"protect":
+						vfx.protect(target.home)
+					"haste":
+						vfx.haste(target.home)
+					_:
+						vfx.guard(target.home, _facing(target))
+				sfx.play(impact_sound)
+				numbers.show_text(_number_anchor(target_id), String(CombatCues.STATUS_TEXT.get(effect, "")), "status"))
+			return maxf(clip, apex + 0.5) + 0.02
+
+## Impact on the target: effect by cue, sound, shake, hit-stop, reaction, number.
+func _play_hit(event: Dictionary, kind: String, target_id: int) -> float:
+	var target := visuals[target_id]
+	var fighter: BattleEngine.Fighter = hud.engine.fighters[target_id]
+	var knocked_out: bool = event.hp_after == 0
+	var cue: Dictionary = _cue
+	var attacker: BattleActorVisual = visuals[_cue_actor] if kind == "damage" and _cue_actor >= 0 and _cue_actor < visuals.size() else null
+	var direction := (target.home - attacker.home).normalized() if attacker != null and attacker != target else -_facing(target)
+	var chest := target.home + Vector3.UP * (1.25 if not fighter.enemy else 1.45) - direction * 0.35
+	var color := _effect_color("magic", event.element) if event.element != "physical" else Color("fff2b0")
+	var heavy := String(cue.get("vfx", "")) == "slash_heavy"
+	if kind == "summon_effect" and _ignar is IgnarModel and is_instance_valid(_ignar):
+		var model: IgnarModel = _ignar
+		model.play("Attack")
+		var contact := model.duration("Attack") * model.attack_contact
+		var generation := _generation
+		var event_copy := event.duplicate()
+		vfx.later(contact, func() -> void:
+			if generation == _generation:
+				_summon_hit(event_copy, target_id))
+		_hold(model.duration("Attack"))
+		return contact + 0.45
+	if kind == "summon_effect":
+		vfx.summon_impact(target.home + Vector3.UP)
+		sfx.play("fire_impact")
+		_shake(0.75)
+	else:
+		match String(cue.get("vfx", "slash")):
+			"fire":
+				vfx.fire_burst(chest)
+			"ice":
+				vfx.ice_burst(chest)
+			"slam":
+				vfx.slam(chest)
+			_:
+				vfx.slash(chest, heavy)
+				vfx.hit_spark(chest, color, heavy, fighter.enemy)
+		sfx.play(String(cue.get("impact", "hit")))
+		_shake(float(cue.get("shake", 0.3)) * (1.25 if knocked_out else 1.0))
+		var stop := float(cue.get("hit_stop", 0.0))
+		if stop > 0.0:
+			target.hit_stop(stop)
+			if attacker != null:
+				attacker.hit_stop(stop)
+	target.flash(color)
+	target.animate("knockout" if knocked_out else "hit", direction)
+	var amount: int = event.hp_lost if kind == "summon_effect" else event.amount
+	numbers.show_text(_number_anchor(target_id), str(amount), "summon" if kind == "summon_effect" else CombatCues.damage_style(String(event.element), fighter.enemy, heavy))
+	if kind == "summon_effect":
+		numbers.show_text(_number_anchor(target_id), "DEF ↓", "status", 0.18)
+	if knocked_out:
+		vfx.later(0.22, func() -> void: vfx.knockout(target.home))
+		sfx.play_later("knockout", 0.18 * animation_time_scale, _valid_now(_generation))
+		numbers.show_text(_number_anchor(target_id), "K.O.", "ko", 0.3)
+	var reaction := target.presentation_duration("knockout" if knocked_out else "hit")
+	_hold(reaction)
+	return minf(reaction, 0.5) + 0.02
+
+## Ignar HD's blow on contact: same impact, sound, reaction and numbers as before.
+func _summon_hit(event: Dictionary, target_id: int) -> void:
+	var target := visuals[target_id]
+	vfx.summon_impact(target.home + Vector3.UP)
+	sfx.play("fire_impact")
+	_shake(0.75)
+	target.flash(_effect_color("magic", event.element))
+	var knocked_out: bool = event.hp_after == 0
+	target.animate("knockout" if knocked_out else "hit", (target.home - IGNAR_SPOT).normalized())
+	numbers.show_text(_number_anchor(target_id), str(event.hp_lost), "summon")
+	numbers.show_text(_number_anchor(target_id), "DEF ↓", "status", 0.18)
+	if knocked_out:
+		vfx.later(0.22, func() -> void: vfx.knockout(target.home))
+		sfx.play("knockout")
+		numbers.show_text(_number_anchor(target_id), "K.O.", "ko", 0.3)
+
+## Where numbers appear: above the head of each fighter.
+func _number_anchor(target_id: int) -> Vector3:
+	var fighter: BattleEngine.Fighter = hud.engine.fighters[target_id]
+	return visuals[target_id].home + Vector3.UP * (2.25 if fighter.enemy else 2.05)
+
+func _facing(visual: BattleActorVisual) -> Vector3:
+	return Vector3(sin(visual.facing_yaw), 0, cos(visual.facing_yaw))
+
+func _hold(seconds: float) -> void:
+	_settle_until = maxi(_settle_until, Time.get_ticks_msec() + int(seconds * animation_time_scale * 1000.0))
+
+func _valid_now(generation: int) -> Callable:
+	return func() -> bool: return generation == _generation and is_inside_tree()
 
 func _preview_target(target_id: int) -> void:
 	if target_id >= 0 and target_id < visuals.size():
@@ -276,8 +451,14 @@ func skip_presentation() -> void:
 	while not event_queue.is_empty():
 		played_events.append(event_queue.pop_front())
 	playing = false
+	_settle_until = 0
 	_clear(_effects)
 	_ignar = null
+	_summon_circle = null
+	if numbers != null:
+		numbers.clear()
+	if sfx != null:
+		sfx.stop_all()
 	_restore_camera()
 	_sync_state()
 	hud.unlock_actions()
@@ -287,6 +468,8 @@ func _restore_camera(immediate: bool = true) -> void:
 		_camera_tween.kill()
 	if _impact_tween != null:
 		_impact_tween.kill()
+	_trauma = 0.0
+	_shaking = false
 	if camera == null:
 		return
 	camera.transform = _camera_home
@@ -309,50 +492,27 @@ func _camera_pulse(fov: float, return_home: bool = true) -> void:
 		_camera_tween.tween_property(camera, "fov", 42.0, 0.2 * animation_time_scale)
 
 func _camera_impact() -> void:
-	if camera_motion_enabled:
-		if _impact_tween != null:
-			_impact_tween.kill()
-		camera.h_offset = 0.035
-		_impact_tween = camera.create_tween()
-		_impact_tween.tween_property(camera, "h_offset", 0.0, 0.12 * animation_time_scale)
+	_shake(0.35)
 
-func _projectile(from: Vector3, to: Vector3, element: String) -> void:
-	var root := Node3D.new()
-	root.position = from
-	_effects.add_child(root)
-	if element == "ice":
-		StylizedModels.gem(root, Vector3.ZERO, Vector3(0.25, 0.7, 0.25), StylizedModels.mat("b4e3e8", true)).rotation.z = PI * 0.5
-	else:
-		StylizedModels.rock(root, Vector3.ZERO, Vector3(0.5, 0.5, 0.5), StylizedModels.mat("ef9a50", true))
-		StylizedModels.rock(root, Vector3(-0.25, 0, 0), Vector3(0.35, 0.3, 0.3), StylizedModels.mat("cc623d", true))
-	var tween := root.create_tween()
-	tween.tween_property(root, "position", to, 0.34 * animation_time_scale)
-	tween.tween_callback(root.queue_free)
+## 1.7: trauma-based shake (decays by itself, squared for a soft tail). Only when
+## camera motion is enabled in the options; never moves the camera's base pose.
+func _shake(amount: float) -> void:
+	if camera_motion_enabled and amount > 0.0:
+		_trauma = clampf(maxf(_trauma, amount), 0.0, 1.0)
 
-func _ice_shards(at: Vector3) -> void:
-	for i in range(5):
-		var angle := i * TAU / 5
-		var shard := StylizedModels.gem(_effects, at + Vector3(cos(angle) * 0.6, 0.3, sin(angle) * 0.6), Vector3(0.22, 0.9, 0.25), StylizedModels.mat("b5dde0", true))
-		shard.rotation.z = 0.3 * cos(angle)
-		var tween := shard.create_tween()
-		tween.tween_property(shard, "position:y", 0.8, 0.18 * animation_time_scale)
-		tween.tween_property(shard, "scale", Vector3.ONE * 0.01, 0.22 * animation_time_scale)
-		tween.tween_callback(shard.queue_free)
-
-func _heal_motes(at: Vector3) -> void:
-	for i in range(6):
-		var angle := i * TAU / 6
-		var mote := StylizedModels.rock(_effects, at + Vector3(cos(angle) * 0.6, 0.2, sin(angle) * 0.6), Vector3.ONE * 0.12, StylizedModels.mat("c8dc9a", true))
-		var tween := mote.create_tween()
-		tween.tween_property(mote, "position:y", 2.0, 0.36 * animation_time_scale)
-		tween.tween_callback(mote.queue_free)
-
-func _ember_pillars(at: Vector3) -> void:
-	for i in range(3):
-		var rock := StylizedModels.gem(_effects, at + Vector3((i - 1) * 0.45, 0.2, 0.2), Vector3(0.35, 1.5, 0.35), StylizedModels.mat("ed9b49", true))
-		var tween := rock.create_tween()
-		tween.tween_property(rock, "scale", Vector3(0.1, 0.05, 0.1), 0.35 * animation_time_scale)
-		tween.tween_callback(rock.queue_free)
+func _update_shake(delta: float) -> void:
+	if camera == null or (_trauma <= 0.0 and not _shaking):
+		return
+	if not camera_motion_enabled:
+		_trauma = 0.0
+	_trauma = maxf(0.0, _trauma - delta / maxf(0.32 * animation_time_scale, 0.001))
+	_shake_clock += delta / maxf(animation_time_scale, 0.001)
+	var power := _trauma * _trauma * SHAKE_OFFSET
+	var offset := Vector3(power * sin(_shake_clock * 61.0) * cos(_shake_clock * 23.0), power * 0.7 * sin(_shake_clock * 47.0 + 1.3), 0.0)
+	camera.position = _camera_home.origin + _camera_home.basis * offset
+	_shaking = _trauma > 0.0
+	if not _shaking:
+		camera.position = _camera_home.origin
 
 func _effect_color(effect: String, element: String) -> Color:
 	if effect == "heal":
@@ -361,40 +521,37 @@ func _effect_color(effect: String, element: String) -> Color:
 		return Color("84d5ff")
 	return {"fire": Color("ff803f"), "ice": Color("83d9ff"), "neutral": Color("d1a1ff")}.get(element, Color("dfc77b"))
 
-func _burst(at: Vector3, color: Color, radius: float) -> void:
-	var shape := SphereMesh.new()
-	shape.radius = radius
-	shape.height = radius * 2
-	shape.radial_segments = 12
-	shape.rings = 6
-	var mat := BattleActorVisual._material(Color(color, 0.6), true)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	var burst := BattleActorVisual._mesh(_effects, shape, at, mat)
-	burst.scale = Vector3.ONE * 0.2
-	var tween := burst.create_tween().set_parallel(true)
-	tween.tween_property(burst, "scale", Vector3.ONE * 1.3, 0.35 * animation_time_scale)
-	tween.tween_property(mat, "albedo_color:a", 0.0, 0.35 * animation_time_scale)
-	tween.chain().tween_callback(burst.queue_free)
-
-func _floating(at: Vector3, text: String, color: Color, duration: float = 0.5) -> void:
-	var label := Label3D.new()
-	label.text = text
-	label.position = at + Vector3.UP * 2
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.font_size = 44
-	label.pixel_size = 0.008
-	label.outline_size = 5
-	label.modulate = color
-	label.outline_modulate = Color(0.05, 0.07, 0.06, 1)
-	label.no_depth_test = true
-	_effects.add_child(label)
-	var tween := label.create_tween().set_parallel(true)
-	tween.tween_property(label, "position:y", label.position.y + 0.7, duration * animation_time_scale)
-	tween.tween_property(label, "modulate:a", 0.0, duration * animation_time_scale)
-	tween.tween_property(label, "outline_modulate:a", 0.0, duration * animation_time_scale)
-	tween.chain().tween_callback(label.queue_free)
+const IGNAR_SPOT := Vector3(0.2, 0, -0.8)
+const IGNAR_YAW := 1.2   # HD model faces the enemy side, three-quarter to the camera
 
 func _show_ignar() -> void:
+	# 1.7: Ignar HD (same pipeline as the HD party) when available; it drops onto
+	# the summoning circle and lands. Otherwise the procedural volcanic golem.
+	if IgnarModel.available():
+		var model := IgnarModel.new()
+		model.name = "IgnarHD"
+		_effects.add_child(model)
+		if model.load_asset():
+			_ignar = model
+			model.set_meta("source_mesh_count", maxi(25, model.authored_sections))
+			model.position = IGNAR_SPOT + Vector3.UP * 4.0
+			model.rotation.y = IGNAR_YAW
+			model.set_time_scale(animation_time_scale)
+			model.play("Appear")
+			var drop := model.create_tween()
+			drop.tween_property(model, "position", IGNAR_SPOT, 0.2 * animation_time_scale).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+			drop.tween_callback(func() -> void:
+				_shake(0.7)
+				vfx.knockout(IGNAR_SPOT)
+				vfx.ground_ring(IGNAR_SPOT + Vector3.UP * 0.05, Color(2.2, 0.9, 0.3, 0.9), 3.2, 0.5))
+			var light := OmniLight3D.new()
+			light.light_color = Color("ff8a3a")
+			light.light_energy = 2.2
+			light.omni_range = 8
+			light.position = Vector3(0, 2.6, 1.0)
+			model.add_child(light)
+			return
+		model.queue_free()
 	_ignar = Node3D.new()
 	_ignar.position = Vector3(0.2, -0.2, -0.8)
 	_effects.add_child(_ignar)

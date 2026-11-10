@@ -144,6 +144,8 @@ func sync(fighter: BattleEngine.Fighter, guardian_name: String, active: bool, pr
 		_flash.kill()
 	if _gesture != null:
 		_gesture.kill()
+	if imported_model != null and imported_model.animation_player != null:
+		imported_model.animation_player.speed_scale = 1.0
 	if weapon != null and imported_model == null:
 		weapon.rotation = Vector3.ZERO
 	position = home
@@ -208,10 +210,16 @@ func animate(kind: String, direction: Vector3 = Vector3.RIGHT) -> void:
 		var clip := imported_model.clip_for_effect(kind)
 		var clip_duration := presentation_duration(kind) * time_scale
 		imported_model.play_action(clip, clip_duration)
-		if kind in ["physical", "hit"]:
+		if kind == "physical":
+			# 1.7: brief wind-up before the lunge (scaled by the model's own lunge, so
+			# planted-feet models such as Lyra/Nira still do not slide).
+			var lunge := imported_model.lunge_distance
 			_motion = create_tween()
-			_motion.tween_property(body, "position", direction * imported_model.lunge_distance if kind == "physical" else Vector3(0.15, 0, 0), clip_duration * 0.5)
-			_motion.tween_property(body, "position", Vector3.ZERO, clip_duration * 0.5)
+			_motion.tween_property(body, "position", -direction * lunge * 0.25, clip_duration * 0.18)
+			_motion.tween_property(body, "position", direction * lunge, clip_duration * 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			_motion.tween_property(body, "position", Vector3.ZERO, clip_duration * 0.52).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		elif kind == "hit":
+			_recoil(direction, clip_duration)
 		return
 	_motion = create_tween()
 	if weapon != null and kind in ["physical", "magic", "heal", "haste"]:
@@ -222,8 +230,10 @@ func animate(kind: String, direction: Vector3 = Vector3.RIGHT) -> void:
 		_gesture.tween_property(weapon, "rotation:x", 0.0, duration)
 	match kind:
 		"physical":
-			_motion.tween_property(body, "position", direction * 0.65, duration)
-			_motion.tween_property(body, "position", Vector3.ZERO, duration)
+			# Wind-up, fast lunge (contact at half the action), eased return: 0.36 s.
+			_motion.tween_property(body, "position", -direction * 0.18, duration * 0.4)
+			_motion.tween_property(body, "position", direction * 0.7, duration * 0.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			_motion.tween_property(body, "position", Vector3.ZERO, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		"magic", "heal", "haste":
 			_motion.tween_property(body, "scale", Vector3(1.12, 1.16, 1.12), duration)
 			_motion.tween_property(body, "scale", Vector3.ONE, duration)
@@ -231,11 +241,46 @@ func animate(kind: String, direction: Vector3 = Vector3.RIGHT) -> void:
 			_motion.tween_property(body, "rotation:z", -0.12, duration)
 			_motion.tween_property(body, "rotation:z", 0.0, duration)
 		"hit":
-			_motion.tween_property(body, "position", Vector3(0.15, 0, 0), duration * 0.5)
-			_motion.tween_property(body, "position", Vector3.ZERO, duration * 0.5)
+			_motion.kill()
+			_recoil(direction, duration * 2.0)
 		"knockout":
 			_motion.tween_property(body, "rotation:z", PI * 0.5, duration * 2)
 			_motion.parallel().tween_property(body, "scale", Vector3.ONE * 0.65, duration * 2)
+
+## 1.7: pushed away from the blow, a short shudder, then back home.
+func _recoil(direction: Vector3, seconds: float) -> void:
+	var away := Vector3(direction.x, 0, direction.z).normalized() if direction.length() > 0.01 else Vector3.RIGHT
+	var side := away.cross(Vector3.UP).normalized()
+	_motion = create_tween()
+	_motion.tween_property(body, "position", away * 0.24, seconds * 0.16).set_ease(Tween.EASE_OUT)
+	_motion.tween_property(body, "position", away * 0.16 + side * 0.05, seconds * 0.08)
+	_motion.tween_property(body, "position", away * 0.18 - side * 0.05, seconds * 0.08)
+	_motion.tween_property(body, "position", Vector3.ZERO, seconds * 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+## 1.7: freezes the current animation/motion for an instant on contact.
+func hit_stop(seconds: float) -> void:
+	if seconds <= 0.0:
+		return
+	var player: AnimationPlayer = imported_model.animation_player if imported_model != null else null
+	if player != null:
+		player.speed_scale = 0.05
+	if _motion != null and _motion.is_valid():
+		_motion.set_speed_scale(0.05)
+	var resume := create_tween()
+	resume.tween_interval(seconds * time_scale)
+	resume.tween_callback(func() -> void:
+		if player != null and is_instance_valid(player):
+			player.speed_scale = 1.0
+		if _motion != null and _motion.is_valid():
+			_motion.set_speed_scale(1.0))
+
+## 1.7: where spells leave from: the weapon/focus if it exists, else chest height.
+func hand_point(direction: Vector3 = Vector3.ZERO) -> Vector3:
+	if weapon != null and is_instance_valid(weapon) and weapon.is_inside_tree():
+		var at := weapon.global_position
+		if at.y > global_position.y + 0.4:
+			return at + direction * 0.15
+	return global_position + Vector3.UP * 1.3 + direction * 0.35
 
 func flash(color: Color) -> void:
 	if imported_model != null:

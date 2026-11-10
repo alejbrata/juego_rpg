@@ -87,7 +87,7 @@ Los 24 GLB del kit pasan a `gltf/embedded_image_handling=2`, **Basis Universal i
 
 ## Estado real de las pruebas
 
-- **Automáticas (headless, en PC):** 1117 comprobaciones y ninguna falla.
+- **Automáticas (headless, en PC):** 1118 comprobaciones y ninguna falla en 1.6 (1160 tras la iteración 1.7).
   - Las 1076 anteriores se mantienen.
   - `tests/touch_checks.gd` suma 33. Cubren:
     - conversión del joystick, zona muerta, magnitud y 360°;
