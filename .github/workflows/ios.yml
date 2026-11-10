@@ -1,0 +1,74 @@
+# Unsigned iOS debug build for personal testing (no Mac needed locally).
+# Produces EclipseJRPG-unsigned.ipa as a workflow artifact; install it on your own
+# iPhone with Sideloadly/AltStore, which signs it with your Apple ID. No credentials
+# are stored here: the Team ID in export_presets.cfg is a placeholder and signing is
+# disabled. Quaternius packs are not in Git, so the party uses the fallback models.
+name: iOS (debug, sin firmar)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [dev]
+    paths: [".github/workflows/ios.yml"]
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descargar Godot y plantillas oficiales (verificadas con SHA512-SUMS)
+        run: |
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          mkdir -p "$RUNNER_TEMP/godot" && cd "$RUNNER_TEMP/godot"
+          curl -fsSLO "$base/SHA512-SUMS.txt"
+          for f in "Godot_v${GODOT_VERSION}-stable_macos.universal.zip" "Godot_v${GODOT_VERSION}-stable_export_templates.tpz"; do
+            curl -fsSLO "$base/$f"
+            grep " $f\$" SHA512-SUMS.txt | shasum -a 512 -c -
+          done
+          unzip -q "Godot_v${GODOT_VERSION}-stable_macos.universal.zip"
+          tpl="$HOME/Library/Application Support/Godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$tpl"
+          unzip -j -o "Godot_v${GODOT_VERSION}-stable_export_templates.tpz" templates/ios.zip templates/version.txt -d "$tpl"
+          echo "GODOT=$RUNNER_TEMP/godot/Godot.app/Contents/MacOS/Godot" >> "$GITHUB_ENV"
+
+      - name: Importar recursos
+        run: |
+          "$GODOT" --headless --path . --import || true
+          test -d .godot/imported
+
+      - name: Exportar proyecto de Xcode
+        run: |
+          mkdir -p build/ios
+          "$GODOT" --headless --path . --export-debug "iOS" build/ios/EclipseJRPG.ipa
+          test -d build/ios/EclipseJRPG.xcodeproj
+
+      - name: Compilar sin firma
+        run: |
+          xcodebuild -version
+          xcodebuild -project build/ios/EclipseJRPG.xcodeproj -scheme EclipseJRPG \
+            -configuration Debug -sdk iphoneos -destination generic/platform=iOS \
+            -derivedDataPath build/dd \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" DEVELOPMENT_TEAM="" \
+            build | tail -40
+          test "${PIPESTATUS[0]}" -eq 0
+
+      - name: Empaquetar IPA
+        run: |
+          app=$(find build/dd/Build/Products -maxdepth 2 -name "*.app" -type d | head -1)
+          test -n "$app"
+          mkdir -p ipa/Payload && cp -R "$app" ipa/Payload/
+          (cd ipa && zip -qry ../EclipseJRPG-unsigned.ipa Payload)
+          ls -lh EclipseJRPG-unsigned.ipa
+          shasum -a 256 EclipseJRPG-unsigned.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EclipseJRPG-ios-unsigned
+          path: EclipseJRPG-unsigned.ipa
+          retention-days: 14
+          compression-level: 0
