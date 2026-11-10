@@ -14,7 +14,7 @@ signal targets_offered(target_ids: Array[int])
 signal camera_toggled(enabled: bool)
 signal skip_toggled(enabled: bool)
 
-const COMMAND_WIDTH := 172.0
+const COMMAND_WIDTH := 188.0
 const PANEL_GAP := 10.0
 
 var presentation_busy: bool = false
@@ -60,6 +60,10 @@ func _ready() -> void:
 	add_child(roster)
 	_layout()
 	resized.connect(_layout)
+	# 1.6: a second finger can press buttons too (Godot maps only finger 0 to mouse).
+	var fingers := TouchControls.SecondaryFingers.new()
+	fingers.roots = [self]
+	add_child(fingers)
 	_restart()
 
 # --- construction ---------------------------------------------------------
@@ -645,7 +649,7 @@ func _choose(ability: BattleAbility) -> void:
 	_cancel.visible = true
 	command_title.text = ability.label
 	var kind_text := {"enemy": "Elige un enemigo", "ally": "Elige un aliado", "self": "Se aplica a ti"}
-	message.text = String(kind_text.get(ability.target_kind, "Elige objetivo")) + " · Esc o Atrás para cancelar"
+	message.text = String(kind_text.get(ability.target_kind, "Elige objetivo")) + (" · Toca Atrás para cancelar" if TouchControls.enabled() else " · Esc o Atrás para cancelar")
 	var ids := engine.valid_targets(ability)
 	for i in range(ids.size()):
 		var id := ids[i]

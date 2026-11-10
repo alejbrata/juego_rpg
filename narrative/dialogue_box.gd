@@ -85,6 +85,11 @@ func _ready() -> void:
 	title_label = EclipseUI.label(self, "", 13, EclipseUI.GOLD, "title")
 	title_label.uppercase = true
 	resized.connect(_layout)
+	# Tapping the text window advances too (buttons keep their own action).
+	panel.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			advance()
+			panel.accept_event())
 	visible = false
 
 func _layout() -> void:
@@ -129,7 +134,7 @@ func _show_line() -> void:
 	speaker_label.text = line.speaker
 	speaker_label.add_theme_color_override("font_color", {"Kael": Color("a9c3e1"), "Lyra": Color("c6b6e7"), "Nira": Color("afd2b2")}.get(line.speaker, Color.WHITE))
 	text_label.text = line.text
-	count_label.text = "%d / %d   ·   Espacio o Enter" % [index + 1, _lines.size()]
+	count_label.text = "%d / %d   ·   %s" % [index + 1, _lines.size(), "Toca para continuar" if TouchControls.enabled() else "Espacio o Enter"]
 	advance_button.text = "Cerrar" if index == _lines.size() - 1 else "Continuar  ›"
 	_plate.visible = not String(line.speaker).is_empty()
 	if is_inside_tree():

@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bs45qhujcmopt"
 path.s3tc="res://.godot/imported/mossy_cobblestone_diff_2k.jpg-cef17aba332e94e98579f047b8cccecc.s3tc.ctex"
+path.etc2="res://.godot/imported/mossy_cobblestone_diff_2k.jpg-cef17aba332e94e98579f047b8cccecc.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environments/eclipse_forest_hd/textures/mossy_cobblestone/mossy_cobblestone_diff_2k.jpg"
-dest_files=["res://.godot/imported/mossy_cobblestone_diff_2k.jpg-cef17aba332e94e98579f047b8cccecc.s3tc.ctex"]
+dest_files=["res://.godot/imported/mossy_cobblestone_diff_2k.jpg-cef17aba332e94e98579f047b8cccecc.s3tc.ctex", "res://.godot/imported/mossy_cobblestone_diff_2k.jpg-cef17aba332e94e98579f047b8cccecc.etc2.ctex"]
 
 [params]
 

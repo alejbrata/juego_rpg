@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://d0xrwq28a8yh4"
 path.s3tc="res://.godot/imported/forest_leaves_02_arm_2k.jpg-0de1c2291604fa00539e289f2914dbec.s3tc.ctex"
+path.etc2="res://.godot/imported/forest_leaves_02_arm_2k.jpg-0de1c2291604fa00539e289f2914dbec.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environments/eclipse_forest_hd/textures/forest_leaves_02/forest_leaves_02_arm_2k.jpg"
-dest_files=["res://.godot/imported/forest_leaves_02_arm_2k.jpg-0de1c2291604fa00539e289f2914dbec.s3tc.ctex"]
+dest_files=["res://.godot/imported/forest_leaves_02_arm_2k.jpg-0de1c2291604fa00539e289f2914dbec.s3tc.ctex", "res://.godot/imported/forest_leaves_02_arm_2k.jpg-0de1c2291604fa00539e289f2914dbec.etc2.ctex"]
 
 [params]
 

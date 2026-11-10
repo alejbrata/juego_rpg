@@ -10,3 +10,8 @@ __pycache__/
 
 # Third-party assets whose licence forbids redistribution as assets (install with tools/install_quaternius.py).
 assets/third_party/
+
+# Android/desktop export output (debug APKs are built locally, never committed).
+build/
+*.apk
+*.aab

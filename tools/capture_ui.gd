@@ -17,6 +17,9 @@ func _initialize() -> void:
 			OUT = arg.substr(6)
 		elif arg.begins_with("--tag="):
 			TAG = arg.substr(6)
+	# -- --touch: touch HUD (joystick, right-hand action) as on a phone.
+	if TouchControls.enabled():
+		TouchControls.configure(self)
 	call_deferred("capture")
 
 func save(file: String) -> void:
@@ -99,6 +102,25 @@ func exploration() -> void:
 	for i in 4:
 		await physics_frame
 	await save("interact")
+	if zone.joystick != null:
+		for size_name in ["19x9", "960x540"]:
+			root.size = SIZES[size_name]
+			await save("interact-" + size_name)
+		root.size = SIZES["16x9"]
+		# Finger resting on the stick (inside the dead zone: the hero stays by the clue).
+		var base: Vector2 = zone.joystick.get_global_rect().position + Vector2(120, zone.joystick.size.y - 120)
+		var press := InputEventScreenTouch.new()
+		press.index = 0
+		press.position = base
+		press.pressed = true
+		zone.joystick._input(press)
+		var drag := InputEventScreenDrag.new()
+		drag.index = 0
+		drag.position = base + Vector2(0.12, -0.09) * TouchJoystick.RADIUS
+		zone.joystick._input(drag)
+		await save("joystick-held")
+		press.pressed = false
+		zone.joystick._input(press)
 	zone.interact(zone._nearest_interest)
 	await save("dialogue-clue")
 	zone.free()

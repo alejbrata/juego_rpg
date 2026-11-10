@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://djlbua60ldv4k"
 path.s3tc="res://.godot/imported/nira_atlas.png-32436cebb06f18373a30dba794b6eda2.s3tc.ctex"
+path.etc2="res://.godot/imported/nira_atlas.png-32436cebb06f18373a30dba794b6eda2.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/characters/nira/ps1/textures/nira_atlas.png"
-dest_files=["res://.godot/imported/nira_atlas.png-32436cebb06f18373a30dba794b6eda2.s3tc.ctex"]
+dest_files=["res://.godot/imported/nira_atlas.png-32436cebb06f18373a30dba794b6eda2.s3tc.ctex", "res://.godot/imported/nira_atlas.png-32436cebb06f18373a30dba794b6eda2.etc2.ctex"]
 
 [params]
 

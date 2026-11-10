@@ -428,7 +428,10 @@ func configure_environment(environment: Environment, sun: DirectionalLight3D) ->
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	environment.tonemap_mode = Environment.TONE_MAPPER_AGX
 	environment.tonemap_exposure = 1.05
-	environment.ssao_enabled = true
+	# SSAO and volumetric fog exist only in Forward+; the Mobile renderer (Android)
+	# ignores them with a warning, so they are only requested where they work.
+	var forward_plus := RenderingServer.get_current_rendering_method() == "forward_plus"
+	environment.ssao_enabled = forward_plus
 	environment.ssao_radius = 1.4
 	environment.ssao_intensity = 2.2
 	environment.ssao_power = 1.6
@@ -446,7 +449,7 @@ func configure_environment(environment: Environment, sun: DirectionalLight3D) ->
 	environment.fog_depth_end = 60.0
 	environment.fog_density = 0.6
 	environment.fog_sky_affect = 0.0
-	environment.volumetric_fog_enabled = true
+	environment.volumetric_fog_enabled = forward_plus
 	environment.volumetric_fog_density = 0.012
 	environment.volumetric_fog_albedo = Color("e6eadc")
 	environment.volumetric_fog_anisotropy = 0.6
@@ -530,7 +533,13 @@ static func _with_mips(texture: Texture2D, normal := false) -> Texture2D:
 		return null
 	if _mip_cache.has(texture):
 		return _mip_cache[texture]
-	var compress := RenderingServer.get_rendering_device() != null
+	# 1.6: kit GLBs embed Basis Universal textures (mipmapped, transcoded to the
+	# GPU's format, including ETC2/ASTC on Android). Export templates cannot
+	# compress at runtime, so already-compressed textures are used as they are.
+	if texture is PortableCompressedTexture2D or texture is CompressedTexture2D:
+		_mip_cache[texture] = texture
+		return texture
+	var compress := RenderingServer.get_rendering_device() != null and OS.has_feature("editor")
 	var suffix := "_%d_%s.res" % [texture.get_width(), ("n" if normal else "g") + ("c" if compress else "u")]
 	# Cheap key for GLB sub-resources (path + source file time); content hash otherwise.
 	var path := texture.resource_path

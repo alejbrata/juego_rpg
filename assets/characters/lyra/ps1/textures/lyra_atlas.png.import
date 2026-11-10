@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cg7xb73blog8a"
 path.s3tc="res://.godot/imported/lyra_atlas.png-64dfa2ef2ca5c537fe5fe6a4e4f42b6e.s3tc.ctex"
+path.etc2="res://.godot/imported/lyra_atlas.png-64dfa2ef2ca5c537fe5fe6a4e4f42b6e.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/characters/lyra/ps1/textures/lyra_atlas.png"
-dest_files=["res://.godot/imported/lyra_atlas.png-64dfa2ef2ca5c537fe5fe6a4e4f42b6e.s3tc.ctex"]
+dest_files=["res://.godot/imported/lyra_atlas.png-64dfa2ef2ca5c537fe5fe6a4e4f42b6e.s3tc.ctex", "res://.godot/imported/lyra_atlas.png-64dfa2ef2ca5c537fe5fe6a4e4f42b6e.etc2.ctex"]
 
 [params]
 

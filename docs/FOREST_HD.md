@@ -114,3 +114,7 @@ pensado para móvil.
 - **Rendimiento**: ver la sección anterior. En gráfica integrada no llega a 60 FPS en exploración.
 - **Tamaño**: el kit ocupa unos 190 MB (modelos con texturas 1k–2k incrustadas, texturas de suelo 2k y HDRI 2k).
 - Los escaneos reducidos pierden detalle fino de cerca. Con la cámara de juego no se nota, pero sí en primeros planos.
+
+## Actualización 1.6: texturas en Basis Universal
+
+En una exportación, las plantillas de Godot no pueden comprimir texturas en tiempo de ejecución: `Image.compress()` devuelve `ERR_UNAVAILABLE`, comprobado con una exportación real. Por eso los GLB del kit pasan de `embedded_image_handling=3` a `2` (Basis Universal incrustado). Las texturas siguen dentro del recurso, con mipmaps y comprimidas, y se transcodifican a BC en PC y a ETC2/ASTC en Android. Así se evita superar 1 GB de VRAM en móvil. La compresión en tiempo de ejecución queda como respaldo solo en el editor. Detalles en [ANDROID.md](ANDROID.md).

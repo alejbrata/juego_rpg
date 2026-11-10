@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c06k4eylsc51r"
 path.s3tc="res://.godot/imported/rocky_trail_arm_2k.jpg-ab523c16e3a7a8486e4c7c9399d6cd23.s3tc.ctex"
+path.etc2="res://.godot/imported/rocky_trail_arm_2k.jpg-ab523c16e3a7a8486e4c7c9399d6cd23.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environments/eclipse_forest_hd/textures/rocky_trail/rocky_trail_arm_2k.jpg"
-dest_files=["res://.godot/imported/rocky_trail_arm_2k.jpg-ab523c16e3a7a8486e4c7c9399d6cd23.s3tc.ctex"]
+dest_files=["res://.godot/imported/rocky_trail_arm_2k.jpg-ab523c16e3a7a8486e4c7c9399d6cd23.s3tc.ctex", "res://.godot/imported/rocky_trail_arm_2k.jpg-ab523c16e3a7a8486e4c7c9399d6cd23.etc2.ctex"]
 
 [params]
 

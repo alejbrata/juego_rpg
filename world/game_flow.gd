@@ -6,7 +6,25 @@ var battle: Node3D
 var active_encounter: EncounterData
 
 func _ready() -> void:
+	TouchControls.configure(get_tree())
 	_open_zone()
+	# Debug builds on phones log a performance line to logcat every 5 s
+	# (adb logcat -s godot:I | findstr RENDIMIENTO). Not present in release builds.
+	if OS.has_feature("mobile") and OS.is_debug_build():
+		var timer := Timer.new()
+		timer.wait_time = 5.0
+		timer.autostart = true
+		timer.timeout.connect(_log_performance)
+		add_child(timer)
+
+func _log_performance() -> void:
+	print("RENDIMIENTO fps=%d frame_ms=%.1f mem_static_mb=%.0f video_mb=%.0f tex_mb=%.0f prims=%d escena=%s" % [
+		Engine.get_frames_per_second(), Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
+		Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0,
+		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED) / 1048576.0,
+		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TEXTURE_MEM_USED) / 1048576.0,
+		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME),
+		"combate" if is_instance_valid(battle) else "exploración"])
 
 func _open_zone() -> void:
 	zone = preload("res://scenes/forest_zone.tscn").instantiate()

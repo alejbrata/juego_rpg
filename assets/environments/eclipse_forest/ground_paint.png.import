@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7o6qe42eudd"
 path.s3tc="res://.godot/imported/ground_paint.png-e3e1691fd9358625e1d09157af33800c.s3tc.ctex"
+path.etc2="res://.godot/imported/ground_paint.png-e3e1691fd9358625e1d09157af33800c.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environments/eclipse_forest/ground_paint.png"
-dest_files=["res://.godot/imported/ground_paint.png-e3e1691fd9358625e1d09157af33800c.s3tc.ctex"]
+dest_files=["res://.godot/imported/ground_paint.png-e3e1691fd9358625e1d09157af33800c.s3tc.ctex", "res://.godot/imported/ground_paint.png-e3e1691fd9358625e1d09157af33800c.etc2.ctex"]
 
 [params]
 

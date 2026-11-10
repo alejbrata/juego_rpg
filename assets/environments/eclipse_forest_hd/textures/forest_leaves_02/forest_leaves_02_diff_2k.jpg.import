@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ctxalqc8h13fn"
 path.s3tc="res://.godot/imported/forest_leaves_02_diff_2k.jpg-f27bee42439fd9317bc6d2e718c05470.s3tc.ctex"
+path.etc2="res://.godot/imported/forest_leaves_02_diff_2k.jpg-f27bee42439fd9317bc6d2e718c05470.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environments/eclipse_forest_hd/textures/forest_leaves_02/forest_leaves_02_diff_2k.jpg"
-dest_files=["res://.godot/imported/forest_leaves_02_diff_2k.jpg-f27bee42439fd9317bc6d2e718c05470.s3tc.ctex"]
+dest_files=["res://.godot/imported/forest_leaves_02_diff_2k.jpg-f27bee42439fd9317bc6d2e718c05470.s3tc.ctex", "res://.godot/imported/forest_leaves_02_diff_2k.jpg-f27bee42439fd9317bc6d2e718c05470.etc2.ctex"]
 
 [params]
 

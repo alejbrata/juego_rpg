@@ -24,6 +24,9 @@ var _menu_button: Button
 var _menu_panel: PanelContainer
 var _toast: PanelContainer
 var _toast_tween: Tween
+var joystick: TouchJoystick
+var touch_ui := false
+var _fingers: TouchControls.SecondaryFingers
 
 func _ready() -> void:
 	_build_environment()
@@ -305,7 +308,7 @@ func _build_hud() -> void:
 	hint.visibility_changed.connect(func() -> void: _toast.visible = hint.visible)
 	# Interaction prompt: key cap + verb + place, bottom centre.
 	interact_button = Button.new()
-	interact_button.custom_minimum_size = Vector2(260, 52)
+	interact_button.custom_minimum_size = Vector2(260, 60 if TouchControls.enabled() else 52)
 	for state in ["normal", "hover", "pressed", "focus"]:
 		var pill := EclipseUI.panel_box(0.9 if state == "normal" else 0.97, Color(EclipseUI.GOLD, 0.8) if state == "normal" else EclipseUI.GOLD_BRIGHT, 26)
 		pill.content_margin_left = 54
@@ -327,8 +330,26 @@ func _build_hud() -> void:
 	interact_button.add_child(cap)
 	cap.position = Vector2(14, 13)
 	EclipseUI.label(cap, "E", 15, EclipseUI.NIGHT, "bold")
+	# 1.6 touch: joystick bottom-left, interaction bottom-right, notices on top.
+	touch_ui = TouchControls.enabled()
+	if touch_ui:
+		joystick = TouchJoystick.new()
+		joystick.name = "Joystick"
+		root.add_child(joystick)
+		root.move_child(joystick, 0)
+		joystick.moved.connect(_on_joystick_moved)
+		joystick.released.connect(func() -> void: player.clear_movement_input())
+	_fingers = TouchControls.SecondaryFingers.new()
+	_fingers.roots = [root]
+	add_child(_fingers)
 	root.resized.connect(_layout_hud)
 	_layout_hud.call_deferred()
+
+func _on_joystick_moved(vector: Vector2) -> void:
+	if player.movement_enabled:
+		player.set_movement_input(vector)
+	else:
+		player.clear_movement_input()
 
 func _layout_hud() -> void:
 	if _hud_root == null or not _hud_root.is_inside_tree():
@@ -342,10 +363,20 @@ func _layout_hud() -> void:
 	_menu_panel.reset_size()
 	_menu_panel.position = Vector2(area.x - m.right - _menu_panel.get_combined_minimum_size().x, m.top + EclipseUI.TOUCH + 10)
 	_toast.reset_size()
-	_toast.position = Vector2(m.left, area.y - m.bottom - _toast.get_combined_minimum_size().y)
+	var notice := _toast.get_combined_minimum_size()
 	interact_button.reset_size()
 	var prompt := interact_button.get_combined_minimum_size()
-	interact_button.position = Vector2((area.x - prompt.x) * 0.5, area.y - m.bottom - prompt.y - 24)
+	if touch_ui:
+		# Thumbs: stick on the left, the contextual action on the right.
+		_toast.position = Vector2((area.x - notice.x) * 0.5, m.top)
+		interact_button.position = Vector2(area.x - m.right - prompt.x, area.y - m.bottom - prompt.y - 12)
+		var zone_size := Vector2(minf(area.x * 0.42, 400.0), minf(area.y * 0.6, 330.0))
+		joystick.position = Vector2(m.left, area.y - m.bottom - zone_size.y)
+		joystick.size = zone_size
+		joystick.set_home(joystick.global_position + Vector2(TouchJoystick.RADIUS + 34, zone_size.y - TouchJoystick.RADIUS - 34))
+	else:
+		_toast.position = Vector2(m.left, area.y - m.bottom - notice.y)
+		interact_button.position = Vector2((area.x - prompt.x) * 0.5, area.y - m.bottom - prompt.y - 24)
 
 func toggle_menu() -> void:
 	if dialogue != null and dialogue.active:
@@ -384,6 +415,7 @@ func _build_narrative() -> void:
 	dialogue = DialogueBox.new()
 	overlay.add_child(dialogue)
 	dialogue.conversation_closed.connect(_on_dialogue_closed)
+	_fingers.roots.append(dialogue)
 
 func _process(_delta: float) -> void:
 	_nearest_interest = ""
@@ -398,6 +430,8 @@ func _process(_delta: float) -> void:
 	for point in interests.values():
 		point.show_prompt(point.id == _nearest_interest)
 	interact_button.visible = not _nearest_interest.is_empty()
+	if joystick != null:
+		joystick.visible = player.movement_enabled and not dialogue.active and not _menu_panel.visible and session.mode == GameSession.Mode.EXPLORING
 	if interact_button.visible:
 		var prompt := "%s · %s" % ["Revisar" if interests[_nearest_interest].examined else "Examinar", interests[_nearest_interest].title]
 		if interact_button.text != prompt:
