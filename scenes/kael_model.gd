@@ -18,6 +18,17 @@ var _presentation_durations: Dictionary = {}
 var _base_pose: String = "Idle"
 var _flash: Tween
 
+## Experimental party art variant (1.2): "current" keeps every existing asset;
+## "ps1" swaps the three GLBs for the PS1-battle-model study in */ps1/.
+const PS1_PATHS := {
+	"kael": "res://assets/characters/kael/ps1/kael.glb",
+	"lyra": "res://assets/characters/lyra/ps1/lyra.glb",
+	"nira": "res://assets/characters/nira/ps1/nira.glb",
+}
+
+static func party_style() -> String:
+	return String(ProjectSettings.get_setting("visuals/party/style", "current"))
+
 # Small extension points for the two companion assets; Kael keeps its contract.
 func _asset_label() -> String:
 	return "Kael"

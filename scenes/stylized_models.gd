@@ -195,7 +195,25 @@ static func _cape(parent: Node3D, material: Material, trim: Material) -> Node3D:
 	rod(root, points[1], points[4], 0.022, trim)
 	return root
 
+## HD forest (1.3): a golem block is a CC0 scanned mossy rock fitted to the
+## same box as the procedural rock it replaces (centred on `at`).
+static func scan_rock(parent: Node3D, at: Vector3, size: Vector3, seed_value: int) -> MeshInstance3D:
+	var variants := ForestArtHD.rock_variants()
+	var mesh: Mesh = variants[absi(seed_value * 7 + 3) % variants.size()]
+	var aabb := mesh.get_aabb()
+	var k := size / aabb.size
+	var result := MeshInstance3D.new()
+	result.mesh = mesh
+	result.scale = k
+	result.rotation.y = seed_value * 1.7
+	parent.add_child(result)
+	result.position = at - result.basis * (aabb.get_center())
+	return result
+
 static func golem(parent: Node3D, stone: Material, volcanic: bool = false) -> void:
+	if not volcanic and ForestArtHD.enabled() and not ForestArtHD.rock_variants().is_empty():
+		_golem_hd(parent)
+		return
 	var glow := mat("ed9c45" if not volcanic else "ff9a36", true)
 	var crack := mat("6da09b" if not volcanic else "ee652b", true)
 	var dark := mat("283c3d" if not volcanic else "302c32")
@@ -224,3 +242,25 @@ static func golem(parent: Node3D, stone: Material, volcanic: bool = false) -> vo
 		for at in [Vector3(-0.84, 1.99, 0), Vector3(0.35, 2.43, -0.07), Vector3(0.3, 0.43, 0.28)]:
 			rock(parent, at, Vector3(0.5, 0.14, 0.36), moss)
 	batch_static(parent)
+
+static func _golem_hd(parent: Node3D) -> void:
+	var glow := mat("ed9c45", true)
+	var crack := mat("8fe0d5", true)
+	var dark := mat("1f2a2a")
+	for side in [-1, 1]:
+		scan_rock(parent, Vector3(side * 0.4, 0.24, 0.12), Vector3(0.72, 0.5, 0.92), side)
+		scan_rock(parent, Vector3(side * 0.37, 0.66, 0), Vector3(0.56, 0.75, 0.6), side + 2)
+		scan_rock(parent, Vector3(side * 0.96, 1.7, -0.02), Vector3(0.86, 0.8, 0.86), side + 4)
+		scan_rock(parent, Vector3(side * 1.13, 1.13, 0.05), Vector3(0.66, 0.95, 0.66), side + 6)
+		scan_rock(parent, Vector3(side * 1.14, 0.76, 0.17), Vector3(0.74, 0.52, 0.74), side + 1)
+		rod(parent, Vector3(side * 0.78, 1.6, 0.36), Vector3(side * 1.13, 1.16, 0.4), 0.03, crack)
+	scan_rock(parent, Vector3(0, 1.46, 0), Vector3(1.5, 1.45, 1.05), 5)
+	scan_rock(parent, Vector3(0, 2.14, 0.05), Vector3(0.85, 0.7, 0.75), 2)
+	for side in [-1, 1]:
+		rock(parent, Vector3(side * 0.2, 2.16, 0.4), Vector3(0.28, 0.18, 0.1), dark)
+		BattleActorVisual._box(parent, Vector3(0.16, 0.06, 0.04), Vector3(side * 0.19, 2.17, 0.46), glow).rotation.z = side * 0.12
+	gem(parent, Vector3(0, 1.53, 0.56), Vector3(0.28, 0.42, 0.12), crack)
+	for a in [-1, 1]:
+		rod(parent, Vector3(0, 1.35, 0.56), Vector3(a * 0.43, 1.14, 0.46), 0.022, crack)
+		rod(parent, Vector3(a * 0.23, 1.8, 0.46), Vector3(a * 0.55, 1.99, 0.32), 0.022, crack)
+	parent.set_meta("source_mesh_count", parent.get_child_count())

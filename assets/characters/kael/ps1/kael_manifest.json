@@ -1,0 +1,70 @@
+{
+  "character": "kael",
+  "art_revision": "ps1-battle-experiment",
+  "blender": "5.2.1 LTS",
+  "method": "Original rigid sculpted parts per bone, painted palette atlas and painted face; no third-party or existing character geometry",
+  "triangles": 7960,
+  "exported_vertices": 4214,
+  "author_vertices": 4214,
+  "surfaces": 2,
+  "materials": 1,
+  "textures": 1,
+  "bones": 17,
+  "animations": [
+    "Attack",
+    "Defend",
+    "Hurt",
+    "Idle",
+    "KO",
+    "Walk"
+  ],
+  "animation_checks": {
+    "Idle": {
+      "seconds": 2.4,
+      "min_vertex_z": 0.0007830029935576022
+    },
+    "Walk": {
+      "seconds": 0.58,
+      "min_vertex_z": 0.0007830308168195188
+    },
+    "Attack": {
+      "seconds": 0.8,
+      "min_vertex_z": 0.0007829744135960937
+    },
+    "Hurt": {
+      "seconds": 0.4,
+      "min_vertex_z": 0.0007830915856175125
+    },
+    "Defend": {
+      "seconds": 0.4,
+      "min_vertex_z": 0.0007830298272892833
+    },
+    "KO": {
+      "seconds": 1.0,
+      "min_vertex_z": -1.1920928955078125e-07
+    }
+  },
+  "glb_bytes": 406160,
+  "texture_size": [
+    512,
+    512
+  ],
+  "height": 2.1529555320739746,
+  "walk_reference_speed": 1.7931034482758623,
+  "locomotion_blend": 0.12,
+  "lunge_distance": 0.0,
+  "presentation_durations": {
+    "Idle": 2.4,
+    "Walk": 0.58,
+    "Attack": 0.8,
+    "Hurt": 0.4,
+    "Defend": 0.4,
+    "KO": 1.0
+  },
+  "authored_sections": 4546,
+  "glb_sha256": "41f99d0cf7d4bdff0b451df8a1d074729ea9cc7a55d80d08e4ae2ec442ae5e5f",
+  "blend_sha256": "300ca8cb2e48b308fd44993f0213e4655a3dc33c788d9e316f78178e2d660f5d",
+  "atlas_sha256": "bbed893a2b8b37c703b6866941f85a1e0c69ad5f7c5ebb35b9f0bddcf4a2206e",
+  "build_script_sha256": "64aa4d16beb9a408cf6803f55d526d1fb12decda6ce1d8f740b9d15bd0a6753f",
+  "mobile_tested": false
+}

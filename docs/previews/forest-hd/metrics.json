@@ -1,0 +1,36 @@
+{
+	"hd": {
+		"adapter": "Intel(R) Arc(TM) Graphics",
+		"art": {
+			"instances": 7255,
+			"multimeshes": 28,
+			"shadow_proxies": 21,
+			"single_meshes": 140,
+			"surfaces": 93,
+			"triangles": 4720689
+		},
+		"desktop_fps_vsync": 41.8,
+		"draw_calls": 319,
+		"objects": 1008,
+		"primitives": 4692033,
+		"renderer": "forward_plus",
+		"video_mem_mb": 981.3,
+		"viewport": [
+			1280,
+			720
+		]
+	},
+	"renovated": {
+		"adapter": "Intel(R) Arc(TM) Graphics",
+		"desktop_fps_vsync": 60.0,
+		"draw_calls": 148,
+		"objects": 559,
+		"primitives": 380350,
+		"renderer": "forward_plus",
+		"video_mem_mb": 155.2,
+		"viewport": [
+			1280,
+			720
+		]
+	}
+}

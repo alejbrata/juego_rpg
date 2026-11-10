@@ -7,3 +7,6 @@
 *.blend2
 *.generated.blend
 __pycache__/
+
+# Third-party assets whose licence forbids redistribution as assets (install with tools/install_quaternius.py).
+assets/third_party/

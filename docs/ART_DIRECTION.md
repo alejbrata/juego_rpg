@@ -56,7 +56,7 @@ Estado de partida: rama `dev`, commit `8ce8c2e`, sin cambios. Leídos README/GDD
 - `BattleActorVisual.build` / `_build_imported_kael`: selector 0.8/0.9 y fallback a `StylizedModels.hero`; `animate` y `sync` separan eventos/poses del motor.
 - `StylizedModels.hero`, `golem` y `_cape`: representaciones actuales de Lyra/Nira/Centinela y respaldo Kael. Ignar también usa presentación procedural existente; no se toca.
 - Batalla: `battle_3d.tscn`, `battle_stage.gd` y `BattleEnvironment.build`; respaldo 2D `battle.tscn`.
-- Exploración: `forest_exploration.tscn` → `game_flow.gd` / `forest_zone.tscn`; `forest_zone.gd._build_environment` sigue usando el escenario básico con cámara ortográfica. `exploration_player.gd._ready` / `_physics_process` reutiliza Kael y alterna Walk/Idle.
+- Exploración: `forest_exploration.tscn` → `game_flow.gd` / `forest_zone.tscn`. En 1.0, `forest_zone.gd._build_environment` usaba el escenario básico con cámara ortográfica. **Actualización 1.1:** el claro usa por defecto el kit original de [FOREST_ART.md](FOREST_ART.md) (`ForestArt`); el escenario básico queda como respaldo. `exploration_player.gd._ready` / `_physics_process` reutiliza Kael y alterna Walk/Idle.
 
 **Fallo inicial real:** la primera ejecución llegó a 517 comprobaciones, 2 fallos y errores de dependencia: la escena importada de Kael esperaba `kael_KaelPaintedAtlas.png`, un archivo auxiliar no conservado. El GLB contiene la imagen, pero `gltf/embedded_image_handling=1` significa **Extract Textures**, no conservarla embebida. Esto puede activar el fallback aun existiendo el modelo. No se atribuye el problema a assets nuevos.
 
@@ -65,3 +65,7 @@ La reimportación local regeneró el auxiliar y permitió recuperar la base de *
 Validación final: suite existente **576 comprobaciones / 0 fallos** headless y con render real. No se añaden pruebas de assets inexistentes ni se debilitan las anteriores. La suite ya comprueba atlas, rutas, skin/clips, versiones/fallback, eventos, reinicio y exploración. No se ha ejecutado Blender para adaptar ningún recurso externo: no hay un piloto adquirido.
 
 No hay capturas comparativas anterior/nuevo externo, ni un GLB externo exportado, ni medidas propias de esos candidatos. Las capturas históricas `docs/previews/kael09-*.png` describen 0.9 y **no prueban la renovación 1.0**. La inspección comercial se hizo sobre cuatro imágenes del proveedor fuera del repositorio. El resultado visual del juego continúa provisional y por debajo del objetivo del usuario.
+
+## Actualización 1.3 — dirección semirrealista
+
+Tras la valoración del usuario («parece de hace 50 años») y su elección de estilo **semirrealista** con Forward+ para PC, el escenario pasa a recursos fotoescaneados CC0 con iluminación moderna ([FOREST_HD.md](FOREST_HD.md)). Esto sustituye, para el escenario, la preferencia anterior de no ir hacia el fotorrealismo. Pendiente: personajes acordes (candidatos Quaternius, descarga manual del usuario). Los modelos estilizados actuales desentonan con el nuevo escenario.

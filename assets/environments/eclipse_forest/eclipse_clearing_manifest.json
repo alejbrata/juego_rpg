@@ -1,0 +1,254 @@
+{
+  "blender": "5.2.1 LTS",
+  "source": "Original geometry, vertex colours and painted ground authored by tools/blender/build_eclipse_clearing.py; no third-party assets",
+  "meshes": {
+    "Arch": {
+      "triangles": 2476,
+      "vertices": 1432,
+      "surfaces": 2
+    },
+    "BushA": {
+      "triangles": 1374,
+      "vertices": 2276,
+      "surfaces": 1
+    },
+    "BushB": {
+      "triangles": 1202,
+      "vertices": 1932,
+      "surfaces": 1
+    },
+    "BushWarm": {
+      "triangles": 1306,
+      "vertices": 2140,
+      "surfaces": 1
+    },
+    "ColumnShort": {
+      "triangles": 888,
+      "vertices": 543,
+      "surfaces": 2
+    },
+    "ColumnStub": {
+      "triangles": 690,
+      "vertices": 399,
+      "surfaces": 2
+    },
+    "ColumnTall": {
+      "triangles": 1048,
+      "vertices": 653,
+      "surfaces": 2
+    },
+    "PineFar": {
+      "triangles": 520,
+      "vertices": 275,
+      "surfaces": 2
+    },
+    "TreeFarBroad": {
+      "triangles": 1211,
+      "vertices": 1690,
+      "surfaces": 2
+    },
+    "TreeFarBroadB": {
+      "triangles": 903,
+      "vertices": 1192,
+      "surfaces": 2
+    },
+    "Fern": {
+      "triangles": 126,
+      "vertices": 252,
+      "surfaces": 1
+    },
+    "FlowersRed": {
+      "triangles": 90,
+      "vertices": 105,
+      "surfaces": 2
+    },
+    "FlowersWhite": {
+      "triangles": 122,
+      "vertices": 139,
+      "surfaces": 2
+    },
+    "FlowersYellow": {
+      "triangles": 122,
+      "vertices": 139,
+      "surfaces": 2
+    },
+    "Grass": {
+      "triangles": 27,
+      "vertices": 45,
+      "surfaces": 1
+    },
+    "GrassTall": {
+      "triangles": 27,
+      "vertices": 45,
+      "surfaces": 1
+    },
+    "Log": {
+      "triangles": 99,
+      "vertices": 55,
+      "surfaces": 1
+    },
+    "Lupins": {
+      "triangles": 640,
+      "vertices": 410,
+      "surfaces": 2
+    },
+    "Mushrooms": {
+      "triangles": 276,
+      "vertices": 162,
+      "surfaces": 1
+    },
+    "Pavement": {
+      "triangles": 4644,
+      "vertices": 2408,
+      "surfaces": 1
+    },
+    "PineA": {
+      "triangles": 1164,
+      "vertices": 621,
+      "surfaces": 2
+    },
+    "PineB": {
+      "triangles": 1032,
+      "vertices": 553,
+      "surfaces": 2
+    },
+    "PropCamp": {
+      "triangles": 2022,
+      "vertices": 1074,
+      "surfaces": 1
+    },
+    "PropCrystalRock": {
+      "triangles": 500,
+      "vertices": 270,
+      "surfaces": 1
+    },
+    "PropTablet": {
+      "triangles": 260,
+      "vertices": 200,
+      "surfaces": 1
+    },
+    "RockA": {
+      "triangles": 320,
+      "vertices": 162,
+      "surfaces": 1
+    },
+    "RockB": {
+      "triangles": 320,
+      "vertices": 162,
+      "surfaces": 1
+    },
+    "RockSmall": {
+      "triangles": 320,
+      "vertices": 162,
+      "surfaces": 1
+    },
+    "Steps": {
+      "triangles": 1944,
+      "vertices": 1008,
+      "surfaces": 1
+    },
+    "Terrain": {
+      "triangles": 10880,
+      "vertices": 5589,
+      "surfaces": 1
+    },
+    "TreeAncient": {
+      "triangles": 6958,
+      "vertices": 11359,
+      "surfaces": 2
+    },
+    "TreeBroadA": {
+      "triangles": 5599,
+      "vertices": 9543,
+      "surfaces": 2
+    },
+    "TreeBroadB": {
+      "triangles": 3983,
+      "vertices": 6488,
+      "surfaces": 2
+    },
+    "TreeBroadC": {
+      "triangles": 6457,
+      "vertices": 11141,
+      "surfaces": 2
+    },
+    "TreeYoung": {
+      "triangles": 2891,
+      "vertices": 4422,
+      "surfaces": 2
+    },
+    "Wall": {
+      "triangles": 2108,
+      "vertices": 1176,
+      "surfaces": 2
+    },
+    "WallLow": {
+      "triangles": 788,
+      "vertices": 456,
+      "surfaces": 2
+    }
+  },
+  "instances": {
+    "Arch": 1,
+    "BushA": 7,
+    "BushB": 6,
+    "BushWarm": 11,
+    "ColumnShort": 1,
+    "ColumnStub": 5,
+    "ColumnTall": 2,
+    "PineFar": 50,
+    "TreeFarBroad": 18,
+    "TreeFarBroadB": 17,
+    "Fern": 35,
+    "FlowersRed": 4,
+    "FlowersWhite": 9,
+    "FlowersYellow": 6,
+    "Grass": 973,
+    "GrassTall": 16,
+    "Log": 2,
+    "Lupins": 10,
+    "Mushrooms": 4,
+    "Pavement": 1,
+    "PineA": 5,
+    "PineB": 4,
+    "PropCamp": 1,
+    "PropCrystalRock": 1,
+    "PropTablet": 1,
+    "RockA": 1,
+    "RockB": 1,
+    "RockSmall": 21,
+    "Steps": 1,
+    "Terrain": 1,
+    "TreeAncient": 1,
+    "TreeBroadA": 3,
+    "TreeBroadB": 2,
+    "TreeBroadC": 4,
+    "TreeYoung": 2,
+    "Wall": 2,
+    "WallLow": 4
+  },
+  "scene_triangles": 252517,
+  "materials": [
+    "Bark",
+    "Bloom",
+    "Foliage",
+    "Ground",
+    "Plant",
+    "Stone"
+  ],
+  "textures": {
+    "ground_paint.png": [
+      2048,
+      2048
+    ],
+    "ground_detail.png": [
+      512,
+      512
+    ]
+  },
+  "glb_bytes": 2960196,
+  "glb_sha256": "ba6488573961a137060f33a84d5a2e8adb554d54ffd8c5e078749dae1288e84c",
+  "blend_sha256": "e2f26cf9bb7332c222298069365ef80cc62449c73bd3b1bd718881bc9f0ae614",
+  "script_sha256": "8a2d23ca345c4683d22f51cfe408839f64106f3899f4d18260b0a811ca21c2af",
+  "mobile_tested": false
+}

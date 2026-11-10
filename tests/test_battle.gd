@@ -353,6 +353,10 @@ func _initialize() -> void:
 	ui._new_party()
 	check(ui.run.resonance == 0 and ui.run.progress("ignar").affinity == 0 and ui.engine.fighters[3].hp == 280, "Nueva partida reinicia RE, PA y combate")
 	ui.free()
+	# Suites up to 1.2 validate the pre-HD presentation (procedural golems, 1.1
+	# forest). They keep every assertion under that fixture; 1.3 is checked after.
+	var previous_hd: Variant = ProjectSettings.get_setting("visuals/forest/hd", false)
+	ProjectSettings.set_setting("visuals/forest/hd", false)
 	await preload("res://tests/presentation_checks.gd").new().run(self, check)
 	await preload("res://tests/exploration_checks.gd").new().run(self, check)
 	await historical_companion_fixture(preload("res://tests/visual_refresh_checks.gd").new())
@@ -363,6 +367,10 @@ func _initialize() -> void:
 	await preload("res://tests/kael_polish_checks.gd").new().run(self, check)
 	await preload("res://tests/kael_retro_checks.gd").new().run(self, check)
 	await preload("res://tests/companion_asset_checks.gd").new().run(self, check)
+	await preload("res://tests/forest_art_checks.gd").new().run(self, check)
+	await preload("res://tests/party_ps1_checks.gd").new().run(self, check)
+	ProjectSettings.set_setting("visuals/forest/hd", previous_hd)
+	await preload("res://tests/forest_hd_checks.gd").new().run(self, check)
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)
 

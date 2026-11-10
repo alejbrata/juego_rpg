@@ -4,6 +4,12 @@ Revisión: **8 de noviembre de 2026**. Inventario de investigación, no relació
 
 Una licencia publicada en una ficha no verifica los archivos internos de un paquete no adquirido. Se distingue entre condiciones consultadas, contradicciones y datos pendientes. No trasladar automáticamente la licencia de una tienda a otra. Precios en USD, sin conversión, impuestos ni garantía de vigencia. Estado de todos los candidatos: **NO INCORPORADO**.
 
+## Recursos incorporados al proyecto
+
+- **Bosque del Eclipse 1.1** (`assets/environments/eclipse_forest/`): geometría, colores de vértice, composición y texturas del suelo **originales**, generados por `tools/blender/build_eclipse_clearing.py` en Blender 5.2.1; shaders originales en `world/shaders/`. Sin contenido de terceros, descargas, compras ni servicios externos. Detalle en [FOREST_ART.md](FOREST_ART.md). Los candidatos de este inventario siguen en estado **NO INCORPORADO**.
+
+- **Protagonistas PS1 experimentales 1.2** (`assets/characters/*/ps1/`): geometría, rig, animaciones, cara pintada y atlas **originales**, generados por `tools/blender/build_ps1_party.py`. La referencia a los modelos de combate de Final Fantasy VII/VIII se usa solo para estudiar principios (proporciones, legibilidad); no se copian diseños ni se usan recursos de esos juegos. Detalle en [PARTY_PS1.md](PARTY_PS1.md).
+
 ## Condiciones comunes consultadas
 
 - [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/): permite copia, modificación y distribución comercial, sin atribución obligatoria; no sustituye otros derechos ni autoriza atribuirse la autoría.
@@ -102,3 +108,11 @@ Al incorporar un recurso en una futura entrega: conservar licencia exacta origin
 ## Creación local posterior: Lyra y Nira
 
 La iteración artística de Lyra/Nira incorpora creaciones originales del proyecto en `assets/characters/lyra/` y `assets/characters/nira/`: fuentes `.blend`, GLB, atlas y manifiestos. `tools/blender/build_companions.py` define contornos de anatomía/ropa, colores, rig y animaciones; reutiliza únicamente utilidades locales de escritura de superficies/curvas del pipeline de Kael. No se ha adquirido un modelo externo, copiado geometría de otra franquicia ni descargado texturas o animaciones para esta entrega. No hay servicio externo, compra o licencia de un proveedor de assets incorporada por este trabajo. Los manifiestos registran hashes de fuentes y derivados. Esto describe procedencia técnica; no añade una licencia general al repositorio ni garantiza exclusividad jurídica de los diseños. [Resultado y límites artísticos](LYRA_NIRA.md).
+
+## Iteración 1.3: kit CC0 de Poly Haven (incorporado)
+
+Modelos, texturas PBR y un cielo HDRI de [Poly Haven](https://polyhaven.com/license), licencia **CC0 1.0** (dominio público: uso comercial, modificación y redistribución sin atribución obligatoria). Descargados mediante su API pública el 9–10/11/2026. Registro por recurso (URL, autoría, licencia) en `assets/environments/eclipse_forest_hd/sources.json`; derivados reducidos en Blender y cifras en `kit_manifest.json`. Se distribuyen en el repositorio porque CC0 lo permite. Las descargas originales sin reducir no se guardan.
+
+### Quaternius (Q1/Q2, biblioteca de animaciones): sin cambio de estado
+
+La contradicción CC0/QAL sigue sin resolver. Como el repositorio es público, si el usuario los descarga a mano se instalarán solo en `assets/third_party/` (ignorado por Git) mediante `tools/install_quaternius.py`; nunca se publicarán sus archivos. itch.io no admite descarga automatizada y no se ha intentado sortear.

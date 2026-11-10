@@ -58,6 +58,8 @@ Quedan planos visibles en mejillas/mentón, pelo simplificado, expresión fija, 
 
 ## Historial: piloto visual y pipeline Blender (0.8)
 
+Experimento 1.2 (presentación, no adoptado): variantes de Kael, Lyra y Nira con la dirección de los modelos de combate PS1, seleccionables con `visuals/party/style = "ps1"`. Los modelos actuales siguen siendo los predeterminados. Sin cambios de reglas, estadísticas, habilidades ni historia. Evaluación en [PARTY_PS1.md](PARTY_PS1.md).
+
 Decisión confirmada de implementación: sustituir únicamente la representación de Kael mediante un asset original de Blender, sin modificar BattleEngine, PartyState, GameSession, balance ni sistemas narrativos. El contenido narrativo de 0.7 sigue siendo **provisional, no canon**; no se han añadido decisiones de historia.
 
 ### Entrega visual 0.8
@@ -184,7 +186,8 @@ Cada victoria concede +50 PA a los Guardianes equipados por héroes participante
 
 - Nuevo arranque `scenes/forest_exploration.tscn`, coordinado por `world/game_flow.gd`. La geometría y controles del claro están en `scenes/forest_zone.tscn` y `world/forest_zone.gd`.
 - Claro autocontenido de 18×14 unidades: suelo, sendero, árboles, rocas, dos columnas en ruinas y muros perimetrales con colisión. Arte procedural coherente con las primitivas del combate, sin assets externos, audio ni postprocesado pesado.
-- Cámara ortográfica fija lejana, inclinada y sin giro libre. Se muestra el espacio completo. Kael es el único líder visible; Lyra y Nira siguen formando parte del grupo de combate. Esta representación sin seguidores es provisional.
+- **Actualización 1.3 (presentación):** con `visuals/forest/hd=true` (predeterminado) el claro y la arena usan recursos fotoescaneados CC0 y Forward+ ([FOREST_HD.md](FOREST_HD.md)). No cambia reglas, colliders, anclas, encuentros, cámaras ni narrativa.
+- Cámara ortográfica fija lejana, inclinada y sin giro libre. Se muestra el espacio completo. **Actualización 1.1 (presentación):** arte original compuesto ([FOREST_ART.md](FOREST_ART.md)) y cámara fija en perspectiva moderada (40°), con los mismos ejes de control, colliders, anclas y encuentros; la versión ortográfica queda como respaldo con `visuals/forest/renovated=false`. Kael es el único líder visible; Lyra y Nira siguen formando parte del grupo de combate. Esta representación sin seguidores es provisional.
 - Movimiento con WASD/flechas mediante `CharacterBody3D`, velocidad configurable, normalización de diagonal, gravedad y colisión por `move_and_slide()`. El modelo gira hacia su desplazamiento. No hay salto, carrera ni navegación automática.
 - Entrada desacoplada mediante `set_movement_input(Vector2)` y `clear_movement_input()`, preparada para un futuro control táctil, todavía no implementado.
 - Dos Centinelas estáticos y visibles. Cada encuentro tiene ID, etiqueta, posición, radio de detección y enemigos configurables con `EncounterData`. Una `Area3D` próxima al marcador detecta al líder; el círculo naranja representa su proximidad. No hay encuentros aleatorios, persecución ni activación remota. Los IDs deben ser únicos dentro del claro.

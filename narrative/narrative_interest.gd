@@ -21,7 +21,18 @@ func _ready() -> void:
 	var stone := StylizedModels.mat("899184")
 	var cloth := StylizedModels.mat("9d9276")
 	var wood := StylizedModels.mat("66503d")
-	match id:
+	# Renovated forest (1.1): ForestArt dresses camp, inscription and crystal base
+	# at these same anchors; only the animated energy remains owned here.
+	var dressed := ForestArt.enabled() and id in ["camp", "inscription", "crystal"]
+	if dressed and id == "crystal":
+		_energy = Node3D.new()
+		_energy.position.y = 0.65
+		add_child(_energy)
+		if ForestArtHD.enabled():
+			ForestArtHD.crystal_cluster(_energy)
+		else:
+			StylizedModels.gem(_energy, Vector3.ZERO, Vector3(0.3, 0.85, 0.3), StylizedModels.mat("b1a0d9", true))
+	match "" if dressed else id:
 		"camp":
 			BattleActorVisual._box(self, Vector3(1.25, 0.12, 0.65), Vector3(0, 0.09, 0), cloth)
 			StylizedModels.rock(self, Vector3(-0.47, 0.22, 0), Vector3(0.28, 0.3, 0.6), cloth)

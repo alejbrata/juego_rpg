@@ -22,7 +22,9 @@ func _required_clips() -> Array[String]:
 func load_asset(path: String = "", report_warning: bool = true) -> bool:
 	if not ASSET_PATHS.has(hero_id):
 		return _fail("No hay un modelo importado configurado para %s." % hero_id, report_warning)
-	return super.load_asset(ASSET_PATHS[hero_id] if path.is_empty() else path, report_warning)
+	if path.is_empty():
+		path = PS1_PATHS[hero_id] if party_style() == "ps1" else ASSET_PATHS[hero_id]
+	return super.load_asset(path, report_warning)
 
 func clip_for_effect(kind: String) -> String:
 	if hero_id == "lyra" and kind == "magic":

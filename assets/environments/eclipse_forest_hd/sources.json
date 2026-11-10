@@ -1,0 +1,300 @@
+[
+  {
+    "asset": "island_tree_02",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/island_tree_02",
+    "authors": {
+      "Rob Tuytel": "scanning, processing",
+      "Rico Cilliers": "cleanup, processing"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "tree_small_02",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/tree_small_02",
+    "authors": {
+      "Rico Cilliers": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "jacaranda_tree",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/jacaranda_tree",
+    "authors": {
+      "Rob Tuytel": "guidance",
+      "Rico Cilliers": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "fern_02",
+    "type": "model",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/fern_02",
+    "authors": {
+      "Rob Tuytel": "scanning",
+      "Rico Cilliers": "modeling"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "shrub_02",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/shrub_02",
+    "authors": {
+      "Rico Cilliers": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "shrub_03",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/shrub_03",
+    "authors": {
+      "Rico Cilliers": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "periwinkle_plant",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/periwinkle_plant",
+    "authors": {
+      "Amal Kumar": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "nettle_plant",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/nettle_plant",
+    "authors": {
+      "Rob Tuytel": "Photography",
+      "Rico Cilliers": "modeling"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "dandelion_01",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/dandelion_01",
+    "authors": {
+      "Rob Tuytel": "Photography",
+      "Rico Cilliers": "Modeling"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "rock_moss_set_01",
+    "type": "model",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/rock_moss_set_01",
+    "authors": {
+      "Kless Gyzen": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "rock_moss_set_02",
+    "type": "model",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/rock_moss_set_02",
+    "authors": {
+      "Kless Gyzen": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "boulder_01",
+    "type": "model",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/boulder_01",
+    "authors": {
+      "Rico Cilliers": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "rock_07",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/rock_07",
+    "authors": {
+      "Jenelle van Heerden": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "rock_09",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/rock_09",
+    "authors": {
+      "Jenelle van Heerden": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "stone_01",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/stone_01",
+    "authors": {
+      "Dario Barresi": "Photography",
+      "Rico Cilliers": "photography, processing"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "dead_tree_trunk",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/dead_tree_trunk",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "tree_stump_01",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/tree_stump_01",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "root_cluster_01",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/root_cluster_01",
+    "authors": {
+      "Jenelle van Heerden": "Photography",
+      "Rico Cilliers": "photography, processing"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "dry_branches_medium_01",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/dry_branches_medium_01",
+    "authors": {
+      "Rico Cilliers": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "pine_roots",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/pine_roots",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "stone_fire_pit",
+    "type": "model",
+    "resolution": "1k",
+    "url": "https://polyhaven.com/a/stone_fire_pit",
+    "authors": {
+      "Sebastian Platen": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "forest_leaves_02",
+    "type": "texture",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/forest_leaves_02",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "rocky_trail",
+    "type": "texture",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/rocky_trail",
+    "authors": {
+      "Amal Kumar": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "mossy_rock",
+    "type": "texture",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/mossy_rock",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "medieval_blocks_05",
+    "type": "texture",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/medieval_blocks_05",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "mossy_cobblestone",
+    "type": "texture",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/mossy_cobblestone",
+    "authors": {
+      "Sơn Nguyễn": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "medieval_wood",
+    "type": "texture",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/medieval_wood",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "leafy_grass",
+    "type": "texture",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/leafy_grass",
+    "authors": {
+      "Charlotte Baglioni": "All"
+    },
+    "license": "CC0 1.0"
+  },
+  {
+    "asset": "forest_grove",
+    "type": "hdri",
+    "resolution": "2k",
+    "url": "https://polyhaven.com/a/forest_grove",
+    "authors": {
+      "Dimitrios Savva": "Photography",
+      "Jarod Guest": "Processing"
+    },
+    "license": "CC0 1.0"
+  }
+]

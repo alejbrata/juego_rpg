@@ -1,0 +1,76 @@
+{
+  "character": "nira",
+  "art_revision": "ps1-battle-experiment",
+  "blender": "5.2.1 LTS",
+  "method": "Original rigid sculpted parts per bone, painted palette atlas and painted face; no third-party or existing character geometry",
+  "triangles": 7144,
+  "exported_vertices": 3807,
+  "author_vertices": 3807,
+  "surfaces": 2,
+  "materials": 1,
+  "textures": 1,
+  "bones": 17,
+  "animations": [
+    "Attack",
+    "Defend",
+    "Hurt",
+    "Idle",
+    "KO",
+    "Support",
+    "Walk"
+  ],
+  "animation_checks": {
+    "Idle": {
+      "seconds": 2.4,
+      "min_vertex_z": 0.0007829956011846662
+    },
+    "Walk": {
+      "seconds": 0.58,
+      "min_vertex_z": 0.0007831081748008728
+    },
+    "Attack": {
+      "seconds": 0.8,
+      "min_vertex_z": 0.000783044786658138
+    },
+    "Hurt": {
+      "seconds": 0.4,
+      "min_vertex_z": 0.0007831340772099793
+    },
+    "Defend": {
+      "seconds": 0.4,
+      "min_vertex_z": 0.0007830560789443552
+    },
+    "KO": {
+      "seconds": 1.0,
+      "min_vertex_z": -8.940696716308594e-08
+    },
+    "Support": {
+      "seconds": 1.0,
+      "min_vertex_z": 0.0007831340772099793
+    }
+  },
+  "glb_bytes": 394056,
+  "texture_size": [
+    512,
+    512
+  ],
+  "height": 1.9317514896392822,
+  "walk_reference_speed": 1.6406896551724142,
+  "locomotion_blend": 0.12,
+  "lunge_distance": 0.0,
+  "presentation_durations": {
+    "Idle": 2.4,
+    "Walk": 0.58,
+    "Attack": 0.8,
+    "Hurt": 0.4,
+    "Defend": 0.4,
+    "KO": 1.0,
+    "Support": 1.0
+  },
+  "authored_sections": 4066,
+  "glb_sha256": "4fb8a836affbf571686744afafe74137f8423e7c090a1392bffd4b5f9550bdbe",
+  "blend_sha256": "d02b4413203f89dacef4f55461a4251ecf632c636b457de812b0162bb6a288f1",
+  "atlas_sha256": "3886b80e785dd8df3713a3af030cc3d37475897ea88af38f25fe7de40fa87906",
+  "build_script_sha256": "64aa4d16beb9a408cf6803f55d526d1fb12decda6ce1d8f740b9d15bd0a6753f",
+  "mobile_tested": false
+}

@@ -2,6 +2,8 @@ class_name BattleEnvironment
 extends RefCounted
 
 static func build(parent: Node3D) -> Camera3D:
+	if ForestArtHD.enabled():
+		return _build_hd(parent)
 	var world := WorldEnvironment.new()
 	var environment := Environment.new()
 	environment.background_mode = Environment.BG_COLOR
@@ -94,3 +96,36 @@ static func _column(parent: Node3D, at: Vector3, height: float) -> void:
 	BattleActorVisual._mesh(parent, shape, at + Vector3.UP * (height * 0.5 + 0.2), stone)
 	StylizedModels.rock(parent, at + Vector3.UP * (height + 0.2), Vector3(0.9, 0.25, 0.85), stone, 3)
 	StylizedModels.rod(parent, at + Vector3(0.43, 0.2, 0.12), at + Vector3(0.12, height * 0.8, 0.35), 0.05, StylizedModels.mat("587653"))
+
+## HD arena (1.3): same camera framing; decoration from the HD forest kit.
+static func _build_hd(parent: Node3D) -> Camera3D:
+	var world := WorldEnvironment.new()
+	world.environment = Environment.new()
+	parent.add_child(world)
+	var sun := DirectionalLight3D.new()
+	parent.add_child(sun)
+	var art := ForestArtHD.new()
+	art.name = "ArenaArt"
+	parent.add_child(art)
+	art.build_battle()
+	art.configure_environment(world.environment, sun)
+	sun.rotation_degrees = Vector3(-46, -38, 0)
+	world.environment.fog_depth_begin = 30.0
+	world.environment.fog_depth_end = 80.0
+	world.environment.volumetric_fog_density = 0.006
+	var camera := Camera3D.new()
+	camera.name = "BattleCamera"
+	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+	camera.fov = 42
+	camera.far = 120.0
+	camera.position = Vector3(8.5, 8.2, 13.7)
+	var attributes := CameraAttributesPractical.new()
+	attributes.dof_blur_far_enabled = true
+	attributes.dof_blur_far_distance = 26.0
+	attributes.dof_blur_far_transition = 12.0
+	attributes.dof_blur_amount = 0.05
+	camera.attributes = attributes
+	parent.add_child(camera)
+	camera.look_at(Vector3(-0.6, 0.35, 0))
+	camera.current = true
+	return camera

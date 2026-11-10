@@ -1,0 +1,880 @@
+{
+  "island_tree_02": {
+    "source_triangles": 1072212,
+    "materials": [
+      "island_tree_02",
+      "island_tree_02_branches",
+      "island_tree_02_leaves"
+    ],
+    "variants": [
+      {
+        "name": "island_tree_02_0",
+        "source_triangles": 1072212,
+        "triangles": 90000,
+        "size": [
+          9.079,
+          8.963,
+          7.501
+        ]
+      }
+    ],
+    "triangles": 90000,
+    "scale": 2.2016,
+    "glb_bytes": 11763756,
+    "glb_sha256": "55bc5e282c21371d0ff9646d40290bdff97c1db814c3af96a4d27e424c9116a6"
+  },
+  "tree_small_02": {
+    "source_triangles": 2062487,
+    "materials": [
+      "tree_small_02_branches",
+      "tree_small_02_leaves",
+      "tree_small_02_trunk"
+    ],
+    "variants": [
+      {
+        "name": "tree_small_02_0",
+        "source_triangles": 2062487,
+        "triangles": 90000,
+        "size": [
+          3.849,
+          5.656,
+          6.016
+        ]
+      }
+    ],
+    "triangles": 90000,
+    "scale": 1.3167,
+    "glb_bytes": 16028920,
+    "glb_sha256": "260ecb5cb0620f9f47e5da814ddfdcc46efe96bf378d384e8fbcd6eb1637df9f"
+  },
+  "jacaranda_tree": {
+    "source_triangles": 3863832,
+    "materials": [
+      "jacaranda_tree_branches",
+      "jacaranda_tree_leaves",
+      "jacaranda_tree_trunk"
+    ],
+    "variants": [
+      {
+        "name": "jacaranda_tree_0",
+        "source_triangles": 3863832,
+        "triangles": 90000,
+        "size": [
+          8.754,
+          6.89,
+          6.989
+        ]
+      }
+    ],
+    "triangles": 90000,
+    "scale": 0.3595,
+    "glb_bytes": 19144284,
+    "glb_sha256": "ce0d27753f0b678559e31f59b082c3827617cbc6b82dba0caf0b7a43034ac704"
+  },
+  "fern_02": {
+    "source_triangles": 6232,
+    "materials": [
+      "fern_02"
+    ],
+    "variants": [
+      {
+        "name": "fern_02_0",
+        "source_triangles": 784,
+        "triangles": 784,
+        "size": [
+          0.552,
+          0.613,
+          0.287
+        ]
+      },
+      {
+        "name": "fern_02_1",
+        "source_triangles": 2384,
+        "triangles": 2384,
+        "size": [
+          0.99,
+          0.894,
+          0.428
+        ]
+      },
+      {
+        "name": "fern_02_2",
+        "source_triangles": 2248,
+        "triangles": 2248,
+        "size": [
+          0.874,
+          0.765,
+          0.349
+        ]
+      },
+      {
+        "name": "fern_02_3",
+        "source_triangles": 816,
+        "triangles": 816,
+        "size": [
+          0.573,
+          0.593,
+          0.213
+        ]
+      }
+    ],
+    "triangles": 6232,
+    "scale": 1.0,
+    "glb_bytes": 5387164,
+    "glb_sha256": "5abd2e9f855515a0f272b4be633ca7cc954d013a9c53e6bb0f80a8b879a2859d"
+  },
+  "shrub_02": {
+    "source_triangles": 27254,
+    "materials": [
+      "shrub_02"
+    ],
+    "variants": [
+      {
+        "name": "shrub_02_0",
+        "source_triangles": 7590,
+        "triangles": 7590,
+        "size": [
+          1.312,
+          1.641,
+          1.689
+        ]
+      },
+      {
+        "name": "shrub_02_1",
+        "source_triangles": 5242,
+        "triangles": 5242,
+        "size": [
+          1.11,
+          1.28,
+          1.506
+        ]
+      },
+      {
+        "name": "shrub_02_2",
+        "source_triangles": 9234,
+        "triangles": 9234,
+        "size": [
+          1.767,
+          2.285,
+          1.315
+        ]
+      },
+      {
+        "name": "shrub_02_3",
+        "source_triangles": 5188,
+        "triangles": 5188,
+        "size": [
+          1.08,
+          1.098,
+          1.229
+        ]
+      }
+    ],
+    "triangles": 27254,
+    "scale": 1.0,
+    "glb_bytes": 2615532,
+    "glb_sha256": "c25a98d08dbbaf5bcd4ee572c46c71fa2f221b8bc90387d1e1815aa20231c659"
+  },
+  "shrub_03": {
+    "source_triangles": 8287,
+    "materials": [
+      "shrub_03"
+    ],
+    "variants": [
+      {
+        "name": "shrub_03_0",
+        "source_triangles": 2385,
+        "triangles": 2385,
+        "size": [
+          0.201,
+          0.151,
+          0.403
+        ]
+      },
+      {
+        "name": "shrub_03_1",
+        "source_triangles": 2134,
+        "triangles": 2134,
+        "size": [
+          0.184,
+          0.123,
+          0.353
+        ]
+      },
+      {
+        "name": "shrub_03_2",
+        "source_triangles": 1790,
+        "triangles": 1790,
+        "size": [
+          0.096,
+          0.113,
+          0.304
+        ]
+      },
+      {
+        "name": "shrub_03_3",
+        "source_triangles": 1978,
+        "triangles": 1978,
+        "size": [
+          0.113,
+          0.089,
+          0.256
+        ]
+      }
+    ],
+    "triangles": 8287,
+    "scale": 1.0,
+    "glb_bytes": 2406032,
+    "glb_sha256": "fb7daf4582d34b2ebb6312cf5c38085da508d36706d49514414960828325bd8a"
+  },
+  "periwinkle_plant": {
+    "source_triangles": 34350,
+    "materials": [
+      "periwinkle_plant"
+    ],
+    "variants": [
+      {
+        "name": "periwinkle_plant_0",
+        "source_triangles": 11252,
+        "triangles": 11252,
+        "size": [
+          0.261,
+          0.321,
+          0.397
+        ]
+      },
+      {
+        "name": "periwinkle_plant_1",
+        "source_triangles": 9096,
+        "triangles": 9096,
+        "size": [
+          0.231,
+          0.225,
+          0.411
+        ]
+      },
+      {
+        "name": "periwinkle_plant_2",
+        "source_triangles": 5338,
+        "triangles": 5338,
+        "size": [
+          0.167,
+          0.147,
+          0.3
+        ]
+      },
+      {
+        "name": "periwinkle_plant_3",
+        "source_triangles": 4108,
+        "triangles": 4108,
+        "size": [
+          0.156,
+          0.184,
+          0.265
+        ]
+      },
+      {
+        "name": "periwinkle_plant_4",
+        "source_triangles": 3078,
+        "triangles": 3078,
+        "size": [
+          0.111,
+          0.141,
+          0.206
+        ]
+      },
+      {
+        "name": "periwinkle_plant_5",
+        "source_triangles": 1478,
+        "triangles": 1478,
+        "size": [
+          0.103,
+          0.089,
+          0.16
+        ]
+      }
+    ],
+    "triangles": 34350,
+    "scale": 1.0,
+    "glb_bytes": 3535612,
+    "glb_sha256": "41e0188be269dee4de87c46eb21370a91efff158f0978d7cd00ab73d7dcc95f7"
+  },
+  "nettle_plant": {
+    "source_triangles": 31304,
+    "materials": [
+      "nettle_plant"
+    ],
+    "variants": [
+      {
+        "name": "nettle_plant_0",
+        "source_triangles": 5896,
+        "triangles": 5896,
+        "size": [
+          0.077,
+          0.089,
+          0.131
+        ]
+      },
+      {
+        "name": "nettle_plant_1",
+        "source_triangles": 5664,
+        "triangles": 5664,
+        "size": [
+          0.065,
+          0.066,
+          0.105
+        ]
+      },
+      {
+        "name": "nettle_plant_2",
+        "source_triangles": 3592,
+        "triangles": 3592,
+        "size": [
+          0.064,
+          0.043,
+          0.063
+        ]
+      },
+      {
+        "name": "nettle_plant_3",
+        "source_triangles": 1088,
+        "triangles": 1088,
+        "size": [
+          0.06,
+          0.039,
+          0.022
+        ]
+      },
+      {
+        "name": "nettle_plant_4",
+        "source_triangles": 6984,
+        "triangles": 6984,
+        "size": [
+          0.104,
+          0.09,
+          0.217
+        ]
+      },
+      {
+        "name": "nettle_plant_5",
+        "source_triangles": 8080,
+        "triangles": 8080,
+        "size": [
+          0.082,
+          0.095,
+          0.193
+        ]
+      }
+    ],
+    "triangles": 31304,
+    "scale": 1.0,
+    "glb_bytes": 2955032,
+    "glb_sha256": "1d4ddf7681973382c432b05312236d6626d3ed15e6a7bcfac058eb6dd21f8cbc"
+  },
+  "dandelion_01": {
+    "source_triangles": 54764,
+    "materials": [
+      "dandelion_01"
+    ],
+    "variants": [
+      {
+        "name": "dandelion_01_0",
+        "source_triangles": 23542,
+        "triangles": 7999,
+        "size": [
+          0.22,
+          0.258,
+          0.164
+        ]
+      },
+      {
+        "name": "dandelion_01_1",
+        "source_triangles": 23358,
+        "triangles": 8000,
+        "size": [
+          0.202,
+          0.218,
+          0.114
+        ]
+      },
+      {
+        "name": "dandelion_01_2",
+        "source_triangles": 3180,
+        "triangles": 3180,
+        "size": [
+          0.17,
+          0.167,
+          0.101
+        ]
+      },
+      {
+        "name": "dandelion_01_3",
+        "source_triangles": 2604,
+        "triangles": 2604,
+        "size": [
+          0.122,
+          0.144,
+          0.055
+        ]
+      },
+      {
+        "name": "dandelion_01_4",
+        "source_triangles": 2080,
+        "triangles": 2080,
+        "size": [
+          0.214,
+          0.205,
+          0.047
+        ]
+      }
+    ],
+    "triangles": 23863,
+    "scale": 1.0,
+    "glb_bytes": 2846936,
+    "glb_sha256": "b8535c20cce392aeec4a7582b4c99daf44e208c3e74952ff720e03075c1c2d58"
+  },
+  "rock_moss_set_01": {
+    "source_triangles": 63127,
+    "materials": [
+      "rock_moss_set_01"
+    ],
+    "variants": [
+      {
+        "name": "rock_moss_set_01_0",
+        "source_triangles": 11000,
+        "triangles": 11000,
+        "size": [
+          2.238,
+          3.369,
+          1.473
+        ]
+      },
+      {
+        "name": "rock_moss_set_01_1",
+        "source_triangles": 10996,
+        "triangles": 10996,
+        "size": [
+          2.655,
+          3.264,
+          1.262
+        ]
+      },
+      {
+        "name": "rock_moss_set_01_2",
+        "source_triangles": 5000,
+        "triangles": 5000,
+        "size": [
+          2.109,
+          2.08,
+          1.1
+        ]
+      },
+      {
+        "name": "rock_moss_set_01_3",
+        "source_triangles": 10589,
+        "triangles": 10589,
+        "size": [
+          2.128,
+          1.965,
+          1.768
+        ]
+      },
+      {
+        "name": "rock_moss_set_01_4",
+        "source_triangles": 16548,
+        "triangles": 16548,
+        "size": [
+          1.817,
+          2.999,
+          1.205
+        ]
+      },
+      {
+        "name": "rock_moss_set_01_5",
+        "source_triangles": 8994,
+        "triangles": 8994,
+        "size": [
+          2.126,
+          2.757,
+          1.262
+        ]
+      }
+    ],
+    "triangles": 63127,
+    "scale": 1.0,
+    "glb_bytes": 3256996,
+    "glb_sha256": "18e2d6608c8e28083635b53a3551201c1951fdab4cbdfa7b2142c4ee07765cf5"
+  },
+  "rock_moss_set_02": {
+    "source_triangles": 57647,
+    "materials": [
+      "rock_moss_set_02"
+    ],
+    "variants": [
+      {
+        "name": "rock_moss_set_02_0",
+        "source_triangles": 9826,
+        "triangles": 9826,
+        "size": [
+          1.693,
+          1.215,
+          0.745
+        ]
+      },
+      {
+        "name": "rock_moss_set_02_1",
+        "source_triangles": 8000,
+        "triangles": 8000,
+        "size": [
+          1.206,
+          0.984,
+          0.529
+        ]
+      },
+      {
+        "name": "rock_moss_set_02_2",
+        "source_triangles": 7894,
+        "triangles": 7894,
+        "size": [
+          1.629,
+          1.011,
+          0.61
+        ]
+      },
+      {
+        "name": "rock_moss_set_02_3",
+        "source_triangles": 8000,
+        "triangles": 8000,
+        "size": [
+          2.203,
+          1.552,
+          0.768
+        ]
+      },
+      {
+        "name": "rock_moss_set_02_4",
+        "source_triangles": 8000,
+        "triangles": 8000,
+        "size": [
+          1.954,
+          1.529,
+          1.311
+        ]
+      },
+      {
+        "name": "rock_moss_set_02_5",
+        "source_triangles": 7999,
+        "triangles": 7999,
+        "size": [
+          1.58,
+          1.443,
+          0.736
+        ]
+      },
+      {
+        "name": "rock_moss_set_02_6",
+        "source_triangles": 7928,
+        "triangles": 7928,
+        "size": [
+          2.091,
+          1.138,
+          1.256
+        ]
+      }
+    ],
+    "triangles": 57647,
+    "scale": 1.0,
+    "glb_bytes": 3576476,
+    "glb_sha256": "341d0c0dfaea9c0c73881d6e154b406aceb0e4e05ce816934b6e1bade78a2abf"
+  },
+  "boulder_01": {
+    "source_triangles": 66122,
+    "materials": [
+      "boulder_01"
+    ],
+    "variants": [
+      {
+        "name": "boulder_01_0",
+        "source_triangles": 66122,
+        "triangles": 26613,
+        "size": [
+          1.275,
+          1.838,
+          1.01
+        ]
+      }
+    ],
+    "triangles": 26613,
+    "scale": 1.0,
+    "glb_bytes": 12578496,
+    "glb_sha256": "eeb9602d066edb34e54e71b9f01aec70b2172facf7e2605e05d52bcebdb27820"
+  },
+  "rock_07": {
+    "source_triangles": 14844,
+    "materials": [
+      "rock_07"
+    ],
+    "variants": [
+      {
+        "name": "rock_07_0",
+        "source_triangles": 14844,
+        "triangles": 7999,
+        "size": [
+          0.169,
+          0.32,
+          0.144
+        ]
+      }
+    ],
+    "triangles": 7999,
+    "scale": 1.0,
+    "glb_bytes": 1958888,
+    "glb_sha256": "58ded463adead3f1a135fe1779269a9f8844ebf2f960131495747c8611adfd12"
+  },
+  "rock_09": {
+    "source_triangles": 12416,
+    "materials": [
+      "rock_09"
+    ],
+    "variants": [
+      {
+        "name": "rock_09_0",
+        "source_triangles": 12416,
+        "triangles": 8000,
+        "size": [
+          0.074,
+          0.145,
+          0.033
+        ]
+      }
+    ],
+    "triangles": 8000,
+    "scale": 1.0,
+    "glb_bytes": 1866000,
+    "glb_sha256": "909226b5715a67f2ea10a75a6b4f067a700a5bb9505b5e1138d276df1063e0ed"
+  },
+  "stone_01": {
+    "source_triangles": 53520,
+    "materials": [
+      "stone_01"
+    ],
+    "variants": [
+      {
+        "name": "stone_01_0",
+        "source_triangles": 53520,
+        "triangles": 5999,
+        "size": [
+          0.147,
+          0.09,
+          0.072
+        ]
+      }
+    ],
+    "triangles": 5999,
+    "scale": 1.0,
+    "glb_bytes": 2660292,
+    "glb_sha256": "910da8c253f6ba067ec125040d50f3a9c0c48386d619b0a551753f4fc6b89ffe"
+  },
+  "dead_tree_trunk": {
+    "source_triangles": 101802,
+    "materials": [
+      "dead_tree_trunk"
+    ],
+    "variants": [
+      {
+        "name": "dead_tree_trunk_0",
+        "source_triangles": 101802,
+        "triangles": 13999,
+        "size": [
+          3.05,
+          0.277,
+          0.289
+        ]
+      }
+    ],
+    "triangles": 13999,
+    "scale": 1.0,
+    "glb_bytes": 2841016,
+    "glb_sha256": "192514edc7ba1bc7fc4fb0677f1b458b31eeda376956f005f8e162916ed12a4b"
+  },
+  "tree_stump_01": {
+    "source_triangles": 41046,
+    "materials": [
+      "tree_stump_01"
+    ],
+    "variants": [
+      {
+        "name": "tree_stump_01_0",
+        "source_triangles": 41046,
+        "triangles": 9999,
+        "size": [
+          1.425,
+          1.59,
+          0.573
+        ]
+      }
+    ],
+    "triangles": 9999,
+    "scale": 1.0,
+    "glb_bytes": 3240096,
+    "glb_sha256": "443bbbd55121c917dca23a434292e995fffcc4875bf6eb96ef5c5ebe36b57a43"
+  },
+  "root_cluster_01": {
+    "source_triangles": 225261,
+    "materials": [
+      "root_cluster_01"
+    ],
+    "variants": [
+      {
+        "name": "root_cluster_01_0",
+        "source_triangles": 225261,
+        "triangles": 13999,
+        "size": [
+          4.122,
+          2.685,
+          1.507
+        ]
+      }
+    ],
+    "triangles": 13999,
+    "scale": 1.0,
+    "glb_bytes": 3352980,
+    "glb_sha256": "ff04bb6a0932afeba48afa3bee5453af8a5d78013d162fa6d1661432853e0fd8"
+  },
+  "dry_branches_medium_01": {
+    "source_triangles": 16803,
+    "materials": [
+      "dry_branches_medium_01"
+    ],
+    "variants": [
+      {
+        "name": "dry_branches_medium_01_0",
+        "source_triangles": 5933,
+        "triangles": 5933,
+        "size": [
+          0.323,
+          1.299,
+          0.341
+        ]
+      },
+      {
+        "name": "dry_branches_medium_01_1",
+        "source_triangles": 5254,
+        "triangles": 5254,
+        "size": [
+          0.151,
+          1.039,
+          0.142
+        ]
+      },
+      {
+        "name": "dry_branches_medium_01_2",
+        "source_triangles": 5616,
+        "triangles": 5616,
+        "size": [
+          0.131,
+          0.777,
+          0.143
+        ]
+      }
+    ],
+    "triangles": 16803,
+    "scale": 1.0,
+    "glb_bytes": 3258280,
+    "glb_sha256": "61bec534c0f8e7abb83e19ba5eac4a1f776701f3a1f1672b4b84e13f93a9034d"
+  },
+  "pine_roots": {
+    "source_triangles": 162693,
+    "materials": [
+      "pine_roots_a",
+      "pine_roots_b"
+    ],
+    "variants": [
+      {
+        "name": "pine_roots_0",
+        "source_triangles": 81625,
+        "triangles": 11999,
+        "size": [
+          1.739,
+          0.826,
+          0.144
+        ]
+      },
+      {
+        "name": "pine_roots_1",
+        "source_triangles": 81068,
+        "triangles": 12000,
+        "size": [
+          1.629,
+          0.993,
+          0.146
+        ]
+      }
+    ],
+    "triangles": 23998,
+    "scale": 1.0,
+    "glb_bytes": 6587220,
+    "glb_sha256": "ac6ba02d77fcb8ffcdbcbabc439d36ea1ae206a6233aa010cb88c5260a49da15"
+  },
+  "stone_fire_pit": {
+    "source_triangles": 3887,
+    "materials": [
+      "stone_fire_pit"
+    ],
+    "variants": [
+      {
+        "name": "stone_fire_pit_0",
+        "source_triangles": 3887,
+        "triangles": 3887,
+        "size": [
+          1.448,
+          1.433,
+          0.388
+        ]
+      }
+    ],
+    "triangles": 3887,
+    "scale": 1.0,
+    "glb_bytes": 2534928,
+    "glb_sha256": "8ed4437f9b2cff2bcc35e817e9550cdf76fc77bf4c93af54106283b920e9c70e"
+  },
+  "island_tree_02_far": {
+    "derived_from": "island_tree_02",
+    "method": "leaf-cluster thinning + bark decimation",
+    "variants": [
+      {
+        "name": "island_tree_02_0",
+        "source_triangles": 90000,
+        "triangles": 17641
+      }
+    ],
+    "glb_bytes": 1094072,
+    "glb_sha256": "41227acc4aa00d79558e918b4391a44020e58d25813b471866214f36b49f07af"
+  },
+  "tree_small_02_far": {
+    "derived_from": "tree_small_02",
+    "method": "leaf-cluster thinning + bark decimation",
+    "variants": [
+      {
+        "name": "tree_small_02_0",
+        "source_triangles": 90000,
+        "triangles": 19529
+      }
+    ],
+    "glb_bytes": 1997280,
+    "glb_sha256": "3aa071d6889601377820c8ede9ddd7254885397b2ea84f09b4276d1437f07456"
+  },
+  "jacaranda_tree_far": {
+    "derived_from": "jacaranda_tree",
+    "method": "leaf-cluster thinning + bark decimation",
+    "variants": [
+      {
+        "name": "jacaranda_tree_0",
+        "source_triangles": 90000,
+        "triangles": 12719
+      }
+    ],
+    "glb_bytes": 1902888,
+    "glb_sha256": "e2937b0e335c80330be41e64500977991c79f7bd094943ca5d65be58ea1d81af"
+  }
+}
