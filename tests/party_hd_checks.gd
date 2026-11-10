@@ -210,6 +210,20 @@ func check_battle() -> void:
 	for i in 3:
 		after_restart = after_restart and stage.visuals[i].imported_model.asset.scene_file_path == expected[i] and stage.visuals[i].imported_model.current_clip == "Idle"
 	check(after_restart and stage._effects.get_child_count() == 0 and stage.event_queue.is_empty(), "reinicio conserva los modelos HD y limpia la presentación")
+	# Closer framing for the HD party: the whole fight stays above the command panel.
+	var original_size := _tree.root.size
+	var framed: bool = stage.camera.position.is_equal_approx(BattleEnvironment.HD_PARTY_CAMERA) and stage.camera.position.length() < Vector3(8.5, 8.2, 13.7).length() * .8
+	for size in [Vector2i(1280, 720), Vector2i(960, 640), Vector2i(800, 450)]:
+		_tree.root.size = size
+		await _tree.process_frame
+		# Projections are in the stretched visible rect (canvas_items, expand).
+		var rect: Vector2 = stage.camera.get_viewport().get_visible_rect().size
+		for visual: BattleActorVisual in stage.visuals:
+			for point in [visual.home, visual.home + Vector3.UP * 2.0]:
+				var screen: Vector2 = stage.camera.unproject_position(point)
+				framed = framed and screen.x > 0 and screen.x < rect.x and screen.y > rect.y * .1 and screen.y < rect.y * .68
+	_tree.root.size = original_size
+	check(framed, "cámara de combate más cercana con los cuatro combatientes sobre el panel (3 resoluciones)")
 	stage.free()
 
 func check_exploration() -> void:
@@ -227,4 +241,43 @@ func check_exploration() -> void:
 	for i in 3:
 		await _tree.physics_frame
 	check(walking and model.current_clip == "Idle", "Kael HD camina con la misma física y vuelve a Idle al parar")
+	var followers: PartyFollowers = zone.followers
+	var members_ok := followers != null and followers.members.size() == 2
+	if members_ok:
+		for i in 2:
+			var member := followers.members[i]
+			members_ok = members_ok and member.imported_model != null and member.imported_model.asset.scene_file_path == KaelModel.HD_PATHS[["lyra", "nira"][i]]
+	check(members_ok and followers.find_children("*", "CollisionObject3D", true, false).is_empty(), "Lyra y Nira acompañan a Kael en exploración sin cuerpos físicos")
+	if not members_ok:
+		zone.free()
+		return
+	zone.player.set_movement_input(Vector2(-1, 0))
+	for i in 50:
+		await _tree.physics_frame
+	var trail_ok := true
+	for i in 2:
+		var member := followers.members[i]
+		var behind := Vector2(member.position.x - zone.player.position.x, member.position.z - zone.player.position.z).length()
+		trail_ok = trail_ok and member.imported_model.current_clip == "Walk" and behind > PartyFollowers.GAPS[i] * .8 and behind < PartyFollowers.GAPS[i] + .2
+	zone.player.set_movement_input(Vector2.ZERO)
+	for i in 3:
+		await _tree.physics_frame
+	for member in followers.members:
+		trail_ok = trail_ok and member.imported_model.current_clip == "Idle"
+	check(trail_ok, "seguidores caminan detrás por la estela de Kael y se detienen con él")
+	zone.player.position = Vector3(5, zone.player.position.y, -2.8)
+	await _tree.physics_frame
+	await _tree.physics_frame
+	var near := true
+	for member in followers.members:
+		near = near and Vector2(member.position.x - zone.player.position.x, member.position.z - zone.player.position.z).length() < 3.0
+	check(near, "si Kael reaparece en otro punto, el grupo se recoloca con él")
 	zone.free()
+	ProjectSettings.set_setting("visuals/party/style", "current")
+	var legacy = preload("res://scenes/forest_zone.tscn").instantiate()
+	legacy.session.mission.intro_seen = true
+	_tree.root.add_child(legacy)
+	await _tree.process_frame
+	check(legacy.followers == null and legacy.get_node_or_null("Followers") == null, "con los modelos anteriores la exploración sigue mostrando solo a Kael")
+	legacy.free()
+	ProjectSettings.set_setting("visuals/party/style", "hd")

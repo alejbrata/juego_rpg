@@ -6,6 +6,7 @@ signal new_game_requested
 @export var encounters: Array[EncounterData] = []
 var session := GameSession.new()
 var player: CharacterBody3D
+var followers: PartyFollowers
 var markers: Dictionary[String, Node3D] = {}
 var encounter_armed: bool = true
 var info: Label
@@ -23,6 +24,12 @@ func _ready() -> void:
 	player.name = "Leader"
 	player.position = session.leader_position
 	add_child(player)
+	# 1.4: Lyra and Nira follow the leader's path (presentation only, HD party).
+	if PartyFollowers.enabled():
+		followers = PartyFollowers.new()
+		followers.name = "Followers"
+		add_child(followers)
+		followers.setup(player, player.model.position.y)
 	var art := get_node_or_null("ForestArt") as ForestArt
 	if art != null:
 		art.reveal_subject = player

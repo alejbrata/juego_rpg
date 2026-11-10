@@ -98,6 +98,8 @@ static func _column(parent: Node3D, at: Vector3, height: float) -> void:
 	StylizedModels.rod(parent, at + Vector3(0.43, 0.2, 0.12), at + Vector3(0.12, height * 0.8, 0.35), 0.05, StylizedModels.mat("587653"))
 
 ## HD arena (1.3): same camera framing; decoration from the HD forest kit.
+const HD_PARTY_CAMERA := Vector3(5.4, 5.0, 9.6)
+const HD_PARTY_TARGET := Vector3(-1.6, -0.2, 0.0)
 static func _build_hd(parent: Node3D) -> Camera3D:
 	var world := WorldEnvironment.new()
 	world.environment = Environment.new()
@@ -119,6 +121,11 @@ static func _build_hd(parent: Node3D) -> Camera3D:
 	camera.fov = 42
 	camera.far = 120.0
 	camera.position = Vector3(8.5, 8.2, 13.7)
+	var look := Vector3(-0.6, 0.35, 0)
+	# 1.4: the detailed HD party is framed closer; other styles keep the 1.3 framing.
+	if KaelModel.party_style() == "hd":
+		camera.position = HD_PARTY_CAMERA
+		look = HD_PARTY_TARGET
 	var attributes := CameraAttributesPractical.new()
 	attributes.dof_blur_far_enabled = true
 	attributes.dof_blur_far_distance = 26.0
@@ -126,6 +133,6 @@ static func _build_hd(parent: Node3D) -> Camera3D:
 	attributes.dof_blur_amount = 0.05
 	camera.attributes = attributes
 	parent.add_child(camera)
-	camera.look_at(Vector3(-0.6, 0.35, 0))
+	camera.look_at(look)
 	camera.current = true
 	return camera

@@ -61,9 +61,11 @@ const EXTRAS := [
 	["stone_fire_pit", Vector2(-3.55, 2.7), 0.0, 0.9],
 ]
 
-var _kit_cache := {}
+## Prepared variants are shared by every forest/arena built in the session.
+static var _kit_cache := {}
+static var _reveal_cache := {}
 ## Full tree mesh -> thinned "far" mesh (tools/blender/thin_trees_hd.py).
-var _far_of := {}
+static var _far_of := {}
 var _grass_material: ShaderMaterial
 var _textures := {}
 
@@ -199,7 +201,11 @@ static func _pick(at: Vector3, count: int) -> int:
 func _hd_variants(asset: String, reveal: bool) -> Array:
 	var key := asset + ("|reveal" if reveal else "")
 	if _kit_cache.has(key):
+		for material: ShaderMaterial in _reveal_cache.get(key, []):
+			if not _reveal_materials.has(material):
+				_reveal_materials.append(material)
 		return _kit_cache[key]
+	var reveal_start := _reveal_materials.size()
 	var result := []
 	var path := HD_DIR + "models/" + asset + ".glb"
 	if not ResourceLoader.exists(path):
@@ -219,6 +225,7 @@ func _hd_variants(asset: String, reveal: bool) -> Array:
 	scene.free()
 	_attach_far(asset, result)
 	_kit_cache[key] = result
+	_reveal_cache[key] = _reveal_materials.slice(reveal_start)
 	return result
 
 ## Thinned versions share the full model's materials (matched by surface name)
@@ -514,25 +521,55 @@ static var _mip_cache := {}
 
 ## GLB-embedded images (embedded_image_handling=3) import without mipmaps:
 ## minified 1k-2k textures then thrash the GPU cache and shimmer. Each texture
-## gets a mipmapped, VRAM-compressed copy once per session.
+## gets a mipmapped, VRAM-compressed copy once per session, kept on disk in
+## user:// keyed by the image content so later launches skip the slow compression.
+const TEXTURE_CACHE := "user://texture_cache/"
+
 static func _with_mips(texture: Texture2D, normal := false) -> Texture2D:
 	if texture == null:
 		return null
 	if _mip_cache.has(texture):
 		return _mip_cache[texture]
-	var image := texture.get_image()
-	var result := texture
-	if image != null and not image.has_mipmaps():
-		image = image.duplicate()
-		if image.is_compressed():
-			image.decompress()
-		image.generate_mipmaps()
-		if RenderingServer.get_rendering_device() != null:
-			image.compress(Image.COMPRESS_S3TC, Image.COMPRESS_SOURCE_NORMAL if normal else Image.COMPRESS_SOURCE_GENERIC)
-		result = ImageTexture.create_from_image(image)
+	var compress := RenderingServer.get_rendering_device() != null
+	var suffix := "_%d_%s.res" % [texture.get_width(), ("n" if normal else "g") + ("c" if compress else "u")]
+	# Cheap key for GLB sub-resources (path + source file time); content hash otherwise.
+	var path := texture.resource_path
+	var key := ""
+	if path.contains("::"):
+		key = TEXTURE_CACHE + (path + str(FileAccess.get_modified_time(path.get_slice("::", 0)))).md5_text() + suffix
+	var result: Texture2D = null
+	if not key.is_empty() and FileAccess.file_exists(key):
+		result = ResourceLoader.load(key, "ImageTexture", ResourceLoader.CACHE_MODE_IGNORE) as ImageTexture
+	if result == null:
+		var image := texture.get_image()
+		result = texture
+		if image != null and not image.has_mipmaps():
+			if key.is_empty():
+				key = TEXTURE_CACHE + _image_key(image) + suffix
+			var cached: ImageTexture = null
+			if FileAccess.file_exists(key):
+				cached = ResourceLoader.load(key, "ImageTexture", ResourceLoader.CACHE_MODE_IGNORE) as ImageTexture
+			if cached != null:
+				result = cached
+			else:
+				image = image.duplicate()
+				if image.is_compressed():
+					image.decompress()
+				image.generate_mipmaps()
+				if compress:
+					image.compress(Image.COMPRESS_S3TC, Image.COMPRESS_SOURCE_NORMAL if normal else Image.COMPRESS_SOURCE_GENERIC)
+				result = ImageTexture.create_from_image(image)
+				DirAccess.make_dir_recursive_absolute(TEXTURE_CACHE)
+				ResourceSaver.save(result, key, ResourceSaver.FLAG_COMPRESS)
 	_mip_cache[texture] = result
 	_mip_cache[result] = result
 	return result
+
+static func _image_key(image: Image) -> String:
+	var hashing := HashingContext.new()
+	hashing.start(HashingContext.HASH_MD5)
+	hashing.update(image.get_data())
+	return hashing.finish().hex_encode()
 
 static func _mip_material(material: StandardMaterial3D) -> void:
 	material.albedo_texture = _with_mips(material.albedo_texture)

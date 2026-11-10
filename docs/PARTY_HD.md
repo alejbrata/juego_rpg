@@ -61,6 +61,12 @@ Los tres paquetes comparten un esqueleto de 65 huesos. Para cada héroe, el cons
 
 Los bastones van en la mano izquierda por dos motivos. En la pose de antorcha la derecha cuelga abierta, y los hechizos de la biblioteca se lanzan con la izquierda, así que el bastón acompaña el gesto. Caminar usa el trote: la exploración mueve a 4 m/s y la reproducción se limita a 2,5×. Con el paso tranquilo de la biblioteca (~1,1 m/s a escala) los pies patinarían. Con el trote (~6 m/s a escala) se reproduce a ~0,65× sin patinar.
 
+## Seguidores en exploración y cámara de combate
+
+- **Seguidores** (`world/party_followers.gd`): Lyra y Nira caminan detrás de Kael, a 1,2 y 2,3 m sobre el camino que él ha recorrido, de modo que no atraviesan muros que él rodeó. Son solo presentación: no tienen cuerpos físicos, no activan encuentros ni pistas y no cambian la misión. Si Kael aparece de golpe en otro punto (nueva partida, vuelta de un combate), se recolocan detrás de él. Se activan con el estilo `hd` y `visuals/party/followers` (activado por defecto; `false` los quita).
+- **Cámara de combate**: con el estilo `hd` la arena HD usa un encuadre más cercano (`BattleEnvironment.HD_PARTY_CAMERA`), con el mismo ángulo y los cuatro combatientes por encima del panel de órdenes. Los demás estilos conservan el encuadre de 1.3.
+- **Carga**: las texturas procesadas del bosque se guardan en `user://texture_cache/` (unos 80 MB en tu carpeta de usuario, no en el proyecto) y las variantes preparadas se comparten durante la partida. El primer arranque tarda lo mismo; los siguientes, ~3 s menos; entrar y salir de combates pasa de 4–5 s a ~2 s.
+
 ## Capturas (render real en Godot)
 
 - Grupo: [vista cercana](previews/party-hd/hd-party.png); combate a [1280×720](previews/party-hd/hd-battle-1280x720.png) y [960×640](previews/party-hd/hd-battle-960x640.png).
@@ -88,7 +94,7 @@ La diferencia cae dentro del ruido de medida, que ronda el ±10 % en este portá
   - los modelos de terceros están solo en la carpeta ignorada;
   - sin paquetes, cada héroe conserva su modelo actual;
   - los estilos `current` y `ps1` no cambian.
-- **Con los paquetes instalados (40 comprobaciones más):**
+- **Con los paquetes instalados (45 comprobaciones más):**
   - hash del glTF;
   - importación sin fallback;
   - 65 huesos y mallas con piel;
@@ -100,9 +106,11 @@ La diferencia cae dentro del ruido de medida, que ronda el ±10 % en este portá
   - clips, bucles y duraciones;
   - KO/Defend mantenidos y reinicio;
   - en combate, las mismas órdenes producen el mismo estado del motor que con los modelos actuales, y se conservan posiciones, eventos y reinicio;
-  - en exploración, Kael HD camina con la misma física y vuelve a Idle.
+  - en exploración, Kael HD camina con la misma física y vuelve a Idle;
+  - Lyra y Nira le siguen sin cuerpos físicos, caminan detrás por su estela, se paran con él y se recolocan si reaparece en otro punto; con los modelos anteriores no hay seguidores;
+  - la cámara de combate más cercana mantiene a los cuatro combatientes por encima del panel en 1280×720, 960×640 y 800×450.
 
-Total: **1038 comprobaciones, cero fallos** con los paquetes instalados (994 anteriores + 44). En un clon sin paquetes son 998.
+Total: **1043 comprobaciones, cero fallos** con los paquetes instalados (994 anteriores + 49). En un clon sin paquetes son 998.
 
 ## Límites
 
