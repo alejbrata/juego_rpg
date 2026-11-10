@@ -102,7 +102,7 @@ func _refresh() -> void:
 	var actor := engine.fighters[engine.current_id()]
 	status.text = "Ronda %d · Turno de %s" % [engine.round_number, actor.data.label]
 	if engine.phase == BattleEngine.Phase.ENEMY_TURN:
-		_add_button(actions, "Resolver turno enemigo", func() -> void:
+		_add_enemy_step(actor, func() -> void:
 			engine.step_enemy()
 			selected = null
 			_refresh())
@@ -111,12 +111,11 @@ func _refresh() -> void:
 	var options: Array[BattleAbility] = [engine.basic_attack(), engine.defend_action()]
 	options.append_array(actor.data.abilities)
 	for ability in options:
-		var element_label := " [%s]" % ability.element if ability.effect in ["physical", "magic"] else ""
-		var button := _add_button(actions, "%s%s (%d PM)" % [ability.label, element_label, ability.cost], func() -> void: _choose(ability))
+		var button := _add_action(ability, actor, func() -> void: _choose(ability))
 		button.disabled = actor.mp < ability.cost
 	if run.resonance == 100 and run.guardian_for(actor.data.id) != null and actor.hp > 0:
 		var guardian := run.guardian_for(actor.data.id)
-		_add_button(actions, "Invocar · 100 RE", func() -> void:
+		_add_invoke(guardian, func() -> void:
 			var error := engine.summon()
 			if error.is_empty():
 				selected = null
@@ -124,6 +123,20 @@ func _refresh() -> void:
 				message.text = "¡%s: %s! Aparece, actúa y se retira." % [guardian.label, guardian.summon_label]
 			else:
 				message.text = error)
+
+# Presentation hooks: which commands exist is decided above, once, for every UI.
+func _add_enemy_step(_actor: BattleEngine.Fighter, callback: Callable) -> Button:
+	return _add_button(actions, "Resolver turno enemigo", callback)
+
+func _add_action(ability: BattleAbility, _actor: BattleEngine.Fighter, callback: Callable) -> Button:
+	var element_label := " [%s]" % ability.element if ability.effect in ["physical", "magic"] else ""
+	return _add_button(actions, "%s%s (%d PM)" % [ability.label, element_label, ability.cost], callback)
+
+func _add_invoke(_guardian: GuardianData, callback: Callable) -> Button:
+	return _add_button(actions, "Invocar · 100 RE", callback)
+
+func _add_target(target_id: int, callback: Callable) -> Button:
+	return _add_button(targets, engine.fighters[target_id].data.label, callback)
 
 func _add_button(container: Container, text: String, callback: Callable) -> Button:
 	var button := Button.new()
@@ -138,7 +151,7 @@ func _choose(ability: BattleAbility) -> void:
 	_clear(targets)
 	message.text = "%s: selecciona objetivo" % ability.label
 	for target_id in engine.valid_targets(ability):
-		_add_button(targets, engine.fighters[target_id].data.label, func() -> void:
+		_add_target(target_id, func() -> void:
 			var error := engine.act(selected, target_id)
 			if error.is_empty():
 				selected = null

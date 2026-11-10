@@ -17,6 +17,13 @@ var interests: Dictionary[String, NarrativeInterest] = {}
 var interact_button: Button
 var _nearest_interest: String = ""
 var _restart_button: Button
+var _hud_root: Control
+var _location_panel: PanelContainer
+var _objective_box: VBoxContainer
+var _menu_button: Button
+var _menu_panel: PanelContainer
+var _toast: PanelContainer
+var _toast_tween: Tween
 
 func _ready() -> void:
 	_build_environment()
@@ -215,65 +222,155 @@ func refresh_from_session() -> void:
 		if guardian != null and guardian.id == "ignar":
 			carrier = hero.label
 	var progress := session.party.progress("ignar")
-	info.text = "Bosque del Eclipse · Claro de las ruinas\nKael · Lyra · Nira    RE %d/100 · Ignar → %s · Nv %d · %d PA · Encuentros %d/%d" % [session.party.resonance, carrier, progress.level(session.party.definition("ignar")), progress.affinity, session.defeated_encounters.size(), encounters.size()]
+	info.text = "Bosque del Eclipse · Claro de las ruinas\nGrupo: Kael · Lyra · Nira\nResonancia: RE %d/100\nIgnar → %s · Nv %d · %d PA\nEncuentros superados: %d/%d" % [session.party.resonance, carrier, progress.level(session.party.definition("ignar")), progress.affinity, session.defeated_encounters.size(), encounters.size()]
 	if session.defeated_encounters.size() == encounters.size():
-		hint.text = "Claro despejado. Las ruinas aún guardan el rastro de la expedición.\nWASD / flechas: mover · E: examinar"
+		_show_notice("Claro despejado. Las ruinas aún guardan el rastro de la expedición.")
 	else:
-		hint.text = "%s\nWASD / flechas: mover · E: examinar · Círculos naranjas: combate" % session.message
+		_show_notice(session.message)
 	_refresh_mission_ui()
 
+## 1.5 exploration HUD: place and objective top-left, a menu with the party
+## details and options top-right, a short interaction prompt and fading notices.
+## Presentation only: texts come from GameSession/ExpeditionMission as before.
 func _build_hud() -> void:
 	var overlay := CanvasLayer.new()
 	add_child(overlay)
 	var root := Control.new()
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.theme = EclipseUI.theme()
 	overlay.add_child(root)
-	info = Label.new()
-	info.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	info.offset_left = 18
-	info.offset_right = -18
-	info.offset_top = 14
-	info.offset_bottom = 100
-	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info.add_theme_font_size_override("font_size", 20)
-	info.add_theme_color_override("font_outline_color", Color("182a30"))
-	info.add_theme_constant_override("outline_size", 6)
-	root.add_child(info)
-	hint = Label.new()
-	hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	hint.offset_left = 18
-	hint.offset_right = -220
-	hint.offset_top = -92
-	hint.offset_bottom = -8
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint.add_theme_constant_override("outline_size", 5)
-	root.add_child(hint)
+	_hud_root = root
+	# Place and objective.
+	_location_panel = EclipseUI.panel(root, 0.8)
+	_location_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var place := VBoxContainer.new()
+	place.add_theme_constant_override("separation", 2)
+	_location_panel.add_child(place)
+	EclipseUI.caption(place, "Bosque del Eclipse")
+	EclipseUI.label(place, "Claro de las ruinas", 20, EclipseUI.IVORY, "title")
+	_objective_box = VBoxContainer.new()
+	_objective_box.add_theme_constant_override("separation", 2)
+	place.add_child(_objective_box)
+	var rule := ColorRect.new()
+	rule.color = Color(EclipseUI.GOLD, 0.35)
+	rule.custom_minimum_size = Vector2(0, 1)
+	_objective_box.add_child(rule)
+	var heading := HBoxContainer.new()
+	heading.add_theme_constant_override("separation", 6)
+	_objective_box.add_child(heading)
+	UIIcon.make(heading, "technique", EclipseUI.GOLD, 14).size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	EclipseUI.caption(heading, "Objetivo")
+	objective_label = EclipseUI.label(_objective_box, "", 17, EclipseUI.IVORY, "medium")
+	objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	objective_label.custom_minimum_size.x = 280
+	# Menu button and panel (party summary, controls, new game).
+	_menu_button = Button.new()
+	_menu_button.custom_minimum_size = Vector2(EclipseUI.TOUCH, EclipseUI.TOUCH)
+	_menu_button.tooltip_text = "Grupo y opciones (Tab)"
+	_menu_button.add_theme_stylebox_override("normal", EclipseUI.panel_box(0.8, Color(EclipseUI.GOLD, 0.55), 24))
+	_menu_button.add_theme_stylebox_override("hover", EclipseUI.panel_box(0.92, EclipseUI.GOLD, 24))
+	_menu_button.add_theme_stylebox_override("pressed", EclipseUI.panel_box(0.95, EclipseUI.GOLD_BRIGHT, 24))
+	_menu_button.pressed.connect(toggle_menu)
+	root.add_child(_menu_button)
+	UIIcon.make(_menu_button, "menu", EclipseUI.IVORY, 22).set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_menu_panel = EclipseUI.panel(root, 0.95)
+	_menu_panel.visible = false
+	var menu := VBoxContainer.new()
+	menu.add_theme_constant_override("separation", 6)
+	_menu_panel.add_child(menu)
+	EclipseUI.caption(menu, "Grupo")
+	info = EclipseUI.label(menu, "", 16, EclipseUI.IVORY)
+	EclipseUI.caption(menu, "Controles")
+	EclipseUI.label(menu, "WASD / flechas: mover\nE: examinar · Tab: este menú\nCírculos naranjas: combate", 15, EclipseUI.IVORY_DIM)
 	var restart := Button.new()
 	restart.text = "Nueva partida"
-	restart.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	restart.offset_left = -200
-	restart.offset_top = -62
-	restart.offset_right = -16
-	restart.offset_bottom = -14
-	restart.pressed.connect(func() -> void: new_game_requested.emit())
-	root.add_child(restart)
+	restart.custom_minimum_size = Vector2(220, EclipseUI.TOUCH)
+	restart.pressed.connect(func() -> void:
+		_menu_panel.visible = false
+		new_game_requested.emit())
+	menu.add_child(restart)
 	_restart_button = restart
-	objective_label = Label.new()
-	objective_label.position = Vector2(18, 106)
-	objective_label.add_theme_font_size_override("font_size", 16)
-	objective_label.add_theme_color_override("font_color", Color("e0cca0"))
-	objective_label.add_theme_constant_override("outline_size", 5)
-	root.add_child(objective_label)
+	var close := Button.new()
+	close.text = "Cerrar"
+	close.custom_minimum_size = Vector2(220, EclipseUI.TOUCH)
+	close.pressed.connect(toggle_menu)
+	menu.add_child(close)
+	# Fading notice (session messages) bottom-left.
+	_toast = EclipseUI.panel(root, 0.82, Color(EclipseUI.GOLD, 0.35))
+	_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint = EclipseUI.label(_toast, "", 16, EclipseUI.IVORY)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.custom_minimum_size.x = 300
+	hint.visibility_changed.connect(func() -> void: _toast.visible = hint.visible)
+	# Interaction prompt: key cap + verb + place, bottom centre.
 	interact_button = Button.new()
-	interact_button.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-	interact_button.offset_left = 18
-	interact_button.offset_right = 390
-	interact_button.offset_top = -148
-	interact_button.offset_bottom = -100
+	interact_button.custom_minimum_size = Vector2(260, 52)
+	for state in ["normal", "hover", "pressed", "focus"]:
+		var pill := EclipseUI.panel_box(0.9 if state == "normal" else 0.97, Color(EclipseUI.GOLD, 0.8) if state == "normal" else EclipseUI.GOLD_BRIGHT, 26)
+		pill.content_margin_left = 54
+		pill.content_margin_right = 22
+		interact_button.add_theme_stylebox_override(state, pill)
+	interact_button.add_theme_font_size_override("font_size", 18)
 	interact_button.pressed.connect(func() -> void: interact(_nearest_interest))
 	interact_button.visible = false
 	root.add_child(interact_button)
+	var cap := PanelContainer.new()
+	var cap_box := StyleBoxFlat.new()
+	cap_box.bg_color = EclipseUI.GOLD
+	cap_box.set_corner_radius_all(6)
+	cap_box.set_content_margin_all(2)
+	cap_box.content_margin_left = 8
+	cap_box.content_margin_right = 8
+	cap.add_theme_stylebox_override("panel", cap_box)
+	cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	interact_button.add_child(cap)
+	cap.position = Vector2(14, 13)
+	EclipseUI.label(cap, "E", 15, EclipseUI.NIGHT, "bold")
+	root.resized.connect(_layout_hud)
+	_layout_hud.call_deferred()
+
+func _layout_hud() -> void:
+	if _hud_root == null or not _hud_root.is_inside_tree():
+		return
+	var m := EclipseUI.safe_margins(_hud_root.get_viewport())
+	var area := _hud_root.size
+	_location_panel.reset_size()
+	_location_panel.position = Vector2(m.left, m.top)
+	_menu_button.position = Vector2(area.x - m.right - EclipseUI.TOUCH, m.top)
+	_menu_button.size = Vector2(EclipseUI.TOUCH, EclipseUI.TOUCH)
+	_menu_panel.reset_size()
+	_menu_panel.position = Vector2(area.x - m.right - _menu_panel.get_combined_minimum_size().x, m.top + EclipseUI.TOUCH + 10)
+	_toast.reset_size()
+	_toast.position = Vector2(m.left, area.y - m.bottom - _toast.get_combined_minimum_size().y)
+	interact_button.reset_size()
+	var prompt := interact_button.get_combined_minimum_size()
+	interact_button.position = Vector2((area.x - prompt.x) * 0.5, area.y - m.bottom - prompt.y - 24)
+
+func toggle_menu() -> void:
+	if dialogue != null and dialogue.active:
+		return
+	_menu_panel.visible = not _menu_panel.visible
+	_layout_hud()
+	if _menu_panel.visible:
+		_restart_button.grab_focus()
+	else:
+		_menu_button.grab_focus()
+
+## Session notices fade out after a few seconds; they come back when they change.
+func _show_notice(text: String) -> void:
+	if hint.text == text and _toast.modulate.a > 0.0:
+		return
+	hint.text = text
+	_toast.modulate.a = 1.0
+	_layout_hud.call_deferred()
+	if _toast_tween != null:
+		_toast_tween.kill()
+	if not is_inside_tree():
+		return
+	_toast_tween = create_tween()
+	_toast_tween.tween_interval(7.0)
+	_toast_tween.tween_property(_toast, "modulate:a", 0.0, 0.6)
 
 func _build_narrative() -> void:
 	for definition in ExpeditionStory.POINTS:
@@ -302,12 +399,19 @@ func _process(_delta: float) -> void:
 		point.show_prompt(point.id == _nearest_interest)
 	interact_button.visible = not _nearest_interest.is_empty()
 	if interact_button.visible:
-		interact_button.text = "E · %s%s" % ["Revisar: " if interests[_nearest_interest].examined else "Examinar: ", interests[_nearest_interest].title]
+		var prompt := "%s · %s" % ["Revisar" if interests[_nearest_interest].examined else "Examinar", interests[_nearest_interest].title]
+		if interact_button.text != prompt:
+			interact_button.text = prompt
+			_layout_hud.call_deferred()
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_E and not dialogue.active:
 		interact(_nearest_interest)
 		get_viewport().set_input_as_handled()
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode in [KEY_TAB, KEY_ESCAPE] and not dialogue.active:
+		if event.keycode == KEY_TAB or _menu_panel.visible:
+			toggle_menu()
+			get_viewport().set_input_as_handled()
 
 func interact(id: String) -> bool:
 	if dialogue.active or not session.mission.intro_seen or session.mode != GameSession.Mode.EXPLORING or not interests.has(id) or not interests[id].in_range(player.position):
@@ -335,6 +439,8 @@ func _open_dialogue(id: String, title: String, can_skip: bool = false) -> bool:
 	_restart_button.disabled = true
 	_restart_button.visible = false
 	hint.visible = false
+	_menu_panel.visible = false
+	_menu_button.visible = false
 	return true
 
 func _on_dialogue_closed(id: String) -> void:
@@ -348,14 +454,17 @@ func _on_dialogue_closed(id: String) -> void:
 	_restart_button.disabled = false
 	_restart_button.visible = true
 	hint.visible = true
+	_menu_button.visible = true
 	refresh_from_session()
 
 func _refresh_mission_ui() -> void:
-	objective_label.text = "Objetivo: " + session.mission.objective(session.defeated_encounters) if session.mission.intro_seen else ""
+	objective_label.text = session.mission.objective(session.defeated_encounters) if session.mission.intro_seen else ""
+	_objective_box.visible = not objective_label.text.is_empty()
+	_layout_hud.call_deferred()
 	for id in interests:
 		interests[id].examined = session.mission.investigated.has(id)
 	var anomaly := interests["anomaly"]
 	anomaly.examined = session.mission.completed
 	anomaly.set_available(session.mission.revelation_available(session.defeated_encounters) or session.mission.revelation_started)
 	if session.mission.completed:
-		hint.text = "La expedición perdida · Completada\nLa aventura continuará en el interior de las ruinas."
+		_show_notice("La expedición perdida · Completada\nLa aventura continuará en el interior de las ruinas.")

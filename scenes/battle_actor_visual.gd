@@ -82,9 +82,12 @@ func build(fighter: BattleEngine.Fighter) -> void:
 	nameplate = Label3D.new()
 	nameplate.position.y = 3.05 if fighter.enemy else 2.55
 	nameplate.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	nameplate.font_size = 32
-	nameplate.pixel_size = 0.009
-	nameplate.outline_size = 4
+	# 1.5: interface typography; compact enemy plate with a dark outline for contrast.
+	nameplate.font = EclipseUI.font("bold")
+	nameplate.font_size = 30
+	nameplate.pixel_size = 0.0085
+	nameplate.outline_size = 10
+	nameplate.outline_modulate = Color(0.03, 0.06, 0.08, 0.85)
 	add_child(nameplate)
 
 func _build_imported_kael() -> bool:

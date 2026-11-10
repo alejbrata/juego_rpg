@@ -116,3 +116,8 @@ Modelos, texturas PBR y un cielo HDRI de [Poly Haven](https://polyhaven.com/lice
 ### Quaternius (Q1/Q2, biblioteca de animaciones): en uso local desde 1.4
 
 El 10/11/2026 el usuario descargó a mano desde itch.io las versiones gratuitas *Standard* de Universal Base Characters, Modular Character Outfits – Fantasy y Universal Animation Library. Los tres zips incluyen un `License` que declara **CC0 1.0**. La [licencia general QAL](https://quaternius.com/license.html) sigue prohibiendo redistribuir los archivos como assets, así que se mantiene la decisión prudente: paquetes y modelos montados viven solo en `assets/third_party/`, ignorado por Git, y nunca se publican. Las capturas renderizadas sí se incluyen en `docs/previews/party-hd/`. Instalación con `tools/install_quaternius.py` y montaje con `tools/blender/build_party_hd.py` ([PARTY_HD.md](PARTY_HD.md)). No se automatizó ninguna descarga de itch.io.
+
+## Iteración 1.5: fuentes de la interfaz (incorporadas)
+
+- **Cinzel** (Natanael Gama, The Cinzel Project Authors) y **Alegreya Sans** (Huerta Tipográfica): SIL Open Font License 1.1, que permite usarlas, modificarlas y redistribuirlas incluso comercialmente, siempre que se acompañe la licencia y no se vendan por separado. Descargadas el 10/11/2026 del repositorio oficial `github.com/google/fonts` (`ofl/cinzel`, `ofl/alegreyasans`). Están en `assets/ui/fonts/` junto con `Cinzel-OFL.txt` y `AlegreyaSans-OFL.txt`.
+- Los retratos del HUD no son imágenes externas: se renderizan durante la partida a partir del modelo activo y no se guardan en el repositorio.

@@ -376,6 +376,7 @@ func _initialize() -> void:
 	await preload("res://tests/forest_hd_checks.gd").new().run(self, check)
 	ProjectSettings.set_setting("visuals/party/style", previous_style)
 	await preload("res://tests/party_hd_checks.gd").new().run(self, check)
+	await preload("res://tests/ui_checks.gd").new().run(self, check)
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)
 

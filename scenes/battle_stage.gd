@@ -23,6 +23,8 @@ var _camera_home: Transform3D
 var _camera_tween: Tween
 var _impact_tween: Tween
 var _target_marker: MeshInstance3D
+var _target_hints: Node3D
+var _marker_materials := {}
 
 func configure_encounter(heroes: Array[CombatantData], enemies: Array[CombatantData], run: PartyState) -> void:
 	# Configure the existing controller before entering the tree. Standalone scenes
@@ -39,6 +41,8 @@ func _ready() -> void:
 	hud.updated.connect(_on_updated)
 	hud.battle_reset.connect(_reset_visuals)
 	hud.target_preview.connect(_preview_target)
+	if hud.has_signal("targets_offered"):
+		hud.targets_offered.connect(_offer_targets)
 	hud.camera_toggled.connect(set_camera_motion_enabled)
 	hud.skip_toggled.connect(set_skip_animations)
 	hud.camera_option.set_pressed_no_signal(camera_motion_enabled)
@@ -56,6 +60,11 @@ func _build_arena() -> void:
 	add_child(_links)
 	_target_marker = StylizedModels.ring(self, Vector3.ZERO, 0.95, StylizedModels.mat("90c5c1", true))
 	_target_marker.visible = false
+	# 1.5: selected target ring coloured by side; faint rings on every valid target.
+	_marker_materials = {true: StylizedModels.mat("e07a5f", true), false: StylizedModels.mat("7cc6b6", true)}
+	_target_hints = Node3D.new()
+	_target_hints.name = "TargetHints"
+	add_child(_target_hints)
 
 func _reset_visuals() -> void:
 	_generation += 1
@@ -90,6 +99,8 @@ func _reset_visuals() -> void:
 		visual.home = Vector3(2.5, 0, (slot - (count - 1) * 0.5) * 2.6 - 0.4) if fighter.enemy else positions[slot % positions.size()]
 		visual.facing_yaw = -0.8 if fighter.enemy else 0.9
 		visual.position = visual.home
+		if not fighter.enemy and visual.nameplate != null:
+			visual.nameplate.visible = false
 		visuals.append(visual)
 		if fighter.enemy:
 			enemy_slot += 1
@@ -115,6 +126,7 @@ func _on_event(event: Dictionary) -> void:
 func _on_updated() -> void:
 	if hud.selected == null:
 		_target_marker.visible = false
+		_clear(_target_hints)
 	if playing or not event_queue.is_empty():
 		hud.set_presentation_busy(true)
 	else:
@@ -237,7 +249,15 @@ func _play_event(event: Dictionary) -> float:
 func _preview_target(target_id: int) -> void:
 	if target_id >= 0 and target_id < visuals.size():
 		_target_marker.position = visuals[target_id].home + Vector3.UP * 0.07
+		_target_marker.material_override = _marker_materials.get(hud.engine.fighters[target_id].enemy, null)
 		_target_marker.visible = true
+
+func _offer_targets(ids: Array[int]) -> void:
+	_clear(_target_hints)
+	for id in ids:
+		if id >= 0 and id < visuals.size():
+			var hint := StylizedModels.ring(_target_hints, visuals[id].home + Vector3.UP * 0.05, 0.75, StylizedModels.mat("efe7d4", true))
+			hint.transparency = 0.65
 
 func set_camera_motion_enabled(value: bool) -> void:
 	camera_motion_enabled = value
