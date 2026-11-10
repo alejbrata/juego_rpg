@@ -26,8 +26,27 @@ const PS1_PATHS := {
 	"nira": "res://assets/characters/nira/ps1/nira.glb",
 }
 
+## "hd" (1.4) uses the semirealistic party assembled by tools/blender/build_party_hd.py
+## from Quaternius packs the user installs locally (git-ignored, never committed).
+## Without them every hero keeps its current model.
+const HD_PATHS := {
+	"kael": "res://assets/third_party/party_hd/kael/kael.gltf",
+	"lyra": "res://assets/third_party/party_hd/lyra/lyra.gltf",
+	"nira": "res://assets/third_party/party_hd/nira/nira.gltf",
+}
+
 static func party_style() -> String:
 	return String(ProjectSettings.get_setting("visuals/party/style", "current"))
+
+## Asset for a hero under the active party style, or `fallback` for "current".
+static func styled_path(hero: String, fallback: String, hd_paths: Dictionary = HD_PATHS) -> String:
+	match party_style():
+		"ps1":
+			return PS1_PATHS[hero]
+		"hd":
+			if ResourceLoader.exists(hd_paths[hero], "PackedScene"):
+				return hd_paths[hero]
+	return fallback
 
 # Small extension points for the two companion assets; Kael keeps its contract.
 func _asset_label() -> String:

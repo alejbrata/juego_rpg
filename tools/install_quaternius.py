@@ -5,7 +5,9 @@
 Licence: the pack pages say CC0, but quaternius.com/license (QAL v1.0) forbids
 redistributing the assets themselves as assets. The repository is public, so the
 files go to assets/third_party/quaternius/ (git-ignored) and are never committed.
-Only model/texture/text files are extracted; nothing is executed.
+Only model/texture/text files are extracted; nothing is executed. A .gdignore keeps
+Godot from importing the raw packs: tools/blender/build_party_hd.py assembles the
+three party models from them into assets/third_party/party_hd/ (also git-ignored).
 """
 import sys, zipfile
 from pathlib import Path
@@ -16,6 +18,8 @@ KEEP = ('.gltf', '.glb', '.bin', '.png', '.jpg', '.jpeg', '.txt', '.md')
 
 if len(sys.argv) < 2:
     sys.exit(__doc__)
+DEST.mkdir(parents=True, exist_ok=True)
+(DEST / '.gdignore').write_text('', encoding='utf-8')
 for arg in sys.argv[1:]:
     zip_path = Path(arg)
     slug = zip_path.stem.split('[')[0].strip().lower().replace(' - ', '-').replace(' ', '-')

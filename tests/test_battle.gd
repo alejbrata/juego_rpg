@@ -355,8 +355,11 @@ func _initialize() -> void:
 	ui.free()
 	# Suites up to 1.2 validate the pre-HD presentation (procedural golems, 1.1
 	# forest). They keep every assertion under that fixture; 1.3 is checked after.
+	# Suites up to 1.3 also keep their party fixture ("current" models); 1.4 is checked last.
 	var previous_hd: Variant = ProjectSettings.get_setting("visuals/forest/hd", false)
+	var previous_style: Variant = ProjectSettings.get_setting("visuals/party/style", "current")
 	ProjectSettings.set_setting("visuals/forest/hd", false)
+	ProjectSettings.set_setting("visuals/party/style", "current")
 	await preload("res://tests/presentation_checks.gd").new().run(self, check)
 	await preload("res://tests/exploration_checks.gd").new().run(self, check)
 	await historical_companion_fixture(preload("res://tests/visual_refresh_checks.gd").new())
@@ -371,6 +374,8 @@ func _initialize() -> void:
 	await preload("res://tests/party_ps1_checks.gd").new().run(self, check)
 	ProjectSettings.set_setting("visuals/forest/hd", previous_hd)
 	await preload("res://tests/forest_hd_checks.gd").new().run(self, check)
+	ProjectSettings.set_setting("visuals/party/style", previous_style)
+	await preload("res://tests/party_hd_checks.gd").new().run(self, check)
 	print("%d comprobaciones; %d fallos" % [checks, failures])
 	quit(0 if failures == 0 else 1)
 

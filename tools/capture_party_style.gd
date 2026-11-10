@@ -1,5 +1,5 @@
 extends SceneTree
-## Real-render comparison of the party art styles ("current" vs "ps1").
+## Real-render comparison of the party art styles ("current", "ps1", "hd").
 ## godot --path . --script res://tools/capture_party_style.gd [-- --only=ps1 --out=res://...]
 ## Same battle scene, camera, light, scale and resolutions for both styles.
 
@@ -41,7 +41,7 @@ func capture() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			only = arg.substr(7)
-	for style in ["current", "ps1"]:
+	for style in ["current", "ps1", "hd"]:
 		if not only.is_empty() and only != style:
 			continue
 		ProjectSettings.set_setting("visuals/party/style", style)
@@ -55,8 +55,8 @@ func capture() -> void:
 		for i in 3:
 			var actor: BattleActorVisual = stage.visuals[i]
 			assert(actor.imported_model != null, "sin modelo importado para " + HEROES[i])
-			if style == "ps1":
-				assert(actor.imported_model.asset.scene_file_path == KaelModel.PS1_PATHS[HEROES[i]])
+			if style != "current":
+				assert(actor.imported_model.asset.scene_file_path == KaelModel.styled_path(HEROES[i], ""))
 		freeze(stage)
 		for size in [Vector2i(1280, 720), Vector2i(960, 640), Vector2i(800, 450)]:
 			root.size = size
@@ -85,7 +85,7 @@ func capture() -> void:
 			stage.camera.position = target + Vector3(1.15, 0.10, 1.45)
 			stage.camera.look_at(target)
 			await save(style + "-" + hero + "-face")
-			if style == "ps1":
+			if style != "current":
 				var clips := ["Idle", "Walk", "Attack", "Defend", "Hurt", "KO"]
 				clips.append("Cast" if hero == "lyra" else ("Support" if hero == "nira" else "Attack"))
 				target = actor.home + Vector3.UP * 1.0
@@ -94,7 +94,7 @@ func capture() -> void:
 				for clip in clips:
 					for at in ([0.32, 0.58] if clip == "Attack" else [1.0 if clip in ["Defend", "KO"] else 0.5]):
 						freeze(stage, clip, at)
-						await save("ps1-%s-%s-%d" % [hero, clip.to_lower(), int(at * 100)])
+						await save("%s-%s-%s-%d" % [style, hero, clip.to_lower(), int(at * 100)])
 		if style == "ps1":
 			await motion(stage)
 		stage.free()
